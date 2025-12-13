@@ -113,6 +113,63 @@ public class LexWord {
   }
 
   /**
+   * Retourne les significations pour une langue donnée (ex: "fr", "en").
+   */
+  public List<LexMeaning> getMeaningsForLanguage(String languageCode) {
+    if (languageCode == null || languageCode.isBlank()) {
+      return Collections.emptyList();
+    }
+    List<LexMeaning> result = new ArrayList<>();
+    for (LexMeaning m : meanings) {
+      if (m == null) {
+        continue;
+      }
+      if (languageCode.equalsIgnoreCase(m.getLanguageCode())) {
+        result.add(m);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Concatène toutes les significations pour une langue donnée
+   * en évitant les doublons exacts. Séparateur par défaut : " ; ".
+   */
+  public String joinMeaningsForLanguage(String languageCode, String separator) {
+    List<LexMeaning> list = getMeaningsForLanguage(languageCode);
+    if (list.isEmpty()) {
+      return null;
+    }
+    java.util.LinkedHashSet<String> unique = new java.util.LinkedHashSet<>();
+    for (LexMeaning m : list) {
+      if (m == null)
+        continue;
+      String txt = m.getMeaning(); // ou m.getText() si besoin
+      if (txt != null) {
+        txt = txt.trim();
+      }
+      if (txt != null && !txt.isEmpty()) {
+        unique.add(txt);
+      }
+    }
+    if (unique.isEmpty()) {
+      return null;
+    }
+    String sep = (separator != null && !separator.isEmpty()) ? separator : " ; ";
+    return String.join(sep, unique);
+  }
+
+  /** Convenience : toutes les traductions FR fusionnées. */
+  public String getFrenchMeaningsJoined() {
+    return joinMeaningsForLanguage("fr", " ; ");
+  }
+
+  /** Convenience : toutes les traductions EN fusionnées. */
+  public String getEnglishMeaningsJoined() {
+    return joinMeaningsForLanguage("en", " ; ");
+  }
+
+  /**
    * Méthode utilisée par le repository pour remplir les meanings après coup.
    */
   void addMeaning(LexMeaning meaning) {

@@ -2,12 +2,15 @@ D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lex
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\LexVerb.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app\KikongoWordsTool.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\LexikongoWordRepository.java
+D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app\KikongoCrosswordJsonExportTool.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\wordsearch\WordSearchGenerator.java
+D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\crossword\json\CrosswordJsonModels.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\NumberVariability.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app\KikongoNounWordSearchJsonExportTool.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\wordsearch\Direction.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\LingalaWordSearchService.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app\DbConfig.java
+D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app\KikongoNounCrosswordJsonExportTool.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\LexWord.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\wordsearch\WordToFind.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app\KikongoMixedWordSearchJsonExportTool.java
@@ -21,7 +24,9 @@ D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\wordsearch\WordPlacement.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app\KikongoVerbWordSearchJsonExportTool.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\NominalClass.java
+D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\KikongoCrosswordService.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\LexMeaning.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\wordsearch\WordSearchPuzzle.java
+D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\wordsearch\json\SemanticTagger.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\KikongoMixedWordSearchService.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\LexikongoVerbRepository.java

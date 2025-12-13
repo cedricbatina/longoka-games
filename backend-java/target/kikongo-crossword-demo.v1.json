@@ -1,0 +1,59 @@
+{
+  "format" : "longoka.crossword.pack.v1",
+  "version" : 1,
+  "language" : "kg",
+  "packId" : "kg-cross-demo-2025-12-13",
+  "title" : "Kikongo – mots croisés (démo)",
+  "description" : "Pack de démonstration: 1 grille 4x4.",
+  "meaningLanguage" : "fr",
+  "puzzles" : [ {
+    "id" : "kg-cross-demo-1",
+    "language" : "kg",
+    "mode" : "demo",
+    "difficulty" : "easy",
+    "title" : "Mots croisés Kikongo (démo)",
+    "theme" : "Démo",
+    "rows" : 4,
+    "cols" : 4,
+    "grid" : [ "NZO#", "####", "MBON", "####" ],
+    "entries" : [ {
+      "id" : "1-A",
+      "number" : 1,
+      "direction" : "ACROSS",
+      "row" : 0,
+      "col" : 0,
+      "answer" : "NZO",
+      "display" : "Nzo",
+      "clue" : "Demeure",
+      "translation" : "Demeure",
+      "translationEn" : "House",
+      "phonetic" : "nzó",
+      "slug" : "nzo",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi",
+      "semanticTags" : [ "habitation" ]
+    }, {
+      "id" : "2-A",
+      "number" : 2,
+      "direction" : "ACROSS",
+      "row" : 2,
+      "col" : 0,
+      "answer" : "MBON",
+      "display" : "Mbono",
+      "clue" : "Argent (exemple)",
+      "translation" : "Argent",
+      "translationEn" : "Money",
+      "phonetic" : null,
+      "slug" : null,
+      "partOfSpeech" : "noun",
+      "extraInfo" : null,
+      "semanticTags" : [ "travail" ]
+    } ],
+    "meta" : {
+      "semanticDomains" : [ "habitation", "travail" ],
+      "nominalClasses" : [ "n-zi" ],
+      "source" : "lexikongo-demo",
+      "meaningLanguage" : "fr"
+    }
+  } ]
+}

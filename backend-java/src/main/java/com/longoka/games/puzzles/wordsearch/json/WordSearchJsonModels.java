@@ -90,7 +90,7 @@ public final class WordSearchJsonModels {
     /** Forme affichée dans la liste (peut inclure accents). */
     public String display;
 
-    /** Traduction / définition courte. */
+    /** Traduction / définition courte (FR pour l’instant). */
     public String translation;
 
     /** Slug pour lien vers Lexikongo / Lexilingala. */
@@ -99,8 +99,13 @@ public final class WordSearchJsonModels {
     /** Partie du discours, ex "noun", "verb". */
     public String partOfSpeech;
 
-    /** Infos extra (classe nominale, catégorie, etc.). */
+    /** Infos extra (classe nominale, etc.). */
     public String extraInfo;
+
+    /**
+     * Tags sémantiques dérivés des traductions (ex: "animal", "corps", "maison").
+     */
+    public java.util.List<String> semanticTags;
   }
 
   /** Position d’un mot dans la grille. */

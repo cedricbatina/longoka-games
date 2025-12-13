@@ -86,17 +86,21 @@ public class KikongoVerbWordSearchService {
       }
 
       String translation = findMeaningText(v, meaningLanguageCode);
+      String translationEn = findMeaningTextForLanguage(v, "en");
       String slug = v.getSlug();
+      String phonetic = v.getPhonetic();
 
       WordToFind wordToFind = new WordToFind(
           baseForm, // baseForm
           baseForm, // displayForm
-          translation, // translation
-          slug, // slug (peut être null)
-          "verb", // partOfSpeech
-          null // extraInfo (on pourra mettre la racine, type de verbe, etc.)
-      );
+          translation, // traduction dans la langue demandée
+          slug,
+          "verb",
+          null, // extraInfo (à remplir plus tard si besoin)
+          phonetic,
+          translationEn);
       result.add(wordToFind);
+
     }
 
     return result;
@@ -113,20 +117,57 @@ public class KikongoVerbWordSearchService {
     return null;
   }
 
+  /**
+   * Concatène toutes les définitions pour une langue donnée (fr, en, etc.).
+   * Les sens sont séparés par " ; " et les doublons exacts sont évités.
+   */
+  private String findMeaningTextForLanguage(LexVerb v, String languageCode) {
+    if (v.getMeanings() == null || v.getMeanings().isEmpty()) {
+      return null;
+    }
+    if (languageCode == null || languageCode.isBlank()) {
+      return null;
+    }
+
+    java.util.LinkedHashSet<String> texts = new java.util.LinkedHashSet<>();
+
+    for (LexMeaning m : v.getMeanings()) {
+      if (m == null) {
+        continue;
+      }
+      if (languageCode.equalsIgnoreCase(m.getLanguageCode())) {
+        String t = m.getMeaning();
+        if (t != null) {
+          t = t.trim();
+        }
+        if (t != null && !t.isEmpty()) {
+          texts.add(t);
+        }
+      }
+    }
+
+    if (texts.isEmpty()) {
+      return null;
+    }
+
+    return String.join(" ; ", texts);
+  }
+
   private String findMeaningText(LexVerb v, String meaningLanguageCode) {
     if (v.getMeanings() == null || v.getMeanings().isEmpty()) {
       return null;
     }
 
-    if (meaningLanguageCode != null && !meaningLanguageCode.isBlank()) {
-      for (LexMeaning m : v.getMeanings()) {
-        if (meaningLanguageCode.equalsIgnoreCase(m.getLanguageCode())) {
-          return m.getMeaning();
-        }
-      }
+    String byRequested = findMeaningTextForLanguage(v, meaningLanguageCode);
+    if (byRequested != null) {
+      return byRequested;
     }
 
-    // fallback : premier sens quel que soit la langue
-    return v.getMeanings().get(0).getMeaning();
+    LexMeaning first = v.getMeanings().get(0);
+    if (first == null) {
+      return null;
+    }
+    return first.getMeaning();
   }
+
 }
