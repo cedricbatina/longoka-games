@@ -37,7 +37,7 @@ public class KikongoMixedWordSearchTool {
     System.out.println();
     System.out.println("Entrées à trouver :");
 
-    // ⚠️ Ici j’assume que WordSearchPuzzle a une méthode getWords()
+    // Ici j’assume que WordSearchPuzzle a une méthode getWords()
     // (comme ce qu’on a dû faire pour les autres tools de mots mêlés).
     // Si le nom exact diffère (getTargets(), getWordList(), etc.),
     // il suffira de changer cette ligne.

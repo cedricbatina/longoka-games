@@ -1,0 +1,1722 @@
+{
+  "schema" : "longoka.wordsearch.pack.v1",
+  "version" : 1,
+  "language" : "kg",
+  "packId" : "kg-mixed-auto-2025-12-13",
+  "title" : "Kikongo – mots mêlés (noms + verbes)",
+  "description" : "Pack généré automatiquement : 10 grilles 12x12.",
+  "meaningLanguage" : "fr",
+  "puzzles" : [ {
+    "id" : "kg-mixed-1",
+    "language" : "kg",
+    "mode" : "mixed",
+    "difficulty" : "easy",
+    "title" : "Mots meles Kikongo (noms + verbes)",
+    "theme" : "Noms + verbes",
+    "rows" : 12,
+    "cols" : 12,
+    "grid" : [ "SYECHVRENOOF", "BSMJFAGRVULN", "OLFKHNIIPFGU", "BUITJGORGQGY", "AVLDBAJUANUL", "KIAKLMCKAKVK", "UMVRLAIKIYAM", "LBUILYNBRJUO", "AAMHFOMTDVJN", "TYIEMAMPAVAA", "SUSMKKATULAY", "VUANTCBUFULU" ],
+    "entries" : [ {
+      "base" : "Luvimba",
+      "display" : "Luvimba",
+      "translation" : "Taille (en volume)",
+      "slug" : "luvimba",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "ku-ma"
+    }, {
+      "base" : "Nkambiku",
+      "display" : "Nkambiku",
+      "translation" : "Parallele ( de latitude ) ",
+      "slug" : "nkambiku",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Mpava",
+      "display" : "Mpava",
+      "translation" : "Recherche, chasse",
+      "slug" : "mpava",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Bufulu",
+      "display" : "Bufulu",
+      "translation" : "Métal de laiton",
+      "slug" : "bufulu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "bu-ma"
+    }, {
+      "base" : "Nkangu",
+      "display" : "Nkangu",
+      "translation" : "Contrat",
+      "slug" : "nkangu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Mfila",
+      "display" : "Mfila",
+      "translation" : "Détermination à faire ce que l’on veut",
+      "slug" : "mfila",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Vangama",
+      "display" : "Vangama",
+      "translation" : "Prospérer",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Katula",
+      "display" : "Katula",
+      "translation" : "Soustraire; Enlever",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Mona",
+      "display" : "Mona",
+      "translation" : "Voir",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Vumisa",
+      "display" : "Vumisa",
+      "translation" : "Faire fleurir",
+      "slug" : "vumisa",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Bakula",
+      "display" : "Bakula",
+      "translation" : "Approfondir (une analyse par exemple)",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Yika",
+      "display" : "Yika",
+      "translation" : "Ajouter",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    } ],
+    "placements" : [ {
+      "word" : "VANGAMA",
+      "row" : 0,
+      "col" : 5,
+      "direction" : "DOWN",
+      "length" : 7
+    }, {
+      "word" : "KATULA",
+      "row" : 10,
+      "col" : 5,
+      "direction" : "RIGHT",
+      "length" : 6
+    }, {
+      "word" : "NKAMBIKU",
+      "row" : 11,
+      "col" : 3,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 8
+    }, {
+      "word" : "BUFULU",
+      "row" : 11,
+      "col" : 6,
+      "direction" : "RIGHT",
+      "length" : 6
+    }, {
+      "word" : "MONA",
+      "row" : 6,
+      "col" : 11,
+      "direction" : "DOWN",
+      "length" : 4
+    }, {
+      "word" : "YIKA",
+      "row" : 7,
+      "col" : 5,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 4
+    }, {
+      "word" : "MPAVA",
+      "row" : 9,
+      "col" : 6,
+      "direction" : "RIGHT",
+      "length" : 5
+    }, {
+      "word" : "LUVIMBA",
+      "row" : 2,
+      "col" : 1,
+      "direction" : "DOWN",
+      "length" : 7
+    }, {
+      "word" : "NKANGU",
+      "row" : 7,
+      "col" : 6,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 6
+    }, {
+      "word" : "VUMISA",
+      "row" : 6,
+      "col" : 2,
+      "direction" : "DOWN",
+      "length" : 6
+    }, {
+      "word" : "BAKULA",
+      "row" : 3,
+      "col" : 0,
+      "direction" : "DOWN",
+      "length" : 6
+    }, {
+      "word" : "MFILA",
+      "row" : 1,
+      "col" : 2,
+      "direction" : "DOWN",
+      "length" : 5
+    } ],
+    "meta" : {
+      "nominalClasses" : [ "ku-ma", "n-zi", "bu-ma" ],
+      "source" : "lexikongo",
+      "meaningLanguage" : "fr"
+    }
+  }, {
+    "id" : "kg-mixed-2",
+    "language" : "kg",
+    "mode" : "mixed",
+    "difficulty" : "easy",
+    "title" : "Mots meles Kikongo (noms + verbes)",
+    "theme" : "Noms + verbes",
+    "rows" : 12,
+    "cols" : 12,
+    "grid" : [ "OKIBANTUUPZY", "TIAKIDIKAZRU", "DRTAMTXQAPLF", "JKLMPUDPCUXA", "EOTZAKDIBYMN", "VWEDNAWMIABM", "VVTFGSAWGSCK", "HJESAYYNMWUN", "DTLAUVAQGRFO", "KZALKVOVVIVQ", "NLUSIKIDISUL", "TATIKACTPEGN" ],
+    "entries" : [ {
+      "base" : "Mpanga",
+      "display" : "Mpanga",
+      "translation" : "Verbe",
+      "slug" : null,
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Luyambulu",
+      "display" : "Luyambulu",
+      "translation" : "Abandon",
+      "slug" : "luyambulu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "lu-zi"
+    }, {
+      "base" : "Kimfinang’ani",
+      "display" : "Kimfinang’ani",
+      "translation" : "Proximité",
+      "slug" : "kimfinang’ani",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "ki-bi"
+    }, {
+      "base" : "Diisu",
+      "display" : "Diisu",
+      "translation" : "\uD83D\uDC41 Oeil",
+      "slug" : "diisu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "di-ma"
+    }, {
+      "base" : "Kibantu",
+      "display" : "Kibantu",
+      "translation" : "Humanité",
+      "slug" : "kibantu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "ki-bi"
+    }, {
+      "base" : "Lusikidisu",
+      "display" : "Lusikidisu",
+      "translation" : "Attestation",
+      "slug" : "lusakidisu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "lu-tu"
+    }, {
+      "base" : "Vangama",
+      "display" : "Vangama",
+      "translation" : "Être adulte, Mûrir ",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Vola",
+      "display" : "Vola",
+      "translation" : "Paralyser, Refroidir",
+      "slug" : "vola",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Tetela",
+      "display" : "Tetela",
+      "translation" : "Déflorer",
+      "slug" : "tetela",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Tatika",
+      "display" : "Tatika",
+      "translation" : "Mordre (pour un chien ou une personne par exemple)",
+      "slug" : "tatika",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Tuka",
+      "display" : "Tuka",
+      "translation" : "Venir de",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Tiakidika",
+      "display" : "Tiakidika",
+      "translation" : "Tenir éloigné du corps (comme des ailes de faucon par une journée très chaude)",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    } ],
+    "placements" : [ {
+      "word" : "VANGAMA",
+      "row" : 9,
+      "col" : 5,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 7
+    }, {
+      "word" : "TETELA",
+      "row" : 4,
+      "col" : 2,
+      "direction" : "DOWN",
+      "length" : 6
+    }, {
+      "word" : "KIBANTU",
+      "row" : 0,
+      "col" : 1,
+      "direction" : "RIGHT",
+      "length" : 7
+    }, {
+      "word" : "VOLA",
+      "row" : 5,
+      "col" : 0,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 4
+    }, {
+      "word" : "LUYAMBULU",
+      "row" : 9,
+      "col" : 3,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 9
+    }, {
+      "word" : "MPANGA",
+      "row" : 2,
+      "col" : 4,
+      "direction" : "DOWN",
+      "length" : 6
+    }, {
+      "word" : "TATIKA",
+      "row" : 11,
+      "col" : 0,
+      "direction" : "RIGHT",
+      "length" : 6
+    }, {
+      "word" : "TIAKIDIKA",
+      "row" : 1,
+      "col" : 0,
+      "direction" : "RIGHT",
+      "length" : 9
+    }, {
+      "word" : "DIISU",
+      "row" : 3,
+      "col" : 6,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 5
+    }, {
+      "word" : "TUKA",
+      "row" : 2,
+      "col" : 5,
+      "direction" : "DOWN",
+      "length" : 4
+    }, {
+      "word" : "LUSIKIDISU",
+      "row" : 10,
+      "col" : 1,
+      "direction" : "RIGHT",
+      "length" : 10
+    } ],
+    "meta" : {
+      "nominalClasses" : [ "n-zi", "lu-zi", "ki-bi", "di-ma", "lu-tu" ],
+      "source" : "lexikongo",
+      "meaningLanguage" : "fr"
+    }
+  }, {
+    "id" : "kg-mixed-3",
+    "language" : "kg",
+    "mode" : "mixed",
+    "difficulty" : "easy",
+    "title" : "Mots meles Kikongo (noms + verbes)",
+    "theme" : "Noms + verbes",
+    "rows" : 12,
+    "cols" : 12,
+    "grid" : [ "WOFUANINGAYA", "XNAZLVAFNJSK", "JAGKRNIOSINH", "FHTEONMVNGTP", "UHDMMOAASLOI", "ALOITBZTGSNM", "NSDEKEAKAGGU", "IMTKTAYNNTEA", "NQHTCRKKGLKL", "IPWMNWXANUAU", "KVANGILUNJDC", "AMEZAIBGMIBI" ],
+    "entries" : [ {
+      "base" : "Vangilu",
+      "display" : "Vangilu",
+      "translation" : "Usine",
+      "slug" : "vangilu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "di-ma"
+    }, {
+      "base" : "Dikakani",
+      "display" : "Dikakani",
+      "translation" : "Tout à fait rassasié, gonflé, tendu par la maladie",
+      "slug" : "dikakani",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "di-ma"
+    }, {
+      "base" : "Mualu",
+      "display" : "Mualu",
+      "translation" : "Mélodie",
+      "slug" : "mualu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "mu-mi"
+    }, {
+      "base" : "Ntongeka",
+      "display" : "Ntongeka",
+      "translation" : "Parallele ( de longitude ) ",
+      "slug" : "ntongeka",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Ngemba Ngudi",
+      "display" : "Ngemba Ngudi",
+      "translation" : "Amour maternel",
+      "slug" : "ngemba-ngudi",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Meza",
+      "display" : "Meza",
+      "translation" : "Table",
+      "slug" : "meza",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Tezanisa",
+      "display" : "Tezanisa",
+      "translation" : "Comparer",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Somona",
+      "display" : "Somona",
+      "translation" : "Transformer",
+      "slug" : "somona",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Tetomona",
+      "display" : "Tetomona",
+      "translation" : "Donner un compte rendu détaillé",
+      "slug" : "tetomona",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Nata",
+      "display" : "Nata",
+      "translation" : "Apporter",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Fuaninika",
+      "display" : "Fuaninika",
+      "translation" : "Confronter",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Fuaninga",
+      "display" : "Fuaninga",
+      "translation" : "Copier",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    } ],
+    "placements" : [ {
+      "word" : "NGEMBANGUDI",
+      "row" : 1,
+      "col" : 1,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 11
+    }, {
+      "word" : "TEZANISA",
+      "row" : 7,
+      "col" : 4,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 8
+    }, {
+      "word" : "SOMONA",
+      "row" : 6,
+      "col" : 1,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 6
+    }, {
+      "word" : "FUANINGA",
+      "row" : 0,
+      "col" : 2,
+      "direction" : "RIGHT",
+      "length" : 8
+    }, {
+      "word" : "FUANINIKA",
+      "row" : 3,
+      "col" : 0,
+      "direction" : "DOWN",
+      "length" : 9
+    }, {
+      "word" : "NTONGEKA",
+      "row" : 2,
+      "col" : 10,
+      "direction" : "DOWN",
+      "length" : 8
+    }, {
+      "word" : "DIKAKANI",
+      "row" : 4,
+      "col" : 2,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 8
+    }, {
+      "word" : "MUALU",
+      "row" : 5,
+      "col" : 11,
+      "direction" : "DOWN",
+      "length" : 5
+    }, {
+      "word" : "VANGILU",
+      "row" : 10,
+      "col" : 1,
+      "direction" : "RIGHT",
+      "length" : 7
+    }, {
+      "word" : "MEZA",
+      "row" : 11,
+      "col" : 1,
+      "direction" : "RIGHT",
+      "length" : 4
+    }, {
+      "word" : "TETOMONA",
+      "row" : 7,
+      "col" : 2,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 8
+    }, {
+      "word" : "NATA",
+      "row" : 3,
+      "col" : 5,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 4
+    } ],
+    "meta" : {
+      "nominalClasses" : [ "di-ma", "mu-mi", "n-zi" ],
+      "source" : "lexikongo",
+      "meaningLanguage" : "fr"
+    }
+  }, {
+    "id" : "kg-mixed-4",
+    "language" : "kg",
+    "mode" : "mixed",
+    "difficulty" : "easy",
+    "title" : "Mots meles Kikongo (noms + verbes)",
+    "theme" : "Noms + verbes",
+    "rows" : 12,
+    "cols" : 12,
+    "grid" : [ "NDIOKOLOLODO", "MNKONGUDILAI", "VVCTMUKËBOLO", "IKNEYMARXSTL", "NMEYPNEGMASA", "DOWXUXNZANGU", "UXCSVANGILUM", "NPUBUZZQSNNC", "AKHFYODIMAZB", "LEMVOKELADUO", "MJKIMPUNIAGZ", "VKKALULUKAKK" ],
+    "entries" : [ {
+      "base" : "Nzo",
+      "display" : "Nzo",
+      "translation" : "Demeure",
+      "slug" : "nzo",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Vangilu",
+      "display" : "Vangilu",
+      "translation" : "Usine",
+      "slug" : "vangilu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "di-ma"
+    }, {
+      "base" : "mu-këbolo",
+      "display" : "mu-këbolo",
+      "translation" : "dépôt de quelque chose, comme l'estomac pour l'aliment",
+      "slug" : "mu-këbolo",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "mu-mi"
+    }, {
+      "base" : "Ndiokololo",
+      "display" : "Ndiokololo",
+      "translation" : "Arbre grand et droit, homme grand et mince",
+      "slug" : "ndiokololo",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Nzangu",
+      "display" : "Nzangu",
+      "translation" : "Chant fort",
+      "slug" : "nzangu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Kimpuni",
+      "display" : "Kimpuni",
+      "translation" : "Fausse représentation",
+      "slug" : "kimpuni",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "ki-bi"
+    }, {
+      "base" : "Kusuna",
+      "display" : "Kusuna",
+      "translation" : "Faire monter ; élever quelque chose",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Kongudila",
+      "display" : "Kongudila",
+      "translation" : "Juger",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Lemvokela",
+      "display" : "Lemvokela",
+      "translation" : "Pardonner",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Yodima",
+      "display" : "Yodima",
+      "translation" : "Prospérer; Croître; Grandir de manière appropriée pour les personnes et les animaux; Verdoyer; Briller; Reluire en raison d'une apparence en bonne santé ou d'une peau huileuse; Briller de manière générale",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Vinduna",
+      "display" : "Vinduna",
+      "translation" : "Faire se rejoindre, Faire se refermer, Faire bien s’ajuster, Faire bien s’emboîter",
+      "slug" : "vinduna",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Kaluluka",
+      "display" : "Kaluluka",
+      "translation" : "Chanter fort",
+      "slug" : "kaluluka",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    } ],
+    "placements" : [ {
+      "word" : "NZANGU",
+      "row" : 5,
+      "col" : 6,
+      "direction" : "RIGHT",
+      "length" : 6
+    }, {
+      "word" : "KIMPUNI",
+      "row" : 10,
+      "col" : 2,
+      "direction" : "RIGHT",
+      "length" : 7
+    }, {
+      "word" : "VANGILU",
+      "row" : 6,
+      "col" : 4,
+      "direction" : "RIGHT",
+      "length" : 7
+    }, {
+      "word" : "KUSUNA",
+      "row" : 8,
+      "col" : 1,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 6
+    }, {
+      "word" : "NDIOKOLOLO",
+      "row" : 0,
+      "col" : 0,
+      "direction" : "RIGHT",
+      "length" : 10
+    }, {
+      "word" : "LEMVOKELA",
+      "row" : 9,
+      "col" : 0,
+      "direction" : "RIGHT",
+      "length" : 9
+    }, {
+      "word" : "KALULUKA",
+      "row" : 11,
+      "col" : 2,
+      "direction" : "RIGHT",
+      "length" : 8
+    }, {
+      "word" : "YODIMA",
+      "row" : 8,
+      "col" : 4,
+      "direction" : "RIGHT",
+      "length" : 6
+    }, {
+      "word" : "MUKËBOLO",
+      "row" : 2,
+      "col" : 4,
+      "direction" : "RIGHT",
+      "length" : 8
+    }, {
+      "word" : "VINDUNA",
+      "row" : 2,
+      "col" : 0,
+      "direction" : "DOWN",
+      "length" : 7
+    }, {
+      "word" : "KONGUDILA",
+      "row" : 1,
+      "col" : 2,
+      "direction" : "RIGHT",
+      "length" : 9
+    }, {
+      "word" : "NZO",
+      "row" : 7,
+      "col" : 9,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 3
+    } ],
+    "meta" : {
+      "nominalClasses" : [ "n-zi", "di-ma", "mu-mi", "ki-bi" ],
+      "source" : "lexikongo",
+      "meaningLanguage" : "fr"
+    }
+  }, {
+    "id" : "kg-mixed-5",
+    "language" : "kg",
+    "mode" : "mixed",
+    "difficulty" : "easy",
+    "title" : "Mots meles Kikongo (noms + verbes)",
+    "theme" : "Noms + verbes",
+    "rows" : 12,
+    "cols" : 12,
+    "grid" : [ "SDBAKULAYMNY", "GASMALPQSNJX", "NPBCTZAMAKPH", "MTMNOEUGDLQW", "MOABKAZAOHYC", "YUNLUOXAQRJF", "IUKGUANONRKO", "PEQUEKBGUISL", "MAYDTNUUAKSL", "QFFPGUEEAPCA", "KINSEKAKZEIJ", "FIMBAIFUAIPZ" ],
+    "entries" : [ {
+      "base" : "Mukutu",
+      "display" : "Mukutu",
+      "translation" : " Propriété foncière",
+      "slug" : "mukutu-2",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "mu-mi"
+    }, {
+      "base" : "Lukumuisu Luaku",
+      "display" : "Lukumuisu Luaku",
+      "translation" : "Votre Majesté",
+      "slug" : "lukumuisu-luaku",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "lu-tu"
+    }, {
+      "base" : "Mbuabua",
+      "display" : "Mbuabua",
+      "translation" : "Alarme",
+      "slug" : "mbuabua",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Kinseka",
+      "display" : "Kinseka",
+      "translation" : "Pierre rougeâtre (argileuse) réduite en poudre pour la peau et les cheveux",
+      "slug" : "kinseka",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "ki-bi"
+    }, {
+      "base" : "Kuezi",
+      "display" : "Kuezi",
+      "translation" : "Salaire d’un forgeron ou d’un docteur",
+      "slug" : "kuezi",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "ki-bi"
+    }, {
+      "base" : "Ntalu",
+      "display" : "Ntalu",
+      "translation" : "Nombre",
+      "slug" : "ntalu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Bakula",
+      "display" : "Bakula",
+      "translation" : "to Learn something",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Fimba",
+      "display" : "Fimba",
+      "translation" : "Chercher",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Zama",
+      "display" : "Zama",
+      "translation" : "Chérir",
+      "slug" : "zama",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Konga",
+      "display" : "Konga",
+      "translation" : "Rechercher",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Tezanisa",
+      "display" : "Tezanisa",
+      "translation" : "Comparer",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Mongeneka",
+      "display" : "Mongeneka",
+      "translation" : "Réduire quelqu’un au silence",
+      "slug" : "mongeneka",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    } ],
+    "placements" : [ {
+      "word" : "KONGA",
+      "row" : 4,
+      "col" : 4,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 5
+    }, {
+      "word" : "MBUABUA",
+      "row" : 3,
+      "col" : 2,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 7
+    }, {
+      "word" : "MUKUTU",
+      "row" : 4,
+      "col" : 0,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 6
+    }, {
+      "word" : "TEZANISA",
+      "row" : 2,
+      "col" : 4,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 8
+    }, {
+      "word" : "MONGENEKA",
+      "row" : 3,
+      "col" : 0,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 9
+    }, {
+      "word" : "BAKULA",
+      "row" : 0,
+      "col" : 2,
+      "direction" : "RIGHT",
+      "length" : 6
+    }, {
+      "word" : "KUEZI",
+      "row" : 7,
+      "col" : 5,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 5
+    }, {
+      "word" : "FIMBA",
+      "row" : 11,
+      "col" : 0,
+      "direction" : "RIGHT",
+      "length" : 5
+    }, {
+      "word" : "ZAMA",
+      "row" : 2,
+      "col" : 5,
+      "direction" : "RIGHT",
+      "length" : 4
+    }, {
+      "word" : "NTALU",
+      "row" : 2,
+      "col" : 0,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 5
+    }, {
+      "word" : "KINSEKA",
+      "row" : 10,
+      "col" : 0,
+      "direction" : "RIGHT",
+      "length" : 7
+    } ],
+    "meta" : {
+      "nominalClasses" : [ "mu-mi", "lu-tu", "n-zi", "ki-bi" ],
+      "source" : "lexikongo",
+      "meaningLanguage" : "fr"
+    }
+  }, {
+    "id" : "kg-mixed-6",
+    "language" : "kg",
+    "mode" : "mixed",
+    "difficulty" : "easy",
+    "title" : "Mots meles Kikongo (noms + verbes)",
+    "theme" : "Noms + verbes",
+    "rows" : 12,
+    "cols" : 12,
+    "grid" : [ "ODHTYVUIKATI", "VYMMUKÈEKOUQ", "IEJPBAKULABS", "NKTKAZGCIMCT", "GOZBXNAQMSTI", "ALUWAEGNTVFU", "EALBWAMIDTZS", "NTUNGUPXLUZX", "RLZGNFIYMULE", "CDAYFVDHBZLA", "CQLCCIIHXCDI", "NSUTUFAKANAJ" ],
+    "entries" : [ {
+      "base" : "mu-kèeko",
+      "display" : "mu-kèeko",
+      "translation" : "convention, loi, décret, règlement",
+      "slug" : "mu-kèeko",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "mu-mi"
+    }, {
+      "base" : "Mpangilu",
+      "display" : "Mpangilu",
+      "translation" : "Adverbe",
+      "slug" : null,
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Ntungu",
+      "display" : "Ntungu",
+      "translation" : "Matériau de construction",
+      "slug" : "ntungu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Lubangu",
+      "display" : "Lubangu",
+      "translation" : "Paiement élevé",
+      "slug" : "lubangu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "lu-tu"
+    }, {
+      "base" : "Mpidi",
+      "display" : "Mpidi",
+      "translation" : "Vipère",
+      "slug" : "mpidi",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Luzalu",
+      "display" : "Luzalu",
+      "translation" : "Plénitude",
+      "slug" : "luzalu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "lu-tu"
+    }, {
+      "base" : "Tufakana",
+      "display" : "Tufakana",
+      "translation" : "Être conquis",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Yekola",
+      "display" : "Yekola",
+      "translation" : "Démissionner",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Vinga",
+      "display" : "Vinga",
+      "translation" : "Se produire (depuis un certain moment), Remplacer quelque chose, Être la prochaine chose à se produire",
+      "slug" : "vinga",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Bakula",
+      "display" : "Bakula",
+      "translation" : "Trouver (une solution par exemple)",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Zandula",
+      "display" : "Zandula",
+      "translation" : "Lever",
+      "slug" : "zandula",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Vuika",
+      "display" : "Vuika",
+      "translation" : "Enrichir",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    } ],
+    "placements" : [ {
+      "word" : "LUBANGU",
+      "row" : 8,
+      "col" : 1,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 7
+    }, {
+      "word" : "NTUNGU",
+      "row" : 7,
+      "col" : 0,
+      "direction" : "RIGHT",
+      "length" : 6
+    }, {
+      "word" : "BAKULA",
+      "row" : 2,
+      "col" : 4,
+      "direction" : "RIGHT",
+      "length" : 6
+    }, {
+      "word" : "TUFAKANA",
+      "row" : 11,
+      "col" : 3,
+      "direction" : "RIGHT",
+      "length" : 8
+    }, {
+      "word" : "ZANDULA",
+      "row" : 3,
+      "col" : 5,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 7
+    }, {
+      "word" : "MUKÈEKO",
+      "row" : 1,
+      "col" : 3,
+      "direction" : "RIGHT",
+      "length" : 7
+    }, {
+      "word" : "MPIDI",
+      "row" : 6,
+      "col" : 6,
+      "direction" : "DOWN",
+      "length" : 5
+    }, {
+      "word" : "VUIKA",
+      "row" : 0,
+      "col" : 5,
+      "direction" : "RIGHT",
+      "length" : 5
+    }, {
+      "word" : "VINGA",
+      "row" : 1,
+      "col" : 0,
+      "direction" : "DOWN",
+      "length" : 5
+    }, {
+      "word" : "YEKOLA",
+      "row" : 1,
+      "col" : 1,
+      "direction" : "DOWN",
+      "length" : 6
+    }, {
+      "word" : "MPANGILU",
+      "row" : 1,
+      "col" : 2,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 8
+    }, {
+      "word" : "LUZALU",
+      "row" : 6,
+      "col" : 2,
+      "direction" : "DOWN",
+      "length" : 6
+    } ],
+    "meta" : {
+      "nominalClasses" : [ "mu-mi", "n-zi", "lu-tu" ],
+      "source" : "lexikongo",
+      "meaningLanguage" : "fr"
+    }
+  }, {
+    "id" : "kg-mixed-7",
+    "language" : "kg",
+    "mode" : "mixed",
+    "difficulty" : "easy",
+    "title" : "Mots meles Kikongo (noms + verbes)",
+    "theme" : "Noms + verbes",
+    "rows" : 12,
+    "cols" : 12,
+    "grid" : [ "IJEZAMABAXBY", "LKAZJJDKCLAE", "SSAKULAJYKAK", "JVMMEJJEUZKO", "JAVVTLPLEDUL", "NNUNSEUUZDYA", "DDTEPLKISASI", "UAUUAZMPVVFB", "KLMZUMWJVQMZ", "AAEOCQPQEEZD", "NLUSIKIDISUB", "AAADIELAFIXQ" ],
+    "entries" : [ {
+      "base" : "Mupepe",
+      "display" : "Mupepe",
+      "translation" : "Air",
+      "slug" : "mupepe",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "mu-mi"
+    }, {
+      "base" : "Ndukana",
+      "display" : "Ndukana",
+      "translation" : "Sens de l’odorat",
+      "slug" : "ndukana",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Kisasi",
+      "display" : "Kisasi",
+      "translation" : "Détente de fusil",
+      "slug" : "kisasi",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "ki-bi"
+    }, {
+      "base" : "Lusikidisu",
+      "display" : "Lusikidisu",
+      "translation" : "Attestation",
+      "slug" : "lusakidisu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "lu-tu"
+    }, {
+      "base" : "Mvutu",
+      "display" : "Mvutu",
+      "translation" : "Refrain",
+      "slug" : "mvutu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Diela",
+      "display" : "Diela",
+      "translation" : "Habileté",
+      "slug" : "diela",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "di-ma"
+    }, {
+      "base" : "Zama",
+      "display" : "Zama",
+      "translation" : "Choyer",
+      "slug" : "zama",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Kueza",
+      "display" : "Kueza",
+      "translation" : "Graver",
+      "slug" : "kueza",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Sakula",
+      "display" : "Sakula",
+      "translation" : "Prophétiser",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Yekola",
+      "display" : "Yekola",
+      "translation" : "Démissionner",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Vandalala",
+      "display" : "Vandalala",
+      "translation" : "Dépasser, Être suprême, Ne pas pouvoir être surpassé",
+      "slug" : "vandalala",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Zaluluka",
+      "display" : "Zaluluka",
+      "translation" : "Être rempli complètement",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    } ],
+    "placements" : [ {
+      "word" : "KISASI",
+      "row" : 6,
+      "col" : 6,
+      "direction" : "RIGHT",
+      "length" : 6
+    }, {
+      "word" : "ZALULUKA",
+      "row" : 8,
+      "col" : 3,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 8
+    }, {
+      "word" : "SAKULA",
+      "row" : 2,
+      "col" : 1,
+      "direction" : "RIGHT",
+      "length" : 6
+    }, {
+      "word" : "VANDALALA",
+      "row" : 3,
+      "col" : 1,
+      "direction" : "DOWN",
+      "length" : 9
+    }, {
+      "word" : "NDUKANA",
+      "row" : 5,
+      "col" : 0,
+      "direction" : "DOWN",
+      "length" : 7
+    }, {
+      "word" : "MVUTU",
+      "row" : 3,
+      "col" : 2,
+      "direction" : "DOWN",
+      "length" : 5
+    }, {
+      "word" : "KUEZA",
+      "row" : 6,
+      "col" : 6,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 5
+    }, {
+      "word" : "DIELA",
+      "row" : 11,
+      "col" : 3,
+      "direction" : "RIGHT",
+      "length" : 5
+    }, {
+      "word" : "YEKOLA",
+      "row" : 0,
+      "col" : 11,
+      "direction" : "DOWN",
+      "length" : 6
+    }, {
+      "word" : "LUSIKIDISU",
+      "row" : 10,
+      "col" : 1,
+      "direction" : "RIGHT",
+      "length" : 10
+    }, {
+      "word" : "MUPEPE",
+      "row" : 8,
+      "col" : 2,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 6
+    }, {
+      "word" : "ZAMA",
+      "row" : 0,
+      "col" : 3,
+      "direction" : "RIGHT",
+      "length" : 4
+    } ],
+    "meta" : {
+      "nominalClasses" : [ "mu-mi", "n-zi", "ki-bi", "lu-tu", "di-ma" ],
+      "source" : "lexikongo",
+      "meaningLanguage" : "fr"
+    }
+  }, {
+    "id" : "kg-mixed-8",
+    "language" : "kg",
+    "mode" : "mixed",
+    "difficulty" : "easy",
+    "title" : "Mots meles Kikongo (noms + verbes)",
+    "theme" : "Noms + verbes",
+    "rows" : 12,
+    "cols" : 12,
+    "grid" : [ "NKAMBIKUQSQA", "AOLENTVMZPLQ", "YKITZNTVBOAA", "IXOOIZHWKPLM", "OEXNMBREAIZW", "IYADBYYKFYBJ", "BDTOACOIBPXM", "FUFGVSGYKHUK", "IIARSOMPEKAB", "JLMKNZOEZULU", "RIUBAEQNKKFS", "YOXTADIAAEXB" ],
+    "entries" : [ {
+      "base" : "Nzo ezulu",
+      "display" : "Nzo ezulu",
+      "translation" : "Tour",
+      "slug" : "nzo-ezulu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Lungutila",
+      "display" : "Lungutila",
+      "translation" : "Canicule",
+      "slug" : "lungutila",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "lu-tu"
+    }, {
+      "base" : "Nkambiku",
+      "display" : "Nkambiku",
+      "translation" : "Parallele ( de latitude ) ",
+      "slug" : "nkambiku",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Nzimba",
+      "display" : "Nzimba",
+      "translation" : "Eunuque",
+      "slug" : "nzimba",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Tondo",
+      "display" : "Tondo",
+      "translation" : "Merci",
+      "slug" : "tondo",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "di-ma"
+    }, {
+      "base" : "Soka",
+      "display" : "Soka",
+      "translation" : "Hache",
+      "slug" : "soka",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "di-ma"
+    }, {
+      "base" : "Yekola",
+      "display" : "Yekola",
+      "translation" : "Laisser tomber",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Fimba",
+      "display" : "Fimba",
+      "translation" : "Apprendre à connaître",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Dia",
+      "display" : "Dia",
+      "translation" : "Manger",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Sompeka",
+      "display" : "Sompeka",
+      "translation" : "Mettre en location",
+      "slug" : "sompeka",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Buaka",
+      "display" : "Buaka",
+      "translation" : "Mûrir (pour un fruit par exemple)",
+      "slug" : "buaka",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Fila",
+      "display" : "Fila",
+      "translation" : "Envoyer",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    } ],
+    "placements" : [ {
+      "word" : "FIMBA",
+      "row" : 7,
+      "col" : 0,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 5
+    }, {
+      "word" : "NZIMBA",
+      "row" : 1,
+      "col" : 4,
+      "direction" : "DOWN",
+      "length" : 6
+    }, {
+      "word" : "SOMPEKA",
+      "row" : 8,
+      "col" : 4,
+      "direction" : "RIGHT",
+      "length" : 7
+    }, {
+      "word" : "SOKA",
+      "row" : 7,
+      "col" : 5,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 4
+    }, {
+      "word" : "BUAKA",
+      "row" : 6,
+      "col" : 0,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 5
+    }, {
+      "word" : "NKAMBIKU",
+      "row" : 0,
+      "col" : 0,
+      "direction" : "RIGHT",
+      "length" : 8
+    }, {
+      "word" : "YEKOLA",
+      "row" : 5,
+      "col" : 6,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 6
+    }, {
+      "word" : "NZOEZULU",
+      "row" : 9,
+      "col" : 4,
+      "direction" : "RIGHT",
+      "length" : 8
+    }, {
+      "word" : "TONDO",
+      "row" : 2,
+      "col" : 3,
+      "direction" : "DOWN",
+      "length" : 5
+    }, {
+      "word" : "DIA",
+      "row" : 11,
+      "col" : 5,
+      "direction" : "RIGHT",
+      "length" : 3
+    }, {
+      "word" : "FILA",
+      "row" : 5,
+      "col" : 8,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 4
+    } ],
+    "meta" : {
+      "nominalClasses" : [ "n-zi", "lu-tu", "di-ma" ],
+      "source" : "lexikongo",
+      "meaningLanguage" : "fr"
+    }
+  }, {
+    "id" : "kg-mixed-9",
+    "language" : "kg",
+    "mode" : "mixed",
+    "difficulty" : "easy",
+    "title" : "Mots meles Kikongo (noms + verbes)",
+    "theme" : "Noms + verbes",
+    "rows" : 12,
+    "cols" : 12,
+    "grid" : [ "CSTEZANISAXU", "YKAUESDAWBHZ", "FIONANMEYBQA", "LNNDIODIODUL", "OSVCTSGQOLJH", "WEZTSMARIYCH", "ZKAQVOMGZIMN", "BAKISUNGULUK", "ETNATAEGIXEO", "WGMGKINGAYFN", "BMJWZQDERSUK", "PALUNGANAMLO" ],
+    "entries" : [ {
+      "base" : "Kisungulu",
+      "display" : "Kisungulu",
+      "translation" : "Organisation",
+      "slug" : "kisungulu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "ki-bi"
+    }, {
+      "base" : "Nkonko",
+      "display" : "Nkonko",
+      "translation" : "⚒ marteau",
+      "slug" : "nkonko",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Ndio-dio",
+      "display" : "Ndio-dio",
+      "translation" : "Personne qui semble insatiable de faim,  Gourmand",
+      "slug" : "ndio-dio",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Kinga",
+      "display" : "Kinga",
+      "translation" : "Flambeau",
+      "slug" : "kinga",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "ki-bi"
+    }, {
+      "base" : "Kangilua",
+      "display" : "Kangilua",
+      "translation" : "Poêle à frire",
+      "slug" : null,
+      "partOfSpeech" : "noun",
+      "extraInfo" : "ki-bi"
+    }, {
+      "base" : "Kinseka",
+      "display" : "Kinseka",
+      "translation" : "Pierre rougeâtre (argileuse) réduite en poudre pour la peau et les cheveux",
+      "slug" : "kinseka",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "ki-bi"
+    }, {
+      "base" : "Songa",
+      "display" : "Songa",
+      "translation" : "Montrer",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Lungana",
+      "display" : "Lungana",
+      "translation" : "Être accompli",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Nata",
+      "display" : "Nata",
+      "translation" : "Conduire",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Sanisa",
+      "display" : "Sanisa",
+      "translation" : "Féliciter",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Tezanisa",
+      "display" : "Tezanisa",
+      "translation" : "Assimiler",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Toma",
+      "display" : "Toma",
+      "translation" : "Être bien",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    } ],
+    "placements" : [ {
+      "word" : "NDIODIO",
+      "row" : 3,
+      "col" : 2,
+      "direction" : "RIGHT",
+      "length" : 7
+    }, {
+      "word" : "NATA",
+      "row" : 8,
+      "col" : 2,
+      "direction" : "RIGHT",
+      "length" : 4
+    }, {
+      "word" : "SANISA",
+      "row" : 0,
+      "col" : 1,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 6
+    }, {
+      "word" : "KINSEKA",
+      "row" : 1,
+      "col" : 1,
+      "direction" : "DOWN",
+      "length" : 7
+    }, {
+      "word" : "KANGILUA",
+      "row" : 9,
+      "col" : 4,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 8
+    }, {
+      "word" : "TOMA",
+      "row" : 4,
+      "col" : 4,
+      "direction" : "DIAGONAL_UP_RIGHT",
+      "length" : 4
+    }, {
+      "word" : "KISUNGULU",
+      "row" : 7,
+      "col" : 2,
+      "direction" : "RIGHT",
+      "length" : 9
+    }, {
+      "word" : "NKONKO",
+      "row" : 6,
+      "col" : 11,
+      "direction" : "DOWN",
+      "length" : 6
+    }, {
+      "word" : "SONGA",
+      "row" : 5,
+      "col" : 4,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 5
+    }, {
+      "word" : "KINGA",
+      "row" : 9,
+      "col" : 4,
+      "direction" : "RIGHT",
+      "length" : 5
+    }, {
+      "word" : "TEZANISA",
+      "row" : 0,
+      "col" : 2,
+      "direction" : "RIGHT",
+      "length" : 8
+    }, {
+      "word" : "LUNGANA",
+      "row" : 11,
+      "col" : 2,
+      "direction" : "RIGHT",
+      "length" : 7
+    } ],
+    "meta" : {
+      "nominalClasses" : [ "ki-bi", "n-zi" ],
+      "source" : "lexikongo",
+      "meaningLanguage" : "fr"
+    }
+  }, {
+    "id" : "kg-mixed-10",
+    "language" : "kg",
+    "mode" : "mixed",
+    "difficulty" : "easy",
+    "title" : "Mots meles Kikongo (noms + verbes)",
+    "theme" : "Noms + verbes",
+    "rows" : 12,
+    "cols" : 12,
+    "grid" : [ "MYNQJOLKYNXI", "KNGQFWIITKDK", "IVOWERVAGOAU", "NINEUNBLBNNA", "TYGKLTDUAKDT", "UEEUUNTAMOAA", "NKLEKUCUUCOX", "GOEZAKCMPULL", "ILKAYHFGEUDR", "LANLITJTPMZM", "AHZLLFLOEEGE", "YJJKUATIKAIV" ],
+    "entries" : [ {
+      "base" : "Kintungila",
+      "display" : "Kintungila",
+      "translation" : "Colonne",
+      "slug" : "kintungila",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "ki-bi"
+    }, {
+      "base" : "Nkonko",
+      "display" : "Nkonko",
+      "translation" : "⚒ marteau",
+      "slug" : "nkonko",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "Ngongele",
+      "display" : "Ngongele",
+      "translation" : "Masse énorme",
+      "slug" : "ngongele",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "n-zi"
+    }, {
+      "base" : "kialua",
+      "display" : "kialua",
+      "translation" : "Paire d'animaux (s'accouplant)",
+      "slug" : null,
+      "partOfSpeech" : "noun",
+      "extraInfo" : "ki-bi"
+    }, {
+      "base" : "Mupepe",
+      "display" : "Mupepe",
+      "translation" : "Air",
+      "slug" : "mupepe",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "mu-mi"
+    }, {
+      "base" : "Lukayilu",
+      "display" : "Lukayilu",
+      "translation" : "Division ( ➗ )",
+      "slug" : "lukayilu",
+      "partOfSpeech" : "noun",
+      "extraInfo" : "lu-zi"
+    }, {
+      "base" : "Yekola",
+      "display" : "Yekola",
+      "translation" : "Abandonner, Démissionner, Remettre, Trahir",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Danda",
+      "display" : "Danda",
+      "translation" : "Être plein",
+      "slug" : null,
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Enda",
+      "display" : "Enda",
+      "translation" : "Aller",
+      "slug" : "enda",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Kuatika",
+      "display" : "Kuatika",
+      "translation" : "Griffer, gratter",
+      "slug" : "kuatika",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Kueza",
+      "display" : "Kueza",
+      "translation" : "Graver",
+      "slug" : "kueza",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    }, {
+      "base" : "Kuata",
+      "display" : "Kuata",
+      "translation" : "Attraper",
+      "slug" : "kuata",
+      "partOfSpeech" : "verb",
+      "extraInfo" : null
+    } ],
+    "placements" : [ {
+      "word" : "ENDA",
+      "row" : 2,
+      "col" : 4,
+      "direction" : "DIAGONAL_DOWN_RIGHT",
+      "length" : 4
+    }, {
+      "word" : "KUEZA",
+      "row" : 4,
+      "col" : 3,
+      "direction" : "DOWN",
+      "length" : 5
+    }, {
+      "word" : "LUKAYILU",
+      "row" : 4,
+      "col" : 4,
+      "direction" : "DOWN",
+      "length" : 8
+    }, {
+      "word" : "KUATIKA",
+      "row" : 11,
+      "col" : 3,
+      "direction" : "RIGHT",
+      "length" : 7
+    }, {
+      "word" : "YEKOLA",
+      "row" : 4,
+      "col" : 1,
+      "direction" : "DOWN",
+      "length" : 6
+    }, {
+      "word" : "MUPEPE",
+      "row" : 5,
+      "col" : 8,
+      "direction" : "DOWN",
+      "length" : 6
+    }, {
+      "word" : "KIALUA",
+      "row" : 0,
+      "col" : 7,
+      "direction" : "DOWN",
+      "length" : 6
+    }, {
+      "word" : "DANDA",
+      "row" : 1,
+      "col" : 10,
+      "direction" : "DOWN",
+      "length" : 5
+    }, {
+      "word" : "NKONKO",
+      "row" : 0,
+      "col" : 9,
+      "direction" : "DOWN",
+      "length" : 6
+    }, {
+      "word" : "KINTUNGILA",
+      "row" : 1,
+      "col" : 0,
+      "direction" : "DOWN",
+      "length" : 10
+    }, {
+      "word" : "NGONGELE",
+      "row" : 0,
+      "col" : 2,
+      "direction" : "DOWN",
+      "length" : 8
+    }, {
+      "word" : "KUATA",
+      "row" : 1,
+      "col" : 11,
+      "direction" : "DOWN",
+      "length" : 5
+    } ],
+    "meta" : {
+      "nominalClasses" : [ "ki-bi", "n-zi", "mu-mi", "lu-zi" ],
+      "source" : "lexikongo",
+      "meaningLanguage" : "fr"
+    }
+  } ]
+}
