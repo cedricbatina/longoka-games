@@ -7,6 +7,7 @@ import com.longoka.games.puzzles.wordsearch.WordPlacement;
 import com.longoka.games.puzzles.wordsearch.WordSearchPuzzle;
 import com.longoka.games.puzzles.wordsearch.WordToFind;
 import com.longoka.games.puzzles.wordsearch.json.WordSearchJsonModels;
+import com.longoka.games.puzzles.wordsearch.json.SemanticTagger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,8 +38,7 @@ public final class KikongoVerbWordSearchJsonExportTool {
     int cols = 12;
     int maxVerbs = 12;
     String meaningLanguageCode = "fr";
-    // String outputPath = "target/kikongo-mixed-wordsearch-pack.v1.json";
-    String outputPath = "target/kikongo-verbs-wordsearch-book.v1.json";
+    String outputPath = "target/kikongo-verbs-wordsearch-book.v4.json";
 
     KikongoVerbWordSearchService service = new KikongoVerbWordSearchService();
     List<WordSearchJsonModels.PuzzleV1> jsonPuzzles = new ArrayList<>();
@@ -102,6 +102,7 @@ public final class KikongoVerbWordSearchJsonExportTool {
     json.rows = puzzle.getRows();
     json.cols = puzzle.getCols();
 
+    // Grille
     char[][] grid = puzzle.getGrid();
     List<String> gridLines = new ArrayList<>(grid.length);
     for (char[] row : grid) {
@@ -109,6 +110,7 @@ public final class KikongoVerbWordSearchJsonExportTool {
     }
     json.grid = gridLines;
 
+    // === ENTRIES : dédup par base + fusion FR/EN + phonétique + tags ===
     List<WordToFind> words = puzzle.getWords();
     Map<String, WordSearchJsonModels.EntryV1> entryByBase = new LinkedHashMap<>();
 
@@ -127,12 +129,16 @@ public final class KikongoVerbWordSearchJsonExportTool {
           WordSearchJsonModels.EntryV1 e = new WordSearchJsonModels.EntryV1();
           e.base = base;
           e.display = w.getDisplayForm();
-          e.translation = w.getTranslation();
+          e.translation = w.getTranslation(); // FR
           e.slug = w.getSlug();
           e.partOfSpeech = w.getPartOfSpeech();
           e.extraInfo = w.getExtraInfo();
+          e.phonetic = w.getPhonetic(); // PHONÉTIQUE
+          e.translationEn = w.getTranslationEn(); // EN
+          e.semanticTags = SemanticTagger.guessTags(e.translation);
           entryByBase.put(base, e);
         } else {
+          // Fusion FR
           String t = w.getTranslation();
           if (t != null && !t.isBlank()) {
             if (existing.translation == null || existing.translation.isBlank()) {
@@ -142,20 +148,45 @@ public final class KikongoVerbWordSearchJsonExportTool {
             }
           }
 
+          // Fusion EN
+          String tEn = w.getTranslationEn();
+          if (tEn != null && !tEn.isBlank()) {
+            if (existing.translationEn == null || existing.translationEn.isBlank()) {
+              existing.translationEn = tEn;
+            } else if (!existing.translationEn.equals(tEn)) {
+              existing.translationEn = existing.translationEn + " ; " + tEn;
+            }
+          }
+
+          // Phonétique : première non-nulle
+          String ph = w.getPhonetic();
+          if (existing.phonetic == null && ph != null && !ph.isBlank()) {
+            existing.phonetic = ph;
+          }
+
+          // slug
           if (existing.slug == null && w.getSlug() != null) {
             existing.slug = w.getSlug();
           }
 
+          // extraInfo
           if (existing.extraInfo == null && w.getExtraInfo() != null) {
             existing.extraInfo = w.getExtraInfo();
           }
 
+          // partOfSpeech
           if (existing.partOfSpeech == null && w.getPartOfSpeech() != null) {
             existing.partOfSpeech = w.getPartOfSpeech();
           }
 
+          // display
           if (existing.display == null && w.getDisplayForm() != null) {
             existing.display = w.getDisplayForm();
+          }
+
+          // tags
+          if (existing.semanticTags == null || existing.semanticTags.isEmpty()) {
+            existing.semanticTags = SemanticTagger.guessTags(existing.translation);
           }
         }
       }
@@ -163,6 +194,7 @@ public final class KikongoVerbWordSearchJsonExportTool {
 
     json.entries = new ArrayList<>(entryByBase.values());
 
+    // === PLACEMENTS ===
     List<WordSearchJsonModels.PlacementV1> placements = new ArrayList<>();
     if (puzzle.getPlacements() != null) {
       Set<String> seenWords = new LinkedHashSet<>();
@@ -189,18 +221,21 @@ public final class KikongoVerbWordSearchJsonExportTool {
     }
     json.placements = placements;
 
+    // === META ===
     Map<String, Object> meta = new HashMap<>();
     meta.put("source", "lexikongo");
     meta.put("meaningLanguage", meaningLanguageCode);
 
-    Set<String> nominalClasses = new LinkedHashSet<>();
+    // pas de classes nominales pour les verbes, mais on peut garder la structure
+    // + domaines sémantiques
+    Set<String> semanticDomains = new LinkedHashSet<>();
     for (WordSearchJsonModels.EntryV1 e : json.entries) {
-      if (e.extraInfo != null && !e.extraInfo.isBlank()) {
-        nominalClasses.add(e.extraInfo);
+      if (e.semanticTags != null && !e.semanticTags.isEmpty()) {
+        semanticDomains.addAll(e.semanticTags);
       }
     }
-    if (!nominalClasses.isEmpty()) {
-      meta.put("nominalClasses", new ArrayList<>(nominalClasses));
+    if (!semanticDomains.isEmpty()) {
+      meta.put("semanticDomains", new ArrayList<>(semanticDomains));
     }
 
     json.meta = meta;

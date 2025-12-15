@@ -1,0 +1,1006 @@
+🗓 2025-12-11 – Journal de dev Longoka Games / Scrabble Kikongo
+
+Contexte général
+
+Objectif : construire un backend Java pour des jeux de lettres (mots mêlés, croisés, etc.) en Kikongo (puis Lingala), en s’appuyant directement sur la base Lexikongo (6i695q_lexikongo) et une base dédiée aux jeux (6i695q_games_stock).
+
+Stack backend :
+
+Java 17
+
+Maven (projet longoka-games-backend)
+
+MySQL (Infomaniak)
+
+JDBC + mysql-connector-j
+
+✅ Avancées du jour
+1. Projet Java / Maven fonctionnel
+
+Projet Maven longoka-games-backend compilé avec succès (mvn compile OK).
+
+Dépendances ajoutées et téléchargées correctement :
+
+mysql-connector-j (driver MySQL)
+
+protobuf-java (prévu pour échanges / formats plus tard)
+
+plugins Maven (compiler, exec, etc.)
+
+2. Configuration DB centralisée (DbConfig)
+
+Fichier : src/main/java/com/longoka/games/app/DbConfig.java
+
+Gestion d’un profil d’environnement :
+
+variable d’environnement GAMES_ENV
+
+local (par défaut) → lit config/db-local.properties
+
+plus tard : prod → config/db-prod.properties
+
+Chargement du fichier config/db-local.properties avec log :
+
+exemple : Config DB (local) chargée depuis D:\works\lectures\longoka-games\backend-java\config\db-local.properties
+
+Méthodes utilitaires mises en place :
+
+openKikongoLexConnection() → connexion à 6i695q_lexikongo
+
+openGamesStockConnection() → connexion à 6i695q_games_stock
+
+(Hooks prêts pour Lingala : openLingalaLexConnection())
+
+Important :
+Les URLs JDBC utilisent désormais useUnicode=true&useSSL=false sans characterEncoding=utf8mb4 pour éviter l’exception Unsupported character encoding 'utf8mb4' avec le JDK Windows.
+
+3. Fichier db-local.properties (local → Infomaniak)
+
+Dans config/db-local.properties :
+
+Partie Kikongo (Lexikongo) :
+
+lex.kg.host=6i695q.myd.infomaniak.com
+lex.kg.port=3306
+lex.kg.name=6i695q_lexikongo
+lex.kg.user=6i695q_cedric
+lex.kg.pass=***masqué***
+
+
+Partie Games stock (déjà prête même si pas encore utilisée par Java) :
+
+games.db.host=6i695q.myd.infomaniak.com
+games.db.port=3306
+games.db.name=6i695q_games_stock
+games.db.user=6i695q_cedric
+games.db.pass=***masqué***
+
+
+Le chargement de ce fichier est confirmé dans la console.
+
+4. Connexion réelle à Lexikongo (Infomaniak)
+
+Classe de test :
+src/main/java/com/longoka/games/app/TestLexikongoVerbs.java
+
+Utilise maintenant :
+
+try (Connection conn = DbConfig.openKikongoLexConnection()) {
+    // ...
+}
+
+
+Repository : LexikongoVerbRepository branché sur cette connexion.
+
+Méthode utilisée : findRandomVerbsByLength(4, 8, 10).
+
+Résultat : Build + exécution OK
+
+== Test connexion Lexikongo (Kikongo) ==
+Config DB (local) chargée depuis ... db-local.properties
+✅ Connexion à la base Kikongo OK
+Verbes tirés aléatoirement :
+ - LexVerb{verbId=329, slug='sikula', name='Sikula', gridForm='SIKULA', gridLength=6, derivedVerb=false}
+ - LexVerb{verbId=259, slug='vanga', name='Vanga', gridForm='VANGA', gridLength=5, derivedVerb=false}
+ - LexVerb{verbId=317, slug='yela', name='Yela', gridForm='YELA', gridLength=4, derivedVerb=false}
+ - LexVerb{verbId=7, slug='tunga', name='Tunga', gridForm='TUNGA', gridLength=5, derivedVerb=false}
+ - LexVerb{verbId=321, slug='vinga', name='Vinga', gridForm='VINGA', gridLength=5, derivedVerb=true}
+ - LexVerb{verbId=14, slug='seasa', name='Seasa', gridForm='SEASA', gridLength=5, derivedVerb=false}
+ - LexVerb{verbId=233, slug='tekela', name='Tekela', gridForm='TEKELA', gridLength=6, derivedVerb=false}
+ - LexVerb{verbId=322, slug='vinduna', name='Vinduna', gridForm='VINDUNA', gridLength=7, derivedVerb=false}
+ - LexVerb{verbId=4, slug='moka', name='Moka', gridForm='MOKA', gridLength=4, derivedVerb=false}
+ - LexVerb{verbId=2, slug='finga', name='Finga', gridForm='FINGA', gridLength=5, derivedVerb=false}
+
+
+✅ Ça prouve que :
+
+La connexion réseau vers Infomaniak fonctionne en Java.
+
+On sait interroger les verbes Kikongo avec filtre de longueur.
+
+On a déjà un mini “API interne” pour piocher des verbes adaptés aux grilles de jeu.
+
+🧠 Décision importante du jour
+
+Abandon de la table tampon lex_items dans 6i695q_games_stock.
+
+Stratégie retenue : lire directement dans la DB Lexikongo au moment de la génération de jeux.
+
+Avantages :
+
+Pas besoin de synchroniser régulièrement une table miroir.
+
+Les nouveaux mots ajoutés dans Lexikongo sont automatiquement disponibles pour les jeux.
+
+Moins de maintenance à long terme.
+
+🔜 Prochaines étapes (pour demain)
+
+Modèle de puzzle côté Java
+
+Créer une classe WordSearchPuzzle pour représenter un jeu de mots mêlés :
+
+grille (char[][] ou List<String>)
+
+liste de mots + positions
+
+éventuellement niveau / id / métadonnées
+
+Générateur de mots mêlés
+
+Classe WordSearchGenerator :
+
+prend une liste de LexVerb (ou lexèmes plus tard : noms + verbes),
+
+choisit quelques mots,
+
+tente de les placer dans la grille:
+
+d’abord horizontal (gauche→droite),
+
+puis vertical (haut→bas),
+
+collisions supportées,
+
+complétion par lettres aléatoires.
+
+Test end-to-end
+
+Nouvelle classe TestWordSearchFromVerbs :
+
+ouvre connexion Kikongo,
+
+récupère des verbes (LexikongoVerbRepository),
+
+génère un WordSearchPuzzle,
+
+affiche la grille dans la console (mode “debug”).
+
+Plus tard :
+
+Brancher cette logique sur la base 6i695q_games_stock :
+
+enregistrer un puzzle généré dans la table puzzles (type word_search),
+
+relier à packs, languages, etc.
+
+Si tu veux demain, on repart directement de cette section “Prochaines étapes” et on écrit le code des classes WordSearchPuzzle, WordSearchGenerator et TestWordSearchFromVerbs brique par brique.
+
+Pour l’instant : mission du soir accomplie ✅
+Tala mbote, on garde la machine bien chauffée pour demain 😄
+
+//// le 11/12/2025
+3️⃣ Ce qu’on a VRAIMENT maintenant (bilan rapide)
+
+Avec :
+
+les tables bien décrites (verbs, words, slugs, verb_meanings, word_meanings, nominal_classes)
+
+les bases Kikongo (6i695q_lexikongo) et Lingala (6i695q_lexilingala)
+
+DbConfig avec openKikongoLexConnection() et openLingalaLexConnection()
+
+les POJO + repositories dans com.longoka.games.lexikongo
+
+👉 On a déjà un noyau solide qui permet :
+
+De récupérer des verbes (Kikongo/Lingala) avec tous leurs champs + slug + traductions FR/EN/…
+
+De récupérer des noms (Kikongo/Lingala) avec :
+
+singulier / pluriel
+
+classe nominale (via nominal_classes)
+
+slug
+
+significations FR/EN
+
+info dérivé / non dérivé
+
+C’est exactement la base pour :
+
+moteurs de jeux (mots mêlés, pendu, grilles, conjugaison, dérivés, etc.),
+
+générateurs de livres (via scripts InDesign),
+
+quiz de grammaire (classes nominales, dérivés, nombres…),
+
+et plus tard, API REST.
+///
+🔥 Build SUCCESS = nos modèles & repos sont propres et compilent.
+Ça veut dire : on a maintenant une API Java sérieuse pour piocher les verbes / mots Kikongo et Lingala depuis les deux bases.
+
+Je récap tout ce qu’on a posé et ce que tu peux faire maintenant, très concrètement.
+
+1️⃣ Où on en est exactement
+
+Dans com.longoka.games.lexikongo tu as maintenant :
+
+LexVerb ← wrapper riche autour de verbs + slugs + verb_meanings
+
+LexWord ← wrapper riche autour de words + slugs + nominal_classes + word_meanings
+
+LexMeaning
+
+NumberVariability
+
+NominalClass
+
+LexikongoVerbRepository
+
+LexikongoWordRepository
+
+Et côté connexion DB (Kikongo / Lingala / stock jeux) :
+
+com.longoka.games.app.DbConfig avec :
+
+openKikongoLexConnection() → 6i695q_lexikongo (Kikongo)
+
+openLingalaLexConnection() → 6i695q_lexilingala (Lingala)
+
+etc.
+
+Tout ça compile ✅ → on peut maintenant consommer les vraies données de prod.
+
+2️⃣ Exemple concret : récupérer des verbes Kikongo utilisables en jeu
+
+Tu peux coller ce genre de code dans n’importe quelle classe avec un main, par exemple KikongoWordsTool ou un futur GameSandboxMain :
+
+package com.longoka.games.app;
+
+import com.longoka.games.lexikongo.LexVerb;
+import com.longoka.games.lexikongo.LexikongoVerbRepository;
+
+import java.sql.Connection;
+import java.util.List;
+
+public class KikongoVerbsDemo {
+
+    public static void main(String[] args) throws Exception {
+        try (Connection conn = DbConfig.openKikongoLexConnection()) {
+
+            LexikongoVerbRepository repo = new LexikongoVerbRepository(conn);
+
+            // Exemple : 12 verbes de longueur 4 à 8, avec sens FR
+            List<LexVerb> verbs = repo.findRandomVerbsByLength(4, 8, 12, "fr");
+
+            System.out.println("=== Verbes Kikongo (pour un jeu) ===");
+            for (LexVerb v : verbs) {
+                System.out.println("- " + v.getName() + " [" + v.getSlug() + "]");
+                v.getMeanings().forEach(m ->
+                    System.out.println("    (" + m.getLanguageCode() + ") " + m.getText())
+                );
+            }
+        }
+    }
+}
+
+
+Ensuite tu l’exécutes avec Maven :
+
+mvn exec:java "-Dexec.mainClass=com.longoka.games.app.KikongoVerbsDemo"
+
+
+👉 Ça te donne directement un pool de verbes jouables : on a tout pour faire des QCM, mémory, jeu de grille, etc.
+
+3️⃣ Exemple : mots + classes nominales (Kikongo)
+
+Tu as déjà KikongoWordsTool.java dans com.longoka.games.app.
+On peut le transformer en outil utile (plus un test jetable) en le remplissant comme ceci :
+
+package com.longoka.games.app;
+
+import com.longoka.games.lexikongo.LexWord;
+import com.longoka.games.lexikongo.LexikongoWordRepository;
+
+import java.sql.Connection;
+import java.util.Arrays;
+import java.util.List;
+
+public class KikongoWordsTool {
+
+    public static void main(String[] args) throws Exception {
+        try (Connection conn = DbConfig.openKikongoLexConnection()) {
+
+            LexikongoWordRepository repo = new LexikongoWordRepository(conn);
+
+            // Exemple 1 : 15 mots aléatoires toutes classes confondues
+            List<LexWord> allRandom = repo.findRandomWords(15, "fr");
+            System.out.println("=== 15 mots Kikongo (toutes classes) ===");
+            printWords(allRandom);
+
+            // Exemple 2 : 10 mots uniquement des classes ki-bi (par ex. class_id = 4) + mu-ba (class_id = 1)
+            List<LexWord> classFiltered = repo.findRandomWords(
+                    Arrays.asList(4, 1), // à adapter à tes IDs réels de nominal_classes
+                    10,
+                    "fr"
+            );
+            System.out.println();
+            System.out.println("=== 10 mots Kikongo (classes ki-bi & mu-ba) ===");
+            printWords(classFiltered);
+        }
+    }
+
+    private static void printWords(List<LexWord> words) {
+        for (LexWord w : words) {
+            String label = w.getSingular();
+            if (w.getPlural() != null && !w.getPlural().isBlank()) {
+                label += " / " + w.getPlural();
+            }
+
+            System.out.println("- " + label +
+                    "  [" + w.getNominalClassName() + " ; " + w.getSlug() + "]");
+
+            w.getMeanings().forEach(m ->
+                    System.out.println("    (" + m.getLanguageCode() + ") " + m.getText())
+            );
+        }
+    }
+}
+
+
+Exécution :
+
+mvn exec:java "-Dexec.mainClass=com.longoka.games.app.KikongoWordsTool"
+
+
+👉 Là tu vois très vite :
+
+les mots réels,
+
+leur classe nominale (class_name),
+
+les sens FR liés,
+
+et tu peux déjà imaginer :
+« Filtrer les mots de ki-bi et faire un jeu “singulier ↔ pluriel” ou “classe ↔ mot” ».
+
+4️⃣ Même chose pour Lingala, sans rien réécrire
+
+Pour Lingala, c’est exactement la même API Java,
+tu changes juste la connexion :
+
+package com.longoka.games.app;
+
+import com.longoka.games.lexikongo.LexVerb;
+import com.longoka.games.lexikongo.LexikongoVerbRepository;
+
+import java.sql.Connection;
+import java.util.List;
+
+public class LingalaVerbsDemo {
+
+    public static void main(String[] args) throws Exception {
+        try (Connection conn = DbConfig.openLingalaLexConnection()) {
+
+            LexikongoVerbRepository repo = new LexikongoVerbRepository(conn);
+
+            // 10 verbes Lingala (longueur 4-8, avec sens FR si dispo)
+            List<LexVerb> verbs = repo.findRandomVerbsByLength(4, 8, 10, "fr");
+
+            System.out.println("=== Verbes Lingala ===");
+            for (LexVerb v : verbs) {
+                System.out.println("- " + v.getName() + " [" + v.getSlug() + "]");
+                v.getMeanings().forEach(m ->
+                        System.out.println("    (" + m.getLanguageCode() + ") " + m.getText())
+                );
+            }
+        }
+    }
+}
+
+
+Et pareil si tu veux les mots Lingala :
+tu réutilises LexikongoWordRepository,
+mais avec openLingalaLexConnection().
+
+5️⃣ Pourquoi c’est “costaud” maintenant (et pas un simple test)
+
+Ce qu’on vient de poser, ce n’est pas du code de démo :
+
+Les modèles couvrent tous les champs utiles des tables :
+
+verbs, words, slugs, verb_meanings, word_meanings, nominal_classes.
+
+Les repos sont :
+
+typés,
+
+safe (Integer pour les FK nullables),
+
+prêts à être utilisés dans un backend HTTP ou une API de jeux.
+
+La même couche fonctionne pour :
+
+lexikongo (Kikongo),
+
+lexilingala (Lingala),
+en changeant juste la connexion DB.
+//
+Je te fais un bilan clair de nos objectifs, de ce qu’on a déjà et de ce qu’on attaque en premier (mots mêlés, puis croisés).
+
+1. La grande vision (ce qu’on construit à long terme)
+
+À partir de ce que tu as déjà :
+
+Cours Longoka : Kikongo, Lingala facile, Mandombe, Natikongo
+
+Lexikongo (Kikongo) + futur Lexilingala : dictionnaires complets, phonétique, traductions FR/EN, comptes, etc. 
+
+brainstorming-longokaGames
+
+Boutique Longoka /shop pour vendre livres de jeux, cahiers, PDF, etc. 
+
+brainstorming-longokaGames
+
+On veut construire un écosystème :
+
+Moteur de jeux de mots (Java/C++) connecté directement aux bases Lexikongo / Lexilingala.
+
+Apps de jeux (d’abord backend Java, plus tard app Android native) :
+
+mots mêlés,
+
+mots croisés / fléchés,
+
+Scrabble-like, pendu, anagrammes, quiz, etc.
+
+Livres de jeux (mots mêlés, croisés…) générés via scripts InDesign à partir du même moteur.
+
+Plus tard : plateforme enseignants / écoles, packs par langue (Kikongo, Lingala, puis Yoruba, Swahili, etc.). 
+
+brainstorming-longokaGames
+
+2. Objectif précis du projet Java longoka-games-backend
+
+Ce backend Java, c’est le cœur logique côté serveur / outils :
+
+Se connecter aux DB existantes sur Infomaniak :
+
+6i695q_lexikongo (Kikongo)
+
+6i695q_lexilingala (Lingala, même schéma)
+
+6i695q_games_stock (base jeux dédiée) 
+
+🗓 2025-12-11 – Journal de dev …
+
+Modéliser proprement ton lexique côté Java :
+
+LexVerb ↔ table verbs (+ verb_meanings, slugs)
+
+LexWord ↔ table words (+ word_meanings, slugs, nominal_classes) 
+
+🗓 2025-12-11 – Journal de dev …
+
+gérer : singulier, pluriel, classe nominale, dérivés, phonétique, etc. sans inventer de champs (on suit exactement les DESCRIBE que tu m’as donnés).
+
+Repositories robustes :
+
+LexikongoVerbRepository : verbes (avec meanings, slug…)
+
+LexikongoWordRepository : noms (avec classe nominale, meanings, slug…)
+
+utilisables pour Kikongo & Lingala (même code, connexion différente). 
+
+🗓 2025-12-11 – Journal de dev …
+
+Moteur de jeux :
+
+d’abord générer des mots mêlés (word search),
+
+ensuite des mots croisés,
+
+puis, plus tard, Scrabble, etc.
+
+Export propre (JSON) pour :
+
+l’app de jeux,
+
+les scripts InDesign (livres de jeux).
+
+3. Où on en est techniquement maintenant
+
+D’après le journal de dev + ce que tu viens de montrer : 
+
+🗓 2025-12-11 – Journal de dev …
+
+Projet Maven longoka-games-backend :
+
+Java 17, build OK (mvn compile = ✅).
+
+DbConfig centralisé dans com.longoka.games.app.DbConfig :
+
+charge config/db-local.properties (profil local via GAMES_ENV).
+
+méthodes :
+
+openKikongoLexConnection() → 6i695q_lexikongo
+
+openLingalaLexConnection() → 6i695q_lexilingala
+
+openGamesStockConnection() → 6i695q_games_stock (prêt pour plus tard).
+
+Connexion réelle à la DB Kikongo testée et OK :
+
+on a déjà tiré des verbes aléatoires par longueur depuis LexikongoVerbRepository. 
+
+🗓 2025-12-11 – Journal de dev …
+
+Modèle Lexikongo :
+
+LexVerb, LexWord, LexMeaning, NominalClass, NumberVariability, etc.
+
+LexikongoVerbRepository et LexikongoWordRepository existent déjà dans com.longoka.games.lexikongo.
+
+On a aussi pris une décision importante :
+👉 pas de table tampon lex_items : on lit directement dans Lexikongo / Lexilingala au moment de générer les jeux. 
+
+🗓 2025-12-11 – Journal de dev …
+
+4. Quels jeux, dans quel ordre ?
+
+Tu as plusieurs jeux possibles (mots mêlés, croisés, Scrabble, pendu, quiz, etc.), mais on a déjà décidé d’un ordre de priorité : 
+
+brainstorming-longokaGames
+
+Jeux Mots mêlés :
+
+d’abord en Kikongo,
+
+le même en Lingala (même moteur, autre DB).
+
+Jeux Mots croisés / fléchés :
+
+avec définitions (FR ↔ Kikongo/Lingala),
+
+réutilisation de la structure lexicale + cours (lexique, affixes, classes, substantifs dérivés, etc.).
+
+Ensuite (plus tard) :
+
+Scrabble-like,
+
+pendu,
+
+anagrammes,
+
+quiz (par leçons / cours Longoka),
+
+etc.
+
+Donc oui : on commence bien par un début clair →
+👉 Mots mêlés Kikongo, puis Mots mêlés Lingala, puis on enrichit.
+
+5. Pourquoi il y avait encore des Test... & KikongoVerbsTool ?
+
+Tu as parfaitement raison :
+les classes TestLexikongoVerbs / KikongoVerbsTool étaient juste des outils de test temporaire pour :
+
+vérifier la connexion DB,
+
+vérifier que le repository renvoyait bien des verbes.
+
+Maintenant :
+
+tu as supprimé les doublons et les anciennes classes de test,
+
+le projet compile proprement,
+
+on peut repartir sans polluer avec des main() de test partout.
+
+À partir de maintenant, on reste sur du code “sérieux” / réutilisable :
+
+POJO + repositories (déjà faits),
+
+plus des classes de service et de génération de puzzles.
+
+Si on a besoin d’un mini main() de debug, on le fait proprement (ex: DemoWordSearchGenerator) et on assume que c’est un utilitaire, pas le cœur du projet.
+
+6. Plan concret immédiat (sans perdre le fil)
+
+Maintenant que tout compile et que les tests jetables sont nettoyés, voilà ce qu’on fait ensuite, clairement :
+
+6.1. Solidifier Kikongo & Lingala côté lexique
+
+Vérifier que LexVerb et LexWord mappent bien tous les champs importants des tables que tu m’as montrées :
+
+verbs : verb_id, name, root, suffix, phonetic, active_verb, derived_verb, derived_from, is_approved, etc.
+
+words : word_id, singular, plural, root, class_id, phonetic, derived_word, derived_from_word, derived_from_verb, is_approved, number_variability, etc.
+
+plus : slug depuis slugs, significations depuis verb_meanings & word_meanings, classe depuis nominal_classes.
+
+👉 Aucune approximation : on suit exactement le DESCRIBE que tu as donné.
+
+S’assurer que les repositories :
+
+peuvent filtrer par langue (language_code dans meanings),
+
+peuvent piocher dans Kikongo (connexion lexikongo) et Lingala (connexion lexilingala) avec le même code.
+
+6.2. Définir et implémenter le modèle WordSearchPuzzle (mots mêlés)
+
+On code une classe dans, par exemple :
+com.longoka.games.puzzles.wordsearch :
+
+WordSearchPuzzle :
+
+id, langue (kg/ln), titre, thème, difficulté,
+
+taille de la grille (rows, cols),
+
+grid (char[][] ou List<String>),
+
+liste de mots à trouver (avec traduction, etc.),
+
+solution (positions + direction).
+
+Ce modèle suivra directement le format JSON qu’on a déjà défini ensemble pour les mots mêlés. 
+
+brainstorming-longokaGames
+
+6.3. Créer un WordSearchGenerator
+
+Toujours dans puzzles.wordsearch :
+
+WordSearchGenerator :
+
+prend une liste de LexWord ou LexVerb (ou mix),
+
+choisit X mots,
+
+les place dans une grille N×N,
+
+remplit le reste avec des lettres compatibles,
+
+retourne un WordSearchPuzzle.
+
+On fera d’abord simple (mots horizontaux/verticaux, directions limitées), puis on complexifiera.
+
+6.4. Service par langue
+
+Deux services fins mais clairs :
+
+KikongoWordSearchService :
+
+ouvre une connexion via DbConfig.openKikongoLexConnection(),
+
+récupère une liste de mots (ou verbes) via les repositories,
+
+appelle WordSearchGenerator,
+
+renvoie un WordSearchPuzzle.
+
+LingalaWordSearchService :
+
+même chose, mais avec openLingalaLexConnection().
+
+Ça donne une API interne du style :
+
+WordSearchPuzzle puzzle = kikongoWordSearchService.generatePuzzle(
+    theme, difficulty, nbWords
+);
+
+
+Plus tard, tu pourras :
+
+soit l’exposer via une API REST,
+
+soit l’utiliser depuis une app Android,
+
+soit l’utiliser dans un petit CLI qui écrit un JSON pour InDesign.
+
+6.5. Ensuite seulement : persistance & scores
+
+Une fois qu’on sait générer des puzzles :
+
+Sauvegarder les puzzles dans 6i695q_games_stock (table puzzles, packs, etc.).
+
+Sauvegarder les sessions de jeu (scores, temps, mots trouvés) dans une table game_sessions ou équivalent.
+
+Brancher ça plus tard sur :
+
+l’app mobile,
+
+éventuellement un mini tableau de bord web.
+
+7. En résumé ultra-court (pour qu’on reste alignés)
+
+On n’est plus en mode “tests qui traînent partout”.
+
+On a :
+
+un backend Java propre qui compile,
+
+une connexion solide aux DB Kikongo / Lingala,
+
+des modèles LexVerb / LexWord / repositories déjà en place. 
+
+🗓 2025-12-11 – Journal de dev …
+
+Objectif immédiat :
+
+Mots mêlés Kikongo & Lingala, avec :
+
+modèle WordSearchPuzzle,
+
+WordSearchGenerator,
+
+services Kikongo/Lingala.
+
+Si tu es ok avec ce recap, au prochain message je peux t’écrire les signatures détaillées des classes suivantes (sans blabla, juste code) :
+
+WordSearchPuzzle
+
+WordToFind / WordPlacement
+
+WordSearchGenerator (interface + méthode principale)
+
+KikongoWordSearchService & LingalaWordSearchService (squelettes)  ////
+1️⃣ C++ : où ça intervient dans ton écosystème ?
+
+Aujourd’hui, dans ce qu’on a concrètement :
+
+MySQL / MariaDB : lexiques (Kikongo, Lingala, etc.)
+
+Java (ce projet) :
+
+se connecte aux bases,
+
+fabrique des jeux de mots mêlés (noms, verbes, mixte),
+
+et bientôt va exporter tout ça en JSON.
+
+Plus tard : Nuxt / app mobile / InDesign qui consomment ce JSON.
+
+👉 Dans ce flux-là, C++ n’est pas encore requis.
+Mais il peut intervenir à plusieurs niveaux, si tu le décides :
+
+🔹 Option A – Moteur de jeu natif (C++)
+
+Imaginons :
+
+Tu veux un jeu natif (desktop ou mobile) très performant, avec animations, son, etc.
+
+Tu fais un moteur en C++ (par ex. avec SDL2, SFML, ou un moteur type Godot/Unreal côté C++).
+
+Là, C++ :
+
+lit les fichiers JSON générés par ton backend Java (les grilles, les mots, les indices),
+
+affiche les grilles, gère les interactions, chronos, scores, etc.
+
+Dans ce scénario :
+
+Java = fabrique les contenus (puzzles)
+
+C++ = fait tourner le jeu (expérience joueur riche)
+
+🔹 Option B – Librairie de logique partagée en C++
+
+Autre design possible :
+
+Tu écris une lib C++ qui contient la logique de génération de grilles (mots mêlés, mots croisés, etc.).
+
+Tu exposes cette lib vers :
+
+Java (via JNI),
+
+Android (NDK),
+
+éventuellement d’autres langages.
+
+Honnêtement : au stade où on est, ton générateur Java fait le job.
+Passer la génération en C++ se justifie uniquement si :
+
+tu veux une seule implémentation partagée entre plusieurs applis natives,
+
+ou si tu as un besoin de performance extrême (grosse génération en masse sur device limité).
+
+Pour l’instant, ce serait plutôt une complication qu’un gain.
+
+🔹 Option C – Pas de C++ dans la boucle principale
+
+C’est probablement le plus simple court/moyen terme :
+
+Backend Java : connexion DB + génération + export JSON.
+
+Nuxt / app web : consomme l’API ou les fichiers JSON.
+
+InDesign / scripts : consomment les mêmes JSON pour faire des livres.
+
+Android / iOS plus tard : apps en JS/TS (Ionic, React Native) ou Flutter, qui lisent les JSON.
+
+Et C++ reste réservé pour plus tard, le jour où tu veux :
+
+un vrai “Longoka Games” natif PC/console,
+
+ou un moteur de jeu très custom.
+
+👉 Mon avis honnête :
+fixer le pipeline Java → JSON → (InDesign / app) est prioritaire.
+C++ viendra au-dessus, comme consommateur des mêmes données JSON si tu le souhaites.
+
+2️⃣ À quoi sert un micro-serveur HTTP dans ce projet Java ?
+
+Tu me demandais : “Spring Boot / Javalin, c’est pour quoi faire, concrètement ?”
+
+L’idée est simple :
+au lieu de lancer un tool en ligne de commande, tu fais tourner un petit serveur HTTP qui :
+
+écoute sur http://localhost:8080 (ou autre),
+
+expose des endpoints JSON.
+
+🧩 Exemple 1 – Servir un puzzle au front Nuxt
+
+Endpoint :
+
+GET /api/kikongo/wordsearch/random?rows=12&cols=12&type=mixed
+
+
+Réponse JSON (schéma du puzzle) :
+
+{
+  "language": "kg",
+  "title": "Mots mêlés Kikongo (noms + verbes)",
+  "theme": "Noms + verbes",
+  "rows": 12,
+  "cols": 12,
+  "grid": [
+    "KYEPLIGURAYT",
+    "IKJQFKLIMJDI",
+    "... 10 lignes encore ..."
+  ],
+  "entries": [
+    {
+      "baseForm": "Mosi",
+      "partOfSpeech": "noun",
+      "translation": "Un",
+      "extraInfo": "di-ma"
+    },
+    {
+      "baseForm": "Sasuna",
+      "partOfSpeech": "verb",
+      "translation": "Expliquer"
+    }
+  ]
+}
+
+
+Ensuite, dans ton Nuxt 4 :
+
+tu fais un fetch('/api/kikongo/wordsearch/random?...'),
+
+tu récupères la grille et les mots,
+
+tu les affiches dans un composant Vue (avec surlignage, clics, etc.).
+
+Donc le micro-serveur HTTP sert de pont entre ta base / ta logique Java et le front web.
+
+🧩 Exemple 2 – Endpoint pour livres / InDesign
+
+Tu pourrais aussi demander :
+
+GET /api/kikongo/wordsearch/pack?count=50&type=nouns
+
+
+Et l’endpoint te renvoie 50 puzzles d’un coup en JSON.
+
+InDesign (via un script) pourrait appeler cet endpoint et poser les grilles directement dans les pages.
+
+Ou bien tu fais tourner ce serveur sur ton poste et tu exportes depuis un petit script.
+
+Mais comme tu n’as pas encore de front, ni script InDesign en place,
+👉 l’export JSON vers des fichiers à plat reste le plus simple immédiatement.
+
+3️⃣ Conclusion / plan pour maintenant
+
+Pour répondre à tes deux questions en une phrase :
+
+C++ :
+→ interviendra plutôt comme consommateur des JSON (un moteur de jeu natif, plus tard),
+→ pas besoin de l’intégrer tout de suite dans la génération de puzzles.
+
+Micro-serveur HTTP Java :
+→ utile quand tu voudras brancher directement un front Nuxt / app web sur les puzzles,
+→ mais en attendant, on peut faire tool d’export JSON et t’offrir :
+
+des fichiers pour InDesign,
+
+des fichiers pour des apps futures (Android, C++, etc.).
+
+Si tu es toujours d’accord avec cette logique, au prochain message je te donne :
+
+la classe WordSearchPack (modèle),
+
+et KikongoWordSearchJsonExportTool (CLI)
+→ que tu pourras lancer et obtenir ton premier puzzles-kikongo.json “officiel Longoka”.
+
+ok je suis ta logique , mais gardons l'idée c++ dans la tete car on veut des outils puissants et apps
+Réflexion durant 1m 50s
+
+Oui, on garde C++ bien au chaud dans le cerveau 😄
+
+Et tu as raison : si tu vises des outils puissants, des apps sérieuses (desktop / mobile / maybe console), C++ est une option très logique. L’idée, c’est juste de le placer au bon endroit dans l’écosystème, pas trop tôt, pas n’importe comment.
+
+🧠 “Big picture” avec C++ dedans
+
+On fige un truc simple :
+
+Base de données
+
+MySQL / MariaDB – lexiques Kikongo / Lingala (ce que tu as déjà).
+
+Backend Java (le projet actuel)
+
+Lit la DB.
+
+Génère les jeux (mots mêlés noms / verbes / mixte, plus tard QCM, etc.).
+
+Exporte ces jeux dans un format JSON stable (notre “format Longoka”).
+
+Consommateurs de ce JSON (au-dessus) :
+
+📱 App web / mobile (Nuxt / autre)
+
+📚 Scripts InDesign → livres de jeux
+
+🧠 Plus tard : moteur de jeu en C++ qui lit exactement les mêmes JSON
+
+Donc C++ arrive au niveau 3 :
+
+soit comme gros moteur de jeu natif (SFML, SDL2, Unreal, etc.),
+
+soit comme lib de logique que plusieurs applis utilisent.
+
+Mais dans tous les cas, il mangera le JSON que Java aura généré.
+
+👉 Du coup, en fixant bien le schéma JSON maintenant, tu te donnes la liberté plus tard d’écrire :
+
+un LongokaGameEngine en C++,
+
+qui sait charger un fichier puzzles-kikongo.json (ou plusieurs),
+
+et offrir une API style : loadPack(), startPuzzle(3), etc.
+
+🎯 À très court terme
+
+Tu m’as dit que tu suis la logique, donc je garde le plan :
+
+Standardiser le JSON “officiel” pour un mot mêlé (on l’a déjà presque fait avec le mixte).
+
+Ajouter un tool Java d’export JSON (par ex. KikongoMixedWordSearchJsonExportTool) qui :
+
+génère X grilles,
+
+écrit un fichier target/kikongo-mixed-wordsearch.json.
+
+Ce fichier sera la nourriture de :
+
+ton futur front Nuxt,
+
+tes scripts InDesign,
+
+et un jour ton moteur C++.

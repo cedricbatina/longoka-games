@@ -1,0 +1,119 @@
+🗓 2025-12-13 – Journal de dev Longoka_games / Mots mêlés Kikongo → export JSON
+
+Ce qui a été fait aujourd’hui
+
+Backend Java / Mots mêlés Kikongo
+
+Ajout de la dépendance Jackson (jackson-databind) dans le pom.xml pour pouvoir sérialiser les puzzles en JSON.
+
+Création d’un modèle JSON “officiel” pour les mots mêlés :
+
+WordSearchJsonModels.PackV1 (pack de grilles : schema, version, langue, packId, title, description, meaningLanguage, puzzles[]).
+
+PuzzleV1 (id, language, mode, difficulty, title, theme, rows, cols, grid[], entries[], placements[], meta).
+
+EntryV1 (base, display, translation, slug, partOfSpeech, extraInfo).
+
+PlacementV1 (word, row, col, direction, length).
+
+Implémentation du tool CLI KikongoMixedWordSearchJsonExportTool :
+
+Utilise KikongoMixedWordSearchService pour générer automatiquement des grilles 12×12 (noms + verbes).
+
+Génère un pack JSON avec plusieurs puzzles (initialement 10, puis prévu pour 60+ grilles pour un vrai livre).
+
+Écrit le fichier kikongo-mixed-wordsearch-pack.v1.json dans le projet backend-java (chemin absolu actuel, à remettre plus tard dans target/ si besoin).
+
+Debug / Windows / encodage / chemins
+
+Correction des soucis d’encodage Windows (Cp1252 vs UTF-8) qui faisaient apparaître mÃªlÃ©s au lieu de mêlés dans la console.
+
+Nettoyage d’un caractère illégal dans KikongoMixedWordSearchTool.java (erreur unmappable character (0x8F)), puis recompilation OK.
+
+Diagnostic du problème “fichier JSON introuvable” malgré le message “Export terminé” :
+
+Ajout de logs DEBUG + passage temporaire à un outputPath absolu.
+
+Vérification que le fichier est bien créé et accessible (exists after write ? true).
+
+Confirmation visuelle du fichier kikongo-mixed-wordsearch-pack.v1.json (~45 Ko) et inspection de son contenu.
+
+Qualité des données JSON
+
+Vérification d’un puzzle réel dans le JSON exporté :
+
+grid 12×12 en majuscules, sans espaces.
+
+entries avec : formes de base (base), formes affichées (display), traductions FR, slug, partOfSpeech, extraInfo (classes nominales comme n-zi, ki-bi, etc.).
+
+placements cohérents : coordonnées (row/col), direction (RIGHT, DOWN, DIAGONAL_…), longueur du mot.
+
+Observation d’un cas concret de polysémie / doublon (Yekola apparaissant deux fois avec des traductions différentes) → décision d’ajouter des règles de dédoublonnage dans l’export.
+
+Décisions / règles métier fixées aujourd’hui
+
+Format JSON stable v1 (usable pour livres + apps)
+
+Un pack (PackV1) regroupe plusieurs grilles :
+
+schema = "longoka.wordsearch.pack.v1", version = 1.
+
+language = "kg" pour le Kikongo.
+
+meaningLanguage = "fr" pour les définitions/décr.
+
+Une grille (PuzzleV1) contient :
+
+une grille 2D sous forme de grid: string[] (une ligne = une string de cols caractères),
+
+une liste de mots (entries) + leurs métadonnées (traductions FR, classes nominales, etc.),
+
+une solution explicite (placements) exploitable pour :
+
+générer des pages “solutions” en livre,
+
+surligner les mots dans une future app.
+
+Règles de dédoublonnage dans l’export
+
+Dans une même grille :
+
+Un base (forme canonique) ne doit apparaître qu’une seule fois dans entries.
+
+Si plusieurs sens / traductions existent pour le même base, on fusionne les traductions dans un seul champ translation (concaténation avec " ; ").
+
+On garde le premier slug non-null, la première extraInfo (classe nominale), la première partOfSpeech, etc.
+
+Au niveau des placements :
+
+Un mot ne doit apparaître qu’une seule fois dans placements → si un même word (ex. YEKOLA) est placé plusieurs fois, on ne garde que le premier placement.
+
+Dans meta de chaque puzzle :
+
+Ajout de la liste des nominalClasses présentes dans la grille (dérivées de extraInfo des entries) pour permettre, plus tard, de filtrer ou regrouper les grilles par classes nominales (ex. grilles “n-zi”, “ki-bi”, etc.).
+
+Prochaines étapes (pour demain)
+
+Finaliser la configuration “livres” :
+
+Monter puzzleCount (déjà en cours) pour avoir suffisamment de grilles par pack (ex. 60+ grilles par type) afin de couvrir 3 livres :
+
+Livre 1 : Kikongo – Mots mêlés noms.
+
+Livre 2 : Kikongo – Mots mêlés verbes.
+
+Livre 3 : Kikongo – Mots mêlés mixte (noms + verbes).
+
+Implémenter / factoriser les tools d’export JSON :
+
+KikongoNounWordSearchJsonExportTool (noms-only) basé sur KikongoWordSearchService.
+
+KikongoVerbWordSearchJsonExportTool (verbes-only) basé sur KikongoVerbWordSearchService.
+
+Mutualiser si besoin la logique toJsonPuzzle(...) (dédoublonnage + fusion de traductions + meta.nominalClasses) pour éviter le copier-coller.
+
+Commencer à réfléchir au script InDesign :
+
+Comment consommer grid, entries, placements pour générer automatiquement les pages grilles + pages solutions.
+
+Définir l’architecture “1 pack JSON = 1 livre” ou éventuellement “1 pack JSON = plusieurs petits livrets”.

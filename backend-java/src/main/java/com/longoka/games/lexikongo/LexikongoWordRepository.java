@@ -146,18 +146,14 @@ public class LexikongoWordRepository {
     }
     sql.append(") ");
 
-    boolean filterByLang = (languageCode != null && !languageCode.isBlank());
-    if (filterByLang) {
-      sql.append("AND language_code = ? ");
-    }
+    // ⚠️ IMPORTANT : plus de filterByLang, plus de "language_code IN (...)"
+    // On récupère toutes les meanings pour ces word_id,
+    // et c’est le code Java (findMeaningTextForLanguage) qui filtrera par langue.
 
     try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
       int index = 1;
       for (Integer id : wordIds) {
         ps.setInt(index++, id);
-      }
-      if (filterByLang) {
-        ps.setString(index, languageCode);
       }
 
       try (ResultSet rs = ps.executeQuery()) {
@@ -170,7 +166,6 @@ public class LexikongoWordRepository {
           LexWord word = wordsById.get(wordId);
           if (word != null) {
             LexMeaning meaning = new LexMeaning(meaningId, lang, meaningText);
-            // on utilise la méthode package-private de LexWord
             word.addMeaning(meaning);
           }
         }

@@ -1,0 +1,181 @@
+🗓 2025-12-12 – Journal de dev Longoka_games
+1. Ce qui a été fait aujourd’hui
+
+Backend Java / Lexiques
+
+Confirmé et exploité la structure des bases :
+
+6i695q_lexikongo (Kikongo),
+
+6i695q_lingala (Lingala),
+avec les mêmes tables : words, verbs, word_meanings, verb_meanings, slugs, nominal_classes, etc.
+
+Modèles Java stabilisés dans com.longoka.games.lexikongo :
+
+LexWord, LexVerb, LexMeaning, NominalClass, NumberVariability.
+
+Repositories :
+
+LexikongoWordRepository (mots aléatoires, par classe nominale, avec définitions FR),
+
+LexikongoVerbRepository (verbes aléatoires par longueur de racine, avec définitions FR).
+
+Tools de debug (console)
+
+KikongoWordsTool
+→ Affiche des mots Kikongo + toutes les définitions FR associées.
+
+LingalaWordsTool
+→ Affiche des mots Lingala + définitions FR, connexion DB Lingala fixée (6i695q_lingala).
+
+Problèmes d’encodage réglés (UTF-8) via :
+
+chcp 65001
+
+JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
+
+Mots mêlés (WordSearch) – Kikongo
+
+Intégration complète avec la lib com.longoka.games.puzzles.wordsearch :
+
+WordSearchGenerator,
+
+WordSearchPuzzle,
+
+WordToFind.
+
+Services Kikongo :
+
+KikongoWordSearchService
+
+Génère des mots mêlés de noms Kikongo (random + par classe nominale).
+
+KikongoVerbWordSearchService
+
+Génère des mots mêlés de verbes Kikongo (racines + définitions FR).
+
+KikongoMixedWordSearchService
+
+Génère des grilles mixtes noms + verbes avec définitions FR.
+
+Tools associés dans com.longoka.games.app :
+
+KikongoWordSearchTool → mots mêlés de noms.
+
+KikongoWordSearchByClassTool → mots mêlés pour une classe nominale donnée.
+
+KikongoVerbWordSearchTool → mots mêlés de verbes.
+
+KikongoMixedWordSearchTool → mots mêlés mixtes (noms + verbes).
+
+✅ Tous ces tools compilent (BUILD SUCCESS) et génèrent de vraies grilles de mots mêlés Kikongo avec :
+grille ASCII + liste des mots à trouver + définitions FR.
+
+2. Décisions / clarifications
+
+Focus court terme : Kikongo.
+Lingala est opérationnel pour la lecture de mots, mais on met la priorité sur :
+
+jeux Kikongo (mots mêlés noms / verbes / mixtes),
+
+pipeline pour livres & apps.
+
+Nommage des services
+Pour l’instant :
+
+KikongoWordSearchService → noms,
+
+KikongoVerbWordSearchService → verbes,
+
+KikongoMixedWordSearchService → mixte.
+
+On garde ce naming pour avancer, quitte à renommer plus tard (ex : ...PuzzleService) quand l’architecture globale sera figée.
+
+Shop déjà existant sur longoka.com
+Il existe déjà une page shop (cours, articles, livres, papeterie, crafts, vêtements…).
+→ Les produits “jeux de langue” (livres de mots mêlés, packs imprimables, etc.) pourront s’y brancher sans ajout technique majeur côté web.
+
+3. Idées & perspectives (catégorisation / thèmes)
+
+Constat :
+La DB actuelle ne prévoit pas (encore) de champ “type sémantique” (animaux, famille, école, nourriture, etc.).
+
+Ce qu’on peut faire à court terme sans toucher au schéma :
+
+Filtrer / classer par classe nominale pour les noms (nominal_classes.class_name : n-zi, ki-bi, mu-ba, etc.).
+
+Filtrer par racine / longueur :
+
+pour les verbes : longueur de root, fourchettes (3–5 lettres, 6–8, etc.);
+
+pour les mots : longueur de la forme de base.
+
+Proposer des niveaux de difficulté basés sur :
+
+la longueur des mots,
+
+le nombre de mots dans la grille,
+
+la taille de la grille.
+
+Idée plus avancée (moyen / long terme) :
+
+Construire un petit “moteur de tagging” qui analyse les traductions FR/EN :
+
+ex. si la définition contient “chien/dog/chat/cat”, taguer “animaux”,
+
+si “mère/père/famille”, taguer “famille”, etc.
+
+Ça pourrait se faire :
+
+côté Java (regex / liste de mots-clés),
+
+ou plus tard avec un moteur IA externe.
+
+Ça resterait “soft” (tags calculés), sans changer le schéma DB au début.
+
+4. Prochaines actions concrètes
+
+Court terme (prochaines sessions)
+
+Standardiser le JSON “officiel” pour un mot mêlé
+
+Définir clairement :
+
+language, title, theme,
+
+rows, cols, grid[],
+
+entries[] avec : baseForm, partOfSpeech, nominalClass, translation, slug.
+
+Ajouter un outil d’export JSON côté Java
+
+Par exemple :
+
+KikongoWordSearchJsonExportTool (noms),
+
+KikongoVerbWordSearchJsonExportTool (verbes),
+
+KikongoMixedWordSearchJsonExportTool (mixte).
+
+Chaque tool :
+
+génère un pack de puzzles,
+
+sauvegarde dans un fichier JSON (ex. target/puzzles-kikongo-mixed-pack.json).
+
+Commencer à réfléchir au “pack jeux” pour le shop
+
+Définir :
+
+combien de grilles par pack (ex. 20),
+
+difficulté (facile / moyen / difficile),
+
+comment cela pourrait devenir un PDF / livre ou un produit numérique sur le shop Longoka.
+
+Moyen terme
+
+Script InDesign ou génération PDF à partir des JSON de puzzles (premier livret de mots mêlés Kikongo).
+
+Petit front (Nuxt) ou app simple qui consomme le JSON et affiche les puzzles jouables.

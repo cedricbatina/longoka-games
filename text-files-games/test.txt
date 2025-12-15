@@ -1,0 +1,5 @@
+mvn compile
+
+mvn exec:java -Dexec.mainClass=com.longoka.games.app.KikongoMixedWordSearchJsonExportTool
+mvn exec:java -Dexec.mainClass=com.longoka.games.app.KikongoNounWordSearchJsonExportTool
+mvn exec:java -Dexec.mainClass=com.longoka.games.app.KikongoVerbWordSearchJsonExportTool

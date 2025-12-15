@@ -1,0 +1,255 @@
+MÉMO GLOBAL LONGOKA – 2025-12-15
+1. Socle lexical : Lexikongo & Lexilingala
+
+Deux bases MySQL séparées :
+
+6i695q_lexikongo (Kikongo)
+
+6i695q_lingala (Lexilingala)
+
+Schéma commun :
+
+mots / verbes, classes nominales, significations par langue (fr, en, etc.).
+
+Phonétique, slug, flags (approved, derived, etc.).
+
+Java côté backend :
+
+LexWord, LexVerb, LexMeaning, NominalClass…
+
+Helpers pour fusionner les sens FR/EN (getFrenchMeaningsJoined, getEnglishMeaningsJoined).
+
+DbConfig gère les 4 connexions :
+
+lexique global, Kikongo, Lingala, stock de jeux.
+
+Profile local / prod + fichier config/db-*.properties.
+
+2. Moteur de jeux (backend Java)
+
+Objectif : une usine à packs JSON pour différents jeux, à partir des bases lexiques.
+
+2.1. Mots mêlés (Wordsearch)
+
+Pour Kikongo :
+
+Services :
+
+KikongoWordSearchService (noms)
+
+KikongoVerbWordSearchService (verbes)
+
+KikongoMixedWordSearchService (noms + verbes, mix explicite)
+
+DTO / moteur :
+
+WordToFind (base, display, translation FR, phonetic, translationEn, slug, POS, extraInfo). 
+
+WordToFind
+
+WordSearchPuzzle, WordPlacement, WordSearchGenerator.
+
+JSON : WordSearchJsonModels (PackV1, PuzzleV1, EntryV1, PlacementV1, meta).
+
+Tools CLI déjà opérationnels :
+
+KikongoNounWordSearchJsonExportTool → kikongo-nouns-wordsearch-book.v4.json
+
+KikongoVerbWordSearchJsonExportTool → kikongo-verbs-wordsearch-book.v4.json
+
+KikongoMixedWordSearchJsonExportTool → kikongo-mixed-wordsearch-book.v2.json (ou v3/v4 selon tes derniers runs).
+
+Les entrées contiennent bien :
+
+translation (FR fusionné), translationEn (EN fusionné si dispo), phonetic, extraInfo = classe nominale, semanticTags dérivés via SemanticTagger.
+
+Pour Lingala (même logique, autre DB) :
+
+Services :
+
+LingalaNounWordSearchService
+
+LingalaVerbWordSearchService
+
+LingalaMixedWordSearchService
+
+Tools CLI déjà exécutés :
+
+LingalaNounWordSearchJsonExportTool → lingala-nouns-wordsearch-book.v1.json
+
+LingalaVerbWordSearchJsonExportTool → lingala-verbs-wordsearch-book.v1.json
+
+LingalaMixedWordSearchJsonExportTool → (tu viens de le lancer, JSON généré dans target/).
+
+2.2. Mots croisés (Crossword)
+
+Moteur de base commun :
+
+KikongoCrosswordService :
+
+Récupère un “sac de mots” via KikongoMixedWordSearchService.
+
+Filtre selon mode :
+
+nouns → seulement POS noun
+
+verbs → seulement POS verb
+
+mixed → les deux
+
+Simplifie base → answer (A–Z, majuscules).
+
+Génère une grille 12×12 avec croisements (algo maison : 1er mot en haut à gauche, puis tentatives de croisements, sinon fallback placement simple).
+
+Construit CrosswordJsonModels.PuzzleV1 :
+
+grid (List<String>), entries (ACROSS/DOWN), meta (nominalClasses, semanticDomains via SemanticTagger, source=lexikongo, meaningLanguage…).
+
+Kikongo :
+
+Tool pour les verbes :
+
+KikongoVerbCrosswordJsonExportTool
+→ kikongo-verbs-crossword-book.v2.json.
+
+Tool pour les mix (noms + verbes) :
+
+KikongoMixedCrosswordJsonExportTool
+→ kikongo-mixed-crossword-book.v2.json.
+
+(On a aussi déjà les crosswords Kikongo, noms ou pas selon la config – tu as validé que les données FR/EN/phonétique remontent bien.)
+
+Lingala :
+
+Clone structuré de la logique Kikongo, mais branché sur DB Lingala :
+
+LingalaNounCrosswordService / LingalaVerbCrosswordService (ou usage d’un service mixte avec filtre par POS, même principe).
+
+Tools CLI opérationnels :
+
+LingalaNounCrosswordJsonExportTool
+→ lingala-nouns-crossword-book.v1.json
+
+LingalaVerbCrosswordJsonExportTool
+→ lingala-verbs-crossword-book.v1.json
+
+Pour les mots croisés mixtes Lingala, tu as le service & le tool en place (équivalent à KikongoMixed, ou à ajouter juste après).
+
+3. Chaîne livres papier (InDesign)
+
+Objectif : un livre par JSON, 48 grilles par livre, pour chaque langue & type de jeu.
+
+3.1. Scripts JSX – Wordsearch
+
+Pour chaque combinaison Langue × (nouns / verbs / mixed), tu as déjà :
+
+Un script JSX InDesign qui :
+
+Demande un fichier JSON (wordsearch-pack).
+
+Crée un document InDesign.
+
+Boucle sur les 48 puzzles :
+
+Place la grille (tableau ou bloc monospaced).
+
+Place la liste des mots à trouver.
+
+Prépare (ou laisse à faire) :
+
+Styles de paragraphe / caractère,
+
+Pagination,
+
+Gabarits, etc.
+
+Tu as précisé : tous les JSX existent déjà pour Kikongo et Lingala, pour les mots mêlés.
+→ Il manque “juste” la vraie mise en page éditoriale (typographie, hiérarchie, gabarits de couverture, etc.).
+
+3.2. Scripts JSX – Crosswords
+
+Même principe, et tu m’as dit que les variantes JSX Kikongo + Lingala pour les mots croisés existent aussi :
+
+Import d’un crossword-pack JSON.
+
+Un document InDesign par fichier :
+
+1 page ou 2 pages par grille (grille + définitions).
+
+48 grilles par livre.
+
+À faire / affiner :
+
+Styles, colonnes pour les définitions (ACROSS / DOWN),
+
+Gabarits, numéros de page, cadre de difficulté, etc.
+
+4. Autres axes du projet global (rappel)
+
+Même si en ce moment on est très concentrés sur les livres de jeux, le projet global englobe :
+
+Lexikongo / Lexilingala comme plateformes de dictionnaires
+
+Suivi dans d’autres memos (Nuxt 4, auth JWT, refonte des pages, etc.).
+
+Lunungu – calendrier / productivité
+
+Projet séparé mais dans le même “univers” (Nuxt 4, événements, labels, automatismes).
+
+Jeux de plateau / Scrabble Kikongo & Lingala
+
+Déjà évoqué dans des journaux précédents (Scrabble en Kikongo et Lingala),
+
+À reconnecter plus tard avec les mêmes bases lexicales (tirage de tuiles, dictionnaire de référence, etc.).
+
+Journaux de dev & méthodo
+
+Tu notes soigneusement ce qu’on fait jour par jour (journal d’hier, d’avant-hier, etc.).
+
+On a commencé à documenter chaque nouvelle brique : services Java, tools CLI, fichiers JSON, scripts JSX.
+
+5. Où on en est exactement (au 15/12/2025)
+
+✅ Bases de données
+
+Connexions Kikongo & Lingala OK (local/prod), classes Java prêtes.
+
+✅ Génération de jeux (backend)
+
+Mots mêlés : packs Kikongo + Lingala (nouns, verbs, mixed) générés et testés.
+
+Mots croisés : packs Kikongo (verbs + mixed) + Lingala (nouns + verbs) générés, structure cohérente (FR/EN/phonétique/tags).
+
+✅ Scripts InDesign JSX
+
+Import Wordsearch : Kikongo & Lingala, pour les trois modes.
+
+Import Crosswords : Kikongo & Lingala.
+
+Tout est câblé, mais mise en page encore brute.
+
+⏳ Reste à faire côté livres (grandes lignes)
+
+Finaliser la mise en page type pour un livre :
+
+gabarit de page, styles, taille des grilles, style des définitions,
+
+page de titre, instructions, numéros de page, crédits, etc.
+
+Décliner systématiquement :
+
+Livres Kikongo : nouns / verbs / mixed – wordsearch + crossword.
+
+Livres Lingala : nouns / verbs / mixed – wordsearch + crossword.
+
+⏳ Reste à faire plus globalement (mais pas tout de suite)
+
+Intégration de ces jeux dans :
+
+un site web (Nuxt/Next, etc.),
+
+éventuellement une app mobile.
+
+Relier à Scrabble / autres jeux (dominos de mots, quiz, etc.).
+
+Continuer l’enrichissement Lexikongo / Lexilingala (entrées, phonétique, traductions EN).

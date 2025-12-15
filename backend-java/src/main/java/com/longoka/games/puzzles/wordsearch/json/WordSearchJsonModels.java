@@ -83,6 +83,7 @@ public final class WordSearchJsonModels {
   }
 
   /** Une entrée de la liste des mots à trouver. */
+  /** Une entrée de la liste des mots à trouver. */
   public static final class EntryV1 {
     /** Forme de base, ex "tunga". */
     public String base;
@@ -101,6 +102,12 @@ public final class WordSearchJsonModels {
 
     /** Infos extra (classe nominale, etc.). */
     public String extraInfo;
+
+    /** Transcription phonétique si disponible. */
+    public String phonetic;
+
+    /** Traduction anglaise si disponible. */
+    public String translationEn;
 
     /**
      * Tags sémantiques dérivés des traductions (ex: "animal", "corps", "maison").

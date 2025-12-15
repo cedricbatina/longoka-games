@@ -125,8 +125,20 @@ public class KikongoWordSearchService {
         continue;
       }
 
-      String translation = findMeaningText(w, meaningLanguageCode);
-      String translationEn = findMeaningTextForLanguage(w, "en");
+      // FR = toutes les définitions françaises, concaténées
+      String translation;
+      if ("fr".equalsIgnoreCase(meaningLanguageCode)) {
+        translation = w.getFrenchMeaningsJoined();
+      } else if ("en".equalsIgnoreCase(meaningLanguageCode)) {
+        translation = w.getEnglishMeaningsJoined();
+      } else {
+        // fallback pour d'autres langues éventuelles (lingala plus tard, etc.)
+        translation = findMeaningText(w, meaningLanguageCode);
+      }
+
+      // EN = toujours toutes les définitions anglaises si la DB en contient
+      String translationEn = w.getEnglishMeaningsJoined();
+
       String slug = w.getSlug();
 
       String extraInfo = null;

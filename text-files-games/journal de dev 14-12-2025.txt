@@ -1,0 +1,556 @@
+🗓 2025-12-14 — Génération jeux Kikongo (mots mêlés + mots croisés)
+
+1. Rappel structure Java / DB
+
+Utilisation du module backend-java avec Maven (mvn compile, mvn exec:java).
+
+Connexion DB centralisée via DbConfig (profil local utilisant config/db-local.properties).
+
+Base Kikongo : 6i695q_lexikongo (tables words, verbs, word_meanings, verb_meanings, slugs, etc.).
+
+1.1. Mots croisés Kikongo — NOMS
+
+Outil CLI : com.longoka.games.app.KikongoNounCrosswordJsonExportTool
+
+Service sous-jacent :
+
+KikongoCrosswordService (mode "nouns").
+
+Génère des grilles à partir d’un “sac” de WordToFind issus des mots Kikongo.
+
+Commande utilisée :
+
+mvn exec:java -Dexec.mainClass=com.longoka.games.app.KikongoNounCrosswordJsonExportTool
+
+
+Paramètres principaux :
+
+puzzleCount = 48
+
+rows = 12, cols = 12
+
+maxEntries = 12
+
+meaningLanguageCode = "fr"
+
+Sortie JSON :
+
+target/kikongo-nouns-crossword-book.v2.json (puis v3/v4 selon itérations).
+
+Format longoka.crossword.pack.v1 :
+
+pack.language = "kg"
+
+pack.packId = "kg-cross-nouns-<date>"
+
+Chaque puzzle : entries[] avec translation, translationEn, phonetic, slug, extraInfo (classe nominale), semanticTags, meta.nominalClasses, meta.semanticDomains.
+
+1.2. Mots croisés Kikongo — VERBES
+
+Outil CLI : com.longoka.games.app.KikongoVerbCrosswordJsonExportTool
+
+Utilise aussi KikongoCrosswordService, mais avec mode = "verbs".
+
+Commande :
+
+mvn exec:java -Dexec.mainClass=com.longoka.games.app.KikongoVerbCrosswordJsonExportTool
+
+
+Paramètres similaires : 48 grilles, 12×12, 12 entrées max.
+
+Sortie JSON :
+
+target/kikongo-verbs-crossword-book.v2.json
+
+Vérifications faites dans le JSON :
+
+Bonne récupération des champs : translation (FR), translationEn, phonetic, slug, partOfSpeech = "verb", semanticTags.
+
+1.3. Mots mêlés Kikongo — NOMS
+
+Service : com.longoka.games.lexikongo.KikongoWordSearchService
+
+Récupère des LexWord depuis la DB.
+
+Assemble un WordSearchPuzzle (words, grid, placements).
+
+Outil JSON : com.longoka.games.app.KikongoNounWordSearchJsonExportTool
+
+Transforme un WordSearchPuzzle en WordSearchJsonModels.PackV1.
+
+Déduplication des entrées par base (singulier/pluriel/racine).
+
+Commande :
+
+mvn exec:java -Dexec.mainClass=com.longoka.games.app.KikongoNounWordSearchJsonExportTool
+
+
+Sorties successives :
+
+target/kikongo-nouns-wordsearch-book.v3.json
+
+Puis v4 avec amélioration des données.
+
+Champs gérés par EntryV1 :
+
+base, display, translation (FR fusionné), slug, partOfSpeech, extraInfo (classe nominale), phonetic, translationEn, semanticTags.
+
+meta inclut : source = "lexikongo", meaningLanguage = "fr", nominalClasses.
+
+1.4. Mots mêlés Kikongo — VERBES
+
+Service : KikongoVerbWordSearchService
+
+Utilise LexikongoVerbRepository.findRandomVerbsByLength.
+
+WordToFind contient désormais FR+EN+phonétique.
+
+Outil JSON : KikongoVerbWordSearchJsonExportTool
+
+Commande :
+
+mvn exec:java -Dexec.mainClass=com.longoka.games.app.KikongoVerbWordSearchJsonExportTool
+
+
+Sortie :
+
+target/kikongo-verbs-wordsearch-book.v4.json
+
+Vérifications :
+
+Bon mapping pour des verbes comme Wuwumuka, Lungana, Tewa, etc.
+
+translationEn et phonetic alimentés quand ils existent en DB.
+
+1.5. Mots mêlés Kikongo — MIXTE (noms + verbes)
+
+Service dedicated : KikongoMixedWordSearchService
+
+Ouvre une connexion Kikongo via DbConfig.openKikongoLexConnection().
+
+Utilise :
+
+LexikongoWordRepository (noms)
+
+LexikongoVerbRepository (verbes)
+
+Paramétrage :
+
+nounTarget = maxWords / 2, verbTarget = maxWords - nounTarget.
+
+Sur-sélection (* 3) pour laisser de la marge au générateur.
+
+Remplissage via :
+
+fillFromNouns(...) → WordToFind avec :
+
+baseForm = singular/plural/root
+
+translationFr = getFrenchMeaningsJoined() (fallback sur ancienne logique)
+
+translationEn = getEnglishMeaningsJoined()
+
+extraInfo = nominalClass.className
+
+phonetic, slug
+
+fillFromVerbs(...) → WordToFind avec :
+
+baseForm = v.getName()
+
+translationFr, translationEn, phonetic, slug.
+
+Générateur :
+
+WordSearchGenerator.generatePuzzle("kg", "Mots meles Kikongo (noms + verbes)", "Noms + verbes", rows, cols, wordsToFind).
+
+Outil JSON : KikongoMixedWordSearchJsonExportTool
+
+Gère déduplication par base, fusion des traductions, devinette de semanticTags via SemanticTagger.guessTags.
+
+Sortie : target/kikongo-mixed-wordsearch-book.v2.json.
+
+1.6. Mots croisés Kikongo — MIXTE (noms + verbes)
+
+Nouveau service : KikongoMixedCrosswordService
+
+S’inspire très fortement de KikongoCrosswordService.buildCrosswordFromWords.
+
+Étapes :
+
+Construction d’une liste MixedEntryCandidate à partir de :
+
+LexikongoWordRepository (noms)
+
+LexikongoVerbRepository (verbes)
+
+Sélection mixte (sans dupliquer les baseForm / answer).
+
+Génération de la grille via la même logique de placement :
+
+Grille 12×12 remplie avec #.
+
+Placement du premier mot en ACROSS.
+
+Puis placement par croisements (tryPlaceWithCrossing), fallback horizontal/vertical (tryPlaceSimple).
+
+Construction de CrosswordJsonModels.PuzzleV1 :
+
+id = "kg-cross-mixed-" + index
+
+mode = "mixed", title = "Mots croisés Kikongo (mixed)", theme = "noms + verbes".
+
+entries[] avec :
+
+id, number, direction, row, col, answer
+
+display, clue = translation FR
+
+translation, translationEn, phonetic, slug, partOfSpeech, extraInfo, semanticTags.
+
+meta.semanticDomains = union des tags, meta.nominalClasses = union des extraInfo des noms.
+
+Outil : KikongoMixedCrosswordJsonExportTool
+
+Commande :
+
+mvn exec:java -Dexec.mainClass=com.longoka.games.app.KikongoMixedCrosswordJsonExportTool
+
+
+Sortie :
+
+target/kikongo-mixed-crossword-book.v2.json
+
+48 grilles 12×12, mixant noms + verbes.
+
+🗓 2025-12-15 — Passage au Lingala (mots mêlés + croisés)
+2.1. Config DB Lingala
+
+DbConfig.openLingalaLexConnection() ajouté.
+
+Host / port / user / pass paramétrables via :
+
+lex.ln.host, lex.ln.port, lex.ln.user, lex.ln.pass, lex.ln.name
+
+ou variables d’environnement LEX_LN_DB_*.
+
+DB par défaut : 6i695q_lexilingala.
+
+Hypothèse importante :
+
+Même schéma que Lexikongo : mêmes tables (words, verbs, *_meanings, slugs, etc.).
+
+2.2. Repositories Lingala
+
+Création des repositories analogues à ceux du Kikongo, mais branchés sur openLingalaLexConnection() :
+
+LingalaWordRepository (basé sur LexikongoWordRepository).
+
+LingalaVerbRepository (basé sur LexikongoVerbRepository).
+
+Logique identique :
+
+Sélections de mots approuvés, filtrés par langue de meaning ("fr" et "en"), fusion FR/EN, phonétique, slug, classes nominales, etc.
+
+2.3. Mots mêlés Lingala — NOMS
+
+Service : LingalaWordSearchService
+
+Analogique à KikongoWordSearchService, mais connectée à la DB Lingala.
+
+Génère WordSearchPuzzle avec WordToFind : base, display, FR/EN, phonétique, slug, classe nominale, partOfSpeech = "noun".
+
+Outil JSON : LingalaNounWordSearchJsonExportTool
+
+Très proche de KikongoNounWordSearchJsonExportTool.
+
+Commande :
+
+mvn exec:java -Dexec.mainClass=com.longoka.games.app.LingalaNounWordSearchJsonExportTool
+
+
+Résultat :
+
+target/lingala-nouns-wordsearch-book.v1.json
+
+48 grilles 12×12, mots Lingala (noms).
+
+2.4. Mots mêlés Lingala — VERBES
+
+Service : LingalaVerbWordSearchService
+
+Portage de KikongoVerbWordSearchService.
+
+Outil JSON : LingalaVerbWordSearchJsonExportTool
+
+Commande :
+
+mvn exec:java -Dexec.mainClass=com.longoka.games.app.LingalaVerbWordSearchJsonExportTool
+
+
+Résultat :
+
+target/lingala-verbs-wordsearch-book.v1.json
+
+48 grilles 12×12 de verbes Lingala.
+
+2.5. Mots mêlés Lingala — MIXTE
+
+Service : LingalaMixedWordSearchService
+
+Copie adaptée de KikongoMixedWordSearchService :
+
+Connexion via openLingalaLexConnection().
+
+LingalaWordRepository + LingalaVerbRepository.
+
+Même algorithme de mélange noms/verbes, fusion FR/EN, phonétique, etc.
+
+Outil JSON : LingalaMixedWordSearchJsonExportTool
+
+NOTE : au moment du log, le script existe dans le code, mais la classe n’était pas trouvée → à vérifier/créer.
+
+Erreur rencontrée :
+
+ClassNotFoundException: com.longoka.games.app.LingalaMixedWordSearchJsonExportTool
+
+À faire : implémenter ce tool (copier KikongoMixedWordSearchJsonExportTool en l’adaptant à Lingala).
+
+2.6. Mots croisés Lingala — NOMS
+
+Service utilisé : toujours KikongoCrosswordService (générique) mais alimenté par un puzzle Lingala wordsearch (via un service Lingala dédié ou adaptation).
+
+Outil JSON : LingalaNounCrosswordJsonExportTool
+
+Commande :
+
+mvn exec:java -Dexec.mainClass=com.longoka.games.app.LingalaNounCrosswordJsonExportTool
+
+
+Sortie :
+
+target/lingala-nouns-crossword-book.v1.json
+
+48 grilles 12×12, noms Lingala.
+
+2.7. Mots croisés Lingala — VERBES
+
+Outil : LingalaVerbCrosswordJsonExportTool
+
+Commande :
+
+mvn exec:java -Dexec.mainClass=com.longoka.games.app.LingalaVerbCrosswordJsonExportTool
+
+
+Sortie :
+
+target/lingala-verbs-crossword-book.v1.json
+
+48 grilles 12×12, verbes Lingala.
+MÉMO REPRISE — Longoka Kikongo / Lingala (jeux + InDesign)
+1. Contexte
+
+Projet : générer des livres de jeux (mots mêlés + mots croisés) pour :
+
+Kikongo
+
+Lingala
+
+Pipeline :
+
+Java (Maven) → connexion MySQL (Lexikongo / Lexilingala).
+
+Générateurs → exports JSON normalisés :
+
+longoka.wordsearch.pack.v1
+
+longoka.crossword.pack.v1
+
+Scripts InDesign JSX → mise en page automatique (1 page par grille, etc.).
+
+2. DB & Config
+
+Classe commune : com.longoka.games.app.DbConfig
+
+openKikongoLexConnection() → DB par défaut 6i695q_lexikongo
+
+openLingalaLexConnection() → DB par défaut 6i695q_lexilingala
+
+Même schéma (words, verbs, *_meanings, slugs, classes nominales, etc.).
+
+3. KIKONGO — JSON générés ✅
+3.1. Mots mêlés (wordsearch) — 48 grilles, 12×12
+
+Format : longoka.wordsearch.pack.v1
+
+Noms
+
+Service : KikongoWordSearchService
+
+Tool : KikongoNounWordSearchJsonExportTool
+
+Fichier : target/kikongo-nouns-wordsearch-book.v4.json
+
+Verbes
+
+Service : KikongoVerbWordSearchService
+
+Tool : KikongoVerbWordSearchJsonExportTool
+
+Fichier : target/kikongo-verbs-wordsearch-book.v4.json
+
+Mixtes (noms + verbes)
+
+Service : KikongoMixedWordSearchService
+
+Tool : KikongoMixedWordSearchJsonExportTool
+
+Fichier : target/kikongo-mixed-wordsearch-book.v2.json
+
+Chaque WordToFind contient :
+
+baseForm, displayForm
+
+translation (FR fusionnée)
+
+translationEn (EN fusionnée si dispo)
+
+phonetic
+
+slug
+
+partOfSpeech
+
+extraInfo (classe nominale)
+
+tags sémantiques via SemanticTagger.
+
+3.2. Mots croisés (crossword) — 48 grilles, 12×12
+
+Format : longoka.crossword.pack.v1
+
+Noms
+
+Service : KikongoCrosswordService (mode "nouns")
+
+Tool : KikongoNounCrosswordJsonExportTool
+
+Fichier : target/kikongo-nouns-crossword-book.v2.json (ou dernière vX)
+
+Verbes
+
+Service : KikongoCrosswordService (mode "verbs")
+
+Tool : KikongoVerbCrosswordJsonExportTool
+
+Fichier : target/kikongo-verbs-crossword-book.v2.json (ou dernière vX)
+
+Mixtes (noms + verbes)
+
+Service : KikongoMixedCrosswordService
+
+Logique de placement recopiée de KikongoCrosswordService.buildCrosswordFromWords
+
+Entrées avec FR+EN+phonétique+slug+classe nominale+tags.
+
+Tool : KikongoMixedCrosswordJsonExportTool
+
+Fichier : target/kikongo-mixed-crossword-book.v2.json
+
+4. LINGALA — JSON générés ✅
+4.1. Mots mêlés (wordsearch)
+
+Noms
+
+Service : LingalaWordSearchService
+
+Tool : LingalaNounWordSearchJsonExportTool
+
+Fichier : target/lingala-nouns-wordsearch-book.v1.json
+
+Verbes
+
+Service : LingalaVerbWordSearchService
+
+Tool : LingalaVerbWordSearchJsonExportTool
+
+Fichier : target/lingala-verbs-wordsearch-book.v1.json
+
+Mixtes (noms + verbes)
+
+Service : LingalaMixedWordSearchService
+
+Tool : LingalaMixedWordSearchJsonExportTool
+
+Objectif fichier : target/lingala-mixed-wordsearch-book.v1.json
+
+À vérifier/ajuster au besoin selon l’état exact du code, mais la structure est calquée sur le Kikongo.
+
+4.2. Mots croisés (crossword)
+
+Noms
+
+Tool : LingalaNounCrosswordJsonExportTool
+
+Fichier : target/lingala-nouns-crossword-book.v1.json
+
+Verbes
+
+Tool : LingalaVerbCrosswordJsonExportTool
+
+Fichier : target/lingala-verbs-crossword-book.v1.json
+
+(Éventuel futur : crosswords mixtes Lingala sur le modèle de KikongoMixedCrosswordService.)
+
+5. InDesign — Scripts JSX (DÉJÀ CRÉÉS ✅)
+
+On dispose déjà des scripts JSX pour Kikongo et Lingala, pour mots mêlés ET mots croisés.
+
+Nommage (principe) :
+
+Longoka_Kikongo_Import_Crossword_Pack.jsx
+
+Longoka_Kikongo_Import_WordSearch_Pack.jsx
+
+Longoka_Lingala_Import_Crossword_Pack.jsx
+
+Longoka_Lingala_Import_WordSearch_Pack.jsx
+
+Comportement :
+
+demandent un fichier JSON pack (Kikongo ou Lingala, wordsearch ou crossword),
+
+créent un document InDesign,
+
+1 page par grille,
+
+posent la grille + liste des mots/définitions (mise en forme encore simple).
+
+Reste à faire côté InDesign :
+
+Définir et appliquer :
+
+gabarits de page,
+
+styles de paragraphe / caractère,
+
+gestion propre des en-têtes, pagination, titres de sections,
+
+éventuellement :
+
+pages de solutions,
+
+couvertures (collection), etc.
+
+6. Point de reprise pour le prochain chat
+
+Quand je reviendrai avec ce mémo, l’idée est de reprendre ici :
+
+Objectif suivant (à décider dans le prochain message) :
+
+soit peaufiner les scripts JSX (mise en page “vraies pages de livre”) pour un des packs (par ex. Lingala nouns crossword),
+
+soit ajuster / vérifier LingalaMixedWordSearchJsonExportTool,
+
+soit commencer la structuration des livres (ordre des jeux, sommaire, solutions, etc.).
+soit faire le point de notre projet globalement avant de décider quoi faire. 

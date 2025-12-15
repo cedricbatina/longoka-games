@@ -43,7 +43,7 @@ public final class KikongoMixedWordSearchJsonExportTool {
     int maxWords = 12;
     String meaningLanguageCode = "fr";
     // String outputPath = "target/kikongo-mixed-wordsearch-pack.v1.json";
-    String outputPath = "target/kikongo-mixed-wordsearch-book.v1.json";
+    String outputPath = "target/kikongo-mixed-wordsearch-book.v2.json";
 
     KikongoMixedWordSearchService service = new KikongoMixedWordSearchService();
     List<WordSearchJsonModels.PuzzleV1> jsonPuzzles = new ArrayList<>();
@@ -157,9 +157,18 @@ public final class KikongoMixedWordSearchJsonExportTool {
           e.slug = w.getSlug();
           e.partOfSpeech = w.getPartOfSpeech();
           e.extraInfo = w.getExtraInfo();
-          entryByBase.put(base, e);
+
+          // 🔥 AJOUT : phonétique + EN
+          e.phonetic = w.getPhonetic();
+          e.translationEn = w.getTranslationEn();
+
+          // tags sémantiques (on recalculera après fusion aussi)
           e.semanticTags = SemanticTagger.guessTags(e.translation);
+
+          entryByBase.put(base, e);
         } else {
+          // fusion ...
+
           // fusion : on garde une seule entrée pour ce base
 
           // 1) Traduction : on fusionne si différent
@@ -169,6 +178,16 @@ public final class KikongoMixedWordSearchJsonExportTool {
               existing.translation = t;
             } else if (!existing.translation.equals(t)) {
               existing.translation = existing.translation + " ; " + t;
+            }
+          }
+
+          // 🔥 1bis) Traduction EN : même logique
+          String en = w.getTranslationEn();
+          if (en != null && !en.isBlank()) {
+            if (existing.translationEn == null || existing.translationEn.isBlank()) {
+              existing.translationEn = en;
+            } else if (!existing.translationEn.equals(en)) {
+              existing.translationEn = existing.translationEn + " ; " + en;
             }
           }
 
@@ -191,11 +210,21 @@ public final class KikongoMixedWordSearchJsonExportTool {
           if (existing.display == null && w.getDisplayForm() != null) {
             existing.display = w.getDisplayForm();
           }
+
+          // 🔥 6) phonétique : on garde la première non nulle
+          if (existing.phonetic == null && w.getPhonetic() != null && !w.getPhonetic().isBlank()) {
+            existing.phonetic = w.getPhonetic();
+          }
+
         }
       }
     }
 
     json.entries = new ArrayList<>(entryByBase.values());
+    // Recalcule les semanticTags après fusion des traductions
+    for (WordSearchJsonModels.EntryV1 e : json.entries) {
+      e.semanticTags = SemanticTagger.guessTags(e.translation);
+    }
 
     // === 2) PLACEMENTS : une seule occurrence par mot dans la grille ===
     List<WordSearchJsonModels.PlacementV1> placements = new ArrayList<>();
