@@ -63,7 +63,7 @@ public final class DbConfig {
   }
 
   // =========================
-  // 1) DB principale Lexikongo
+  // 1) Alias legacy DB principale Lexikongo
   // =========================
   public static Connection openLexikongoConnection() throws SQLException {
     String host = propOrEnv("lex.db.host", "LEX_DB_HOST", "localhost");
@@ -77,7 +77,7 @@ public final class DbConfig {
   }
 
   // =========================
-  // 2) DB Kikongo (lexikongo)
+  // 2) DB Kikongo
   // =========================
   public static Connection openKikongoLexConnection() throws SQLException {
     String host = propOrEnv("lex.kg.host", "LEX_KG_DB_HOST", "localhost");
@@ -91,12 +91,12 @@ public final class DbConfig {
   }
 
   // =========================
-  // 3) DB Lingala (future)
+  // 3) DB Lingala
   // =========================
   public static Connection openLingalaLexConnection() throws SQLException {
     String host = propOrEnv("lex.ln.host", "LEX_LN_DB_HOST", "localhost");
     String port = propOrEnv("lex.ln.port", "LEX_LN_DB_PORT", "3306");
-    String db = propOrEnv("lex.ln.name", "LEX_LN_DB_NAME", "6i695q_lexilingala");
+    String db = propOrEnv("lex.ln.name", "LEX_LN_DB_NAME", "6i695q_lingala");
     String user = propOrEnv("lex.ln.user", "LEX_LN_DB_USER", "root");
     String pass = propOrEnv("lex.ln.pass", "LEX_LN_DB_PASS", "");
 
