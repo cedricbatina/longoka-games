@@ -1,0 +1,37 @@
+# Copier ce fichier vers db-local.properties et renseigner les valeurs.
+# Ne commitez jamais db-local.properties ni db-prod.properties.
+#
+# Alternative : laisser ce fichier minimal et definir DB_HOST, DB_USER, DB_PASSWORD, DB_PORT, DB_NAME
+# (comme pour une autre appli) : DbConfig les utilise en secours pour Kikongo / lex.db.
+# Lingala : toujours lex.ln.* ou LEX_LN_DB_NAME (DB_NAME ne s'applique pas a la base Lingala).
+#
+# Profil : par defaut GAMES_ENV non defini => ce fichier est charge par DbConfig.
+# Production : definir GAMES_ENV=prod => db-prod.properties
+
+# --- Kikongo ---
+lex.kg.host=localhost
+lex.kg.port=3306
+lex.kg.name=6i695q_lexikongo
+lex.kg.user=root
+lex.kg.pass=
+
+# --- Lingala ---
+lex.ln.host=localhost
+lex.ln.port=3306
+lex.ln.name=6i695q_lingala
+lex.ln.user=root
+lex.ln.pass=
+
+# --- Alias legacy Lexikongo ---
+lex.db.host=localhost
+lex.db.port=3306
+lex.db.name=6i695q_lexikongo
+lex.db.user=root
+lex.db.pass=
+
+# --- Stock jeux ---
+games.db.host=localhost
+games.db.port=3306
+games.db.name=6i695q_games_stock
+games.db.user=root
+games.db.pass=

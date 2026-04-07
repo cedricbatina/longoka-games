@@ -92,9 +92,10 @@ public class LingalaMixedWordSearchService {
         continue;
       }
 
-      String translationFr = w.getFrenchMeaningsJoined();
-      if (translationFr == null) {
-        translationFr = findMeaningTextFromWord(w, meaningLanguageCode);
+      // La traduction principale suit la langue demandee (fr, en, pt, ...).
+      String translationPrimary = findMeaningTextFromWord(w, meaningLanguageCode);
+      if (translationPrimary == null) {
+        translationPrimary = w.getFrenchMeaningsJoined();
       }
 
       String translationEn = w.getEnglishMeaningsJoined();
@@ -109,7 +110,7 @@ public class LingalaMixedWordSearchService {
       WordToFind wordToFind = new WordToFind(
           baseForm,
           baseForm,
-          translationFr,
+          translationPrimary,
           slug,
           "noun",
           extraInfo,
@@ -141,12 +142,25 @@ public class LingalaMixedWordSearchService {
     if (languageCode == null || languageCode.isBlank()) {
       return null;
     }
+    java.util.LinkedHashSet<String> texts = new java.util.LinkedHashSet<>();
     for (LexMeaning m : w.getMeanings()) {
+      if (m == null) {
+        continue;
+      }
       if (languageCode.equalsIgnoreCase(m.getLanguageCode())) {
-        return m.getMeaning();
+        String t = m.getMeaning();
+        if (t != null) {
+          t = t.trim();
+        }
+        if (t != null && !t.isEmpty()) {
+          texts.add(t);
+        }
       }
     }
-    return null;
+    if (texts.isEmpty()) {
+      return null;
+    }
+    return String.join(" ; ", texts);
   }
 
   private String findMeaningTextFromWord(LexWord w, String meaningLanguageCode) {
@@ -185,7 +199,10 @@ public class LingalaMixedWordSearchService {
         continue;
       }
 
-      String translationFr = v.getFrenchMeaningsJoined();
+      String translationPrimary = findMeaningTextFromVerb(v, meaningLanguageCode);
+      if (translationPrimary == null) {
+        translationPrimary = v.getFrenchMeaningsJoined();
+      }
       String translationEn = v.getEnglishMeaningsJoined();
       String slug = v.getSlug();
       String phonetic = v.getPhonetic();
@@ -193,7 +210,7 @@ public class LingalaMixedWordSearchService {
       WordToFind wordToFind = new WordToFind(
           baseForm,
           baseForm,
-          translationFr,
+          translationPrimary,
           slug,
           "verb",
           null,
@@ -206,6 +223,12 @@ public class LingalaMixedWordSearchService {
   }
 
   private String chooseVerbBaseForm(LexVerb v) {
+    if (v == null) {
+      return null;
+    }
+    if (v.getGridForm() != null && !v.getGridForm().isBlank()) {
+      return v.getGridForm();
+    }
     return v.getName();
   }
 
@@ -216,12 +239,25 @@ public class LingalaMixedWordSearchService {
     if (languageCode == null || languageCode.isBlank()) {
       return null;
     }
+    java.util.LinkedHashSet<String> texts = new java.util.LinkedHashSet<>();
     for (LexMeaning m : v.getMeanings()) {
+      if (m == null) {
+        continue;
+      }
       if (languageCode.equalsIgnoreCase(m.getLanguageCode())) {
-        return m.getMeaning();
+        String t = m.getMeaning();
+        if (t != null) {
+          t = t.trim();
+        }
+        if (t != null && !t.isEmpty()) {
+          texts.add(t);
+        }
       }
     }
-    return null;
+    if (texts.isEmpty()) {
+      return null;
+    }
+    return String.join(" ; ", texts);
   }
 
   private String findMeaningTextFromVerb(LexVerb v, String meaningLanguageCode) {

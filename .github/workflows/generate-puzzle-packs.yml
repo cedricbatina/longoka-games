@@ -1,0 +1,82 @@
+# Generation periodique des packs JSON (Lexikongo / Lexilingala) pour InDesign, apps mobiles, etc.
+#
+# Prerequis GitHub: soit secrets JDBC (ci-dessous), soit fournir les memes cles que
+# backend-java/config/db-local.properties via l'environnement.
+# En local Windows, les fichiers sous backend-java/config/ suffisent si mvn est lance depuis backend-java.
+#
+# Secrets typiques pour CI :
+#   LEX_KG_DB_HOST, LEX_KG_DB_USER, LEX_KG_DB_PASS
+#   (+ LEX_KG_DB_NAME, LEX_KG_DB_PORT si besoin)
+#   LEX_LN_DB_HOST, LEX_LN_DB_USER, LEX_LN_DB_PASS
+#   (+ LEX_LN_DB_NAME, LEX_LN_DB_PORT si besoin)
+#
+# Si la base n'est pas joignable depuis github.com (reseau prive), utilisez:
+#   - workflow_dispatch depuis un runner self-hosted, ou
+#   - Planificateur de taches sur une machine qui a deja acces au MySQL (script .sh / .ps1).
+
+name: Generate lexical puzzle JSON packs
+
+on:
+  workflow_dispatch:
+    inputs:
+      cycle_id:
+        description: "Identifiant dossier (defaut: date du jour UTC)"
+        required: false
+        default: ""
+  schedule:
+    # Tous les lundis 05:15 UTC — desactivez ou changez selon vos besoins
+    - cron: "15 5 * * 1"
+
+jobs:
+  premium-packs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Export premium JSON (kg + ln)
+        working-directory: backend-java
+        env:
+          LEX_KG_DB_HOST: ${{ secrets.LEX_KG_DB_HOST }}
+          LEX_KG_DB_PORT: ${{ secrets.LEX_KG_DB_PORT }}
+          LEX_KG_DB_NAME: ${{ secrets.LEX_KG_DB_NAME }}
+          LEX_KG_DB_USER: ${{ secrets.LEX_KG_DB_USER }}
+          LEX_KG_DB_PASS: ${{ secrets.LEX_KG_DB_PASS }}
+          LEX_LN_DB_HOST: ${{ secrets.LEX_LN_DB_HOST }}
+          LEX_LN_DB_PORT: ${{ secrets.LEX_LN_DB_PORT }}
+          LEX_LN_DB_NAME: ${{ secrets.LEX_LN_DB_NAME }}
+          LEX_LN_DB_USER: ${{ secrets.LEX_LN_DB_USER }}
+          LEX_LN_DB_PASS: ${{ secrets.LEX_LN_DB_PASS }}
+          CYCLE_ID: ${{ inputs.cycle_id }}
+        run: |
+          if [ -z "${LEX_KG_DB_HOST:-}" ] && [ -z "${LEX_LN_DB_HOST:-}" ]; then
+            echo "::warning::Aucun secret DB (LEX_KG_DB_HOST / LEX_LN_DB_HOST) — export ignore."
+            echo "Configurez les secrets du depot (voir entete de ce workflow) ou lancez en local / self-hosted."
+            exit 0
+          fi
+          if [ -n "${LEX_KG_DB_HOST:-}" ] && [ -z "${LEX_LN_DB_HOST:-}" ]; then
+            export LANGUAGES=kg
+          elif [ -z "${LEX_KG_DB_HOST:-}" ] && [ -n "${LEX_LN_DB_HOST:-}" ]; then
+            export LANGUAGES=ln
+          fi
+          if [ -n "${CYCLE_ID:-}" ]; then
+            export CYCLE_ID
+          fi
+          export LONGOKA_CADENCE=weekly
+          bash scripts/run-export-all-premium.sh
+
+      - name: Upload weekly JSON artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: longoka-puzzle-packs-${{ github.run_id }}
+          path: backend-java/target/weekly/
+          if-no-files-found: warn
+          retention-days: 30

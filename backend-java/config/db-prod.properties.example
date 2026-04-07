@@ -1,0 +1,25 @@
+# Copier vers db-prod.properties (non versionne). Charge si GAMES_ENV=prod.
+
+lex.kg.host=localhost
+lex.kg.port=3306
+lex.kg.name=6i695q_lexikongo
+lex.kg.user=root
+lex.kg.pass=
+
+lex.ln.host=localhost
+lex.ln.port=3306
+lex.ln.name=6i695q_lingala
+lex.ln.user=root
+lex.ln.pass=
+
+lex.db.host=localhost
+lex.db.port=3306
+lex.db.name=6i695q_lexikongo
+lex.db.user=root
+lex.db.pass=
+
+games.db.host=localhost
+games.db.port=3306
+games.db.name=6i695q_games_stock
+games.db.user=root
+games.db.pass=

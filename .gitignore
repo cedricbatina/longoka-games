@@ -1,0 +1,6 @@
+# Secrets JDBC (copier db-local.properties.example vers db-local.properties en local)
+backend-java/config/db-local.properties
+backend-java/config/db-prod.properties
+
+backend-java/target/
+*.class

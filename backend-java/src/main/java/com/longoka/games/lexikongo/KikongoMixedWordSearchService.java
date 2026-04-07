@@ -95,11 +95,10 @@ public class KikongoMixedWordSearchService {
         continue;
       }
 
-      // 🔹 Toutes les traductions FR fusionnées ("sens1 ; sens2 ; sens3")
-      String translationFr = w.getFrenchMeaningsJoined();
-      // fallback : si jamais null (aucun meaning FR), on garde l'ancienne logique
-      if (translationFr == null) {
-        translationFr = findMeaningTextFromWord(w, meaningLanguageCode);
+      // La traduction principale suit la langue demandee (fr, en, pt, ...).
+      String translationPrimary = findMeaningTextFromWord(w, meaningLanguageCode);
+      if (translationPrimary == null) {
+        translationPrimary = w.getFrenchMeaningsJoined();
       }
 
       // 🔹 Toutes les traductions EN fusionnées
@@ -115,7 +114,7 @@ public class KikongoMixedWordSearchService {
       WordToFind wordToFind = new WordToFind(
           baseForm,
           baseForm, // forme affichée
-          translationFr, // FR fusionné
+          translationPrimary,
           slug,
           "noun",
           extraInfo,
@@ -148,12 +147,25 @@ public class KikongoMixedWordSearchService {
     if (languageCode == null || languageCode.isBlank()) {
       return null;
     }
+    java.util.LinkedHashSet<String> texts = new java.util.LinkedHashSet<>();
     for (LexMeaning m : w.getMeanings()) {
+      if (m == null) {
+        continue;
+      }
       if (languageCode.equalsIgnoreCase(m.getLanguageCode())) {
-        return m.getMeaning();
+        String t = m.getMeaning();
+        if (t != null) {
+          t = t.trim();
+        }
+        if (t != null && !t.isEmpty()) {
+          texts.add(t);
+        }
       }
     }
-    return null;
+    if (texts.isEmpty()) {
+      return null;
+    }
+    return String.join(" ; ", texts);
   }
 
   private String findMeaningTextFromWord(LexWord w, String meaningLanguageCode) {
@@ -193,7 +205,10 @@ public class KikongoMixedWordSearchService {
         continue;
       }
 
-      String translationFr = v.getFrenchMeaningsJoined();
+      String translationPrimary = findMeaningTextFromVerb(v, meaningLanguageCode);
+      if (translationPrimary == null) {
+        translationPrimary = v.getFrenchMeaningsJoined();
+      }
       String translationEn = v.getEnglishMeaningsJoined();
       String slug = v.getSlug();
       String phonetic = v.getPhonetic();
@@ -201,7 +216,7 @@ public class KikongoMixedWordSearchService {
       WordToFind wordToFind = new WordToFind(
           baseForm,
           baseForm,
-          translationFr,
+          translationPrimary,
           slug,
           "verb",
           null,
@@ -214,8 +229,12 @@ public class KikongoMixedWordSearchService {
   }
 
   private String chooseVerbBaseForm(LexVerb v) {
-    // On reste simple : on prend le nom du verbe tel qu’il est en DB
-    // (si un jour tu veux root vs infinitif, on ajustera ici)
+    if (v == null) {
+      return null;
+    }
+    if (v.getGridForm() != null && !v.getGridForm().isBlank()) {
+      return v.getGridForm();
+    }
     return v.getName();
   }
 
@@ -226,12 +245,25 @@ public class KikongoMixedWordSearchService {
     if (languageCode == null || languageCode.isBlank()) {
       return null;
     }
+    java.util.LinkedHashSet<String> texts = new java.util.LinkedHashSet<>();
     for (LexMeaning m : v.getMeanings()) {
+      if (m == null) {
+        continue;
+      }
       if (languageCode.equalsIgnoreCase(m.getLanguageCode())) {
-        return m.getMeaning();
+        String t = m.getMeaning();
+        if (t != null) {
+          t = t.trim();
+        }
+        if (t != null && !t.isEmpty()) {
+          texts.add(t);
+        }
       }
     }
-    return null;
+    if (texts.isEmpty()) {
+      return null;
+    }
+    return String.join(" ; ", texts);
   }
 
   private String findMeaningTextFromVerb(LexVerb v, String meaningLanguageCode) {

@@ -36,6 +36,27 @@ public class LexikongoVerbRepository {
       int maxLength,
       int limit,
       String languageCode) throws SQLException {
+    return findRandomVerbsInternal(minLength, maxLength, null, limit, languageCode);
+  }
+
+  /**
+   * Récupère des verbes aléatoires pour un radical précis.
+   */
+  public List<LexVerb> findRandomVerbsByRoot(
+      String root,
+      int minLength,
+      int maxLength,
+      int limit,
+      String languageCode) throws SQLException {
+    return findRandomVerbsInternal(minLength, maxLength, root, limit, languageCode);
+  }
+
+  private List<LexVerb> findRandomVerbsInternal(
+      int minLength,
+      int maxLength,
+      String rootFilter,
+      int limit,
+      String languageCode) throws SQLException {
 
     // 1) On récupère d'abord les verbes (sans meanings)
     String sql = "SELECT " +
@@ -50,6 +71,7 @@ public class LexikongoVerbRepository {
         "WHERE v.is_approved = 1 " +
         "  AND v.active_verb = 1 " +
         "  AND CHAR_LENGTH(v.name) BETWEEN ? AND ? " +
+        ((rootFilter != null && !rootFilter.isBlank()) ? "  AND UPPER(TRIM(v.root)) = UPPER(TRIM(?)) " : "") +
         "ORDER BY RAND() " +
         "LIMIT ?";
 
@@ -57,9 +79,13 @@ public class LexikongoVerbRepository {
     List<Integer> verbIds = new ArrayList<>();
 
     try (PreparedStatement ps = connection.prepareStatement(sql)) {
-      ps.setInt(1, minLength);
-      ps.setInt(2, maxLength);
-      ps.setInt(3, limit);
+      int index = 1;
+      ps.setInt(index++, minLength);
+      ps.setInt(index++, maxLength);
+      if (rootFilter != null && !rootFilter.isBlank()) {
+        ps.setString(index++, rootFilter);
+      }
+      ps.setInt(index, limit);
 
       try (ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {

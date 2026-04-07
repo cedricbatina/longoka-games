@@ -26,7 +26,7 @@ public final class KikongoNounCrosswordJsonExportTool {
     int puzzleCount = 48; // nombre de grilles
     int rows = 12;
     int cols = 12;
-    int maxEntries = 10; // nb max de mots par grille
+    int maxEntries = 12; // nb max de mots par grille
     String meaningLanguageCode = "fr";
     String mode = "nouns";
     String languageCode = "kg";

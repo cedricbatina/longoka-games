@@ -2,8 +2,11 @@ package com.longoka.games.puzzles.wordsearch;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.text.Normalizer;
 
 /**
  * Simple word search generator.
@@ -56,10 +59,22 @@ public class WordSearchGenerator {
 
   char[][] grid = new char[rows][cols];
   List<WordPlacement> placements = new ArrayList<>();
+  List<String> placedNormalizedWords = new ArrayList<>();
 
   // We can shuffle the order to avoid always placing in the same order
   List<WordToFind> shuffledWords = new ArrayList<>(words);
   Collections.shuffle(shuffledWords, random);
+
+  Map<String, List<WordToFind>> wordsByNormalized = new LinkedHashMap<>();
+  for (WordToFind wordToFind : shuffledWords) {
+   String normalized = normalizeWordForGrid(wordToFind.getBaseForm());
+   if (normalized.isEmpty()) {
+    continue;
+   }
+   wordsByNormalized
+     .computeIfAbsent(normalized, k -> new ArrayList<>())
+     .add(wordToFind);
+  }
 
   for (WordToFind wordToFind : shuffledWords) {
    String normalized = normalizeWordForGrid(wordToFind.getBaseForm());
@@ -72,11 +87,22 @@ public class WordSearchGenerator {
    }
 
    boolean placed = tryPlaceWord(grid, normalized, placements);
-   // If not placed, we simply skip the word. Later we can log or track failures.
+  if (placed) {
+   placedNormalizedWords.add(normalized);
+  }
   }
 
   // Fill empty cells
   fillEmptyCells(grid);
+
+  List<WordToFind> placedWords = new ArrayList<>();
+  for (String normalizedWord : placedNormalizedWords) {
+   List<WordToFind> candidates = wordsByNormalized.get(normalizedWord);
+   if (candidates == null || candidates.isEmpty()) {
+    continue;
+   }
+   placedWords.add(candidates.remove(0));
+  }
 
   return new WordSearchPuzzle(
     null, // no id yet
@@ -86,17 +112,26 @@ public class WordSearchGenerator {
     rows,
     cols,
     grid,
-    words,
+    placedWords,
     placements);
  }
 
  private String normalizeWordForGrid(String baseForm) {
-  // Remove spaces, dashes and apostrophes; convert to upper case.
+  if (baseForm == null || baseForm.isBlank()) {
+   return "";
+  }
+
+  // Decompose accents then keep only ASCII letters for stable A-Z grids.
+  String folded = Normalizer.normalize(baseForm, Normalizer.Form.NFD)
+    .replaceAll("\\p{M}+", "")
+    .toUpperCase(java.util.Locale.ROOT);
+
+  // Remove spaces, dashes and apostrophes; keep only A-Z.
   StringBuilder sb = new StringBuilder();
-  for (int i = 0; i < baseForm.length(); i++) {
-   char ch = baseForm.charAt(i);
-   if (Character.isLetter(ch)) {
-    sb.append(Character.toUpperCase(ch));
+  for (int i = 0; i < folded.length(); i++) {
+   char ch = folded.charAt(i);
+   if (ch >= 'A' && ch <= 'Z') {
+    sb.append(ch);
    }
    // ignore other characters for the grid (spaces, punctuation)
   }

@@ -35,8 +35,11 @@ public final class CrosswordJsonModels {
   /** Description courte. */
   public String description;
 
-  /** Langue des définitions (indices), ex: "fr". */
-  public String meaningLanguage;
+ /** Langue des définitions (indices), ex: "fr". */
+ public String meaningLanguage;
+
+  /** Métadonnées libres au niveau pack. */
+  public Map<String, Object> meta;
 
   /** Liste des grilles. */
   public List<PuzzleV1> puzzles;

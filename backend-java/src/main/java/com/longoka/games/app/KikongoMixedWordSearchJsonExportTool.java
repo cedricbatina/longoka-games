@@ -75,26 +75,12 @@ public final class KikongoMixedWordSearchJsonExportTool {
     mapper.enable(SerializationFeature.INDENT_OUTPUT); // pretty-print
 
     Path out = Path.of(outputPath);
-    System.out.println("DEBUG: path absolu = " + out.toAbsolutePath());
 
     if (out.getParent() != null) {
       Files.createDirectories(out.getParent());
     }
-
-    // debug existence AVANT écriture
-    System.out.println("DEBUG: existe avant write ? " + out.toFile().exists());
 
     // écriture effective
-    mapper.writeValue(out.toFile(), pack);
-
-    // debug existence APRÈS écriture
-    System.out.println("DEBUG: existe après write ? " + out.toFile().exists());
-
-    System.out.println("✅ Export JSON terminé : " + out.toAbsolutePath());
-
-    if (out.getParent() != null) {
-      Files.createDirectories(out.getParent());
-    }
     mapper.writeValue(out.toFile(), pack);
 
     System.out.println("✅ Export JSON terminé : " + out.toAbsolutePath());

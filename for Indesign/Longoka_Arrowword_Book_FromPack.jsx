@@ -1,0 +1,606 @@
+#target indesign
+
+/*
+ * Longoka_Arrowword_Book_FromPack.jsx
+ * Longoka Games arrowword (mots fleches) book builder — parity with crossword / wordsearch flow.
+ */
+
+(function () {
+    var thisFile = File($.fileName);
+    var baseFolder = (typeof LG_BASE_FOLDER !== "undefined" && LG_BASE_FOLDER)
+        ? Folder(LG_BASE_FOLDER)
+        : thisFile.parent;
+
+    $.evalFile(File(baseFolder + "/Longoka_Editions_Config.jsx"));
+    $.evalFile(File(baseFolder + "/Longoka_Editions_StylesAndMasters.jsx"));
+
+    var jsonFile = File.openDialog("Choisir un pack JSON Longoka mots fleches (arrowword)", "JSON:*.json");
+    if (!jsonFile) {
+        alert("Operation annulee.");
+        return;
+    }
+
+    var pack = LG.readJsonFile(jsonFile);
+    LG.validateArrowwordPack(pack);
+
+    var doc = LG.createDocument();
+    buildBook(doc, pack);
+
+    var outName = sanitizeFilename(LG.bookCodeFromPack(pack) + "-book.indd");
+    var outFile = File(jsonFile.parent + "/" + outName);
+    doc.save(outFile);
+    alert("Livre cree :\n" + outFile.fsName);
+
+    function buildBook(doc, pack) {
+        addTitlePage(doc, pack);
+        addCopyrightPage(doc, pack);
+        addInstructionsPage(doc, pack);
+        addPuzzlePages(doc, pack);
+        addSolutionsIntroPage(doc, pack);
+        addSolutionsPages(doc, pack);
+    }
+
+    function addTitlePage(doc, pack) {
+        var page = doc.pages[0];
+        page.appliedMaster = doc.masterSpreads.itemByName(LG.MASTERS.front);
+
+        drawChip(page, [20, 23, 28, 66], LG.collectionLabelFromPack(pack), LG.SWATCHES.longokaAccent, 0, LG.SWATCHES.paper);
+        drawChip(page, [20, 99, 28, 129], String(LG.tierLabelFromPack(pack) + " " + LG.difficultyLabelFromPack(pack)).toUpperCase(), LG.SWATCHES.longokaWarm, 8, LG.SWATCHES.longokaDark);
+
+        var eyebrow = addFrame(page, [37, 22, 44, 90], "Cahier premium de mots fleches", LG.STYLES.p.bookSubtitle);
+        eyebrow.paragraphs[0].justification = Justification.LEFT_ALIGN;
+        var volume = addFrame(page, [47, 22, 54, 90], LG.volumeLabelFromPack(pack), LG.STYLES.p.bookSubtitle);
+        volume.paragraphs[0].justification = Justification.LEFT_ALIGN;
+
+        var title = addFrame(page, [58, 22, 92, 92], compactTitle(LG.bookTitleFromPack(pack) || "Mots fleches"), LG.STYLES.p.bookTitle);
+        title.paragraphs[0].justification = Justification.LEFT_ALIGN;
+
+        var subline = addFrame(page, [96, 22, 105, 92], LG.languageLabel(pack.language) + "  |  " + LG.modeLabelFromPack(pack), LG.STYLES.p.bookSubtitle);
+        subline.paragraphs[0].justification = Justification.LEFT_ALIGN;
+
+        var deck = addFrame(page, [110, 22, 131, 90], buildCoverLead(pack), LG.STYLES.p.body);
+        deck.paragraphs[0].justification = Justification.LEFT_ALIGN;
+
+        var bigNo = addFrame(page, [40, 98, 79, 129], LG.volumeNumberFromPack(pack), LG.STYLES.p.bookTitle);
+        bigNo.paragraphs[0].justification = Justification.RIGHT_ALIGN;
+        bigNo.parentStory.fillColor = doc.swatches.itemByName(LG.SWATCHES.paper);
+        bigNo.texts[0].pointSize = 55;
+        bigNo.texts[0].leading = 52;
+        bigNo.texts[0].tracking = -40;
+
+        var code = addFrame(page, [82, 101, 91, 129], LG.bookCodeFromPack(pack), LG.STYLES.p.footer);
+        code.parentStory.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
+
+        drawStatsPanel(page, [99, 99, 188, 130], [
+            "Grilles",
+            String(LG.puzzleCountFromPack(pack)),
+            "",
+            "Langue",
+            LG.languageLabel(pack.language),
+            "",
+            "Theme",
+            LG.modeLabelFromPack(pack)
+        ], true);
+
+        var panel = page.rectangles.add();
+        panel.itemLayer = doc.layers.itemByName(LG.LAYERS.content);
+        panel.geometricBounds = [150, 22, 203, 92];
+        panel.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaWarm);
+        panel.fillTint = 25;
+        panel.strokeColor = doc.swatches.itemByName("None");
+
+        addFrame(page, [157, 28, 191, 86], buildCoverBlurb(pack), LG.STYLES.p.body);
+    }
+
+    function addCopyrightPage(doc, pack) {
+        var page = doc.pages.add(LocationOptions.AT_END);
+        LG.applyPageMargins(page);
+        page.appliedMaster = doc.masterSpreads.itemByName(LG.MASTERS.copyright);
+
+        var txt = [];
+        txt.push(LG.BRAND);
+        txt.push(LG.IMPRINT);
+        txt.push("");
+        txt.push(LG.bookTitleFromPack(pack) || "Mots fleches");
+        var bookSub = LG.bookSubtitleFromPack(pack);
+        if (bookSub) {
+            txt.push(bookSub);
+        }
+        txt.push(LG.volumeLabelFromPack(pack));
+        txt.push("");
+        txt.push("Identifiant editorial : " + LG.bookCodeFromPack(pack));
+        if (LG.isbnFromPack(pack)) txt.push("ISBN : " + LG.isbnFromPack(pack));
+        if (LG.publishedAtFromPack(pack)) txt.push("Date : " + LG.publishedAtFromPack(pack));
+        txt.push("Collection : " + LG.collectionLabelFromPack(pack));
+        txt.push("Pack : " + (pack.packId || ""));
+        txt.push("Langue : " + LG.languageLabel(pack.language));
+        txt.push("Source : " + (pack.description || "Longoka lexical packs"));
+        txt.push("");
+        txt.push("Tous droits reserves.");
+        txt.push("Aucune partie de cet ouvrage ne peut etre reproduite sans autorisation ecrite.");
+        txt.push("");
+        txt.push(LG.WEBSITE);
+
+        addFrame(page, [38, 28, 182, 124], txt.join("\r"), LG.STYLES.p.copyright);
+    }
+
+    function addInstructionsPage(doc, pack) {
+        var page = doc.pages.add(LocationOptions.AT_END);
+        LG.applyPageMargins(page);
+        page.appliedMaster = doc.masterSpreads.itemByName(LG.MASTERS.front);
+
+        addFrame(page, [24, 22, 36, 132], "Mode d'emploi", LG.STYLES.p.sectionTitle);
+        addFrame(page, [38, 22, 51, 132], "Chaque definition part d'une case grisee: la fleche indique si le mot se lit vers la droite ou vers le bas. La liste detaille reprend les memes entrees.", LG.STYLES.p.body);
+        drawStepCard(page, [58, 22, 98, 132], "1. Partir des cases", "Repere les indices dans la grille et la direction (droite ou bas).", LG.SWATCHES.longokaPanel);
+        drawStepCard(page, [104, 22, 144, 132], "2. Enchainer", "Remplis les lettres en t'appuyant sur les mots deja places.", LG.SWATCHES.longokaPanel);
+        drawStepCard(page, [150, 22, 190, 132], "3. Valider", "Compare avec les solutions compactes en fin de volume.", LG.SWATCHES.longokaPanel);
+
+        var footer = [];
+        footer.push("Pack : " + (pack.packId || ""));
+        footer.push("Nombre de grilles : " + LG.puzzleCountFromPack(pack));
+        footer.push("Theme : " + LG.modeLabelFromPack(pack));
+        addFrame(page, [192, 22, 205, 132], footer.join("  |  "), LG.STYLES.p.footer);
+    }
+
+    function addPuzzlePages(doc, pack) {
+        var i;
+        for (i = 0; i < pack.puzzles.length; i++) {
+            var page = doc.pages.add(LocationOptions.AT_END);
+            LG.applyPageMargins(page);
+            page.appliedMaster = doc.masterSpreads.itemByName(LG.MASTERS.puzzle);
+            renderPuzzlePage(doc, page, pack.puzzles[i], i + 1);
+        }
+    }
+
+    function renderPuzzlePage(doc, page, puzzle, puzzleNumber) {
+        addFrame(page, [19, 20, 28, 132], "Grille " + pad2(puzzleNumber) + "  |  " + compactTitle(puzzle.title || pack.title || "Mots fleches"), LG.STYLES.p.puzzleTitle);
+        addFrame(page, [29, 20, 35, 132], buildMetaLine(puzzle, false), LG.STYLES.p.puzzleMeta);
+
+        drawChip(page, [38, 20, 45, 52], String(LG.wordCountFromPuzzle(puzzle)) + " entrees", LG.SWATCHES.longokaAccent, 10, LG.SWATCHES.longokaDark);
+        drawChip(page, [38, 55, 45, 83], compactTitle(puzzle.difficulty || "standard"), LG.SWATCHES.longokaWarm, 10, LG.SWATCHES.longokaDark);
+
+        var gridPanel = page.rectangles.add();
+        gridPanel.itemLayer = doc.layers.itemByName(LG.LAYERS.content);
+        gridPanel.geometricBounds = [48, 20, 116, 88];
+        gridPanel.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaLight);
+        gridPanel.strokeColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
+        gridPanel.strokeWeight = 0.45;
+
+        renderArrowwordGrid(doc, page, puzzle, [52, 24, 112, 84], false);
+
+        drawStatsPanel(page, [48, 92, 116, 132], [
+            "Theme",
+            compactTitle(puzzle.theme || ""),
+            "",
+            "Classes",
+            buildClassesLine(puzzle),
+            "",
+            "Format",
+            (puzzle.rows || 0) + "x" + (puzzle.cols || 0)
+        ], false);
+
+        var cluesPanel = page.rectangles.add();
+        cluesPanel.itemLayer = doc.layers.itemByName(LG.LAYERS.content);
+        cluesPanel.geometricBounds = [122, 20, 205, 132];
+        cluesPanel.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaPanel);
+        cluesPanel.strokeColor = doc.swatches.itemByName("None");
+
+        var divider = page.graphicLines.add();
+        divider.itemLayer = doc.layers.itemByName(LG.LAYERS.content);
+        divider.paths[0].entirePath = [[79, 136], [79, 198]];
+        divider.strokeWeight = 0.35;
+        divider.strokeColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
+        divider.strokeTint = 40;
+
+        addFrame(page, [127, 26, 134, 76], "Horizontaux (droite)", LG.STYLES.p.wordListHeading);
+        addFrame(page, [127, 82, 134, 126], "Verticaux (bas)", LG.STYLES.p.wordListHeading);
+        addFrame(page, [136, 26, 198, 76], buildArrowwordClueList(puzzle.entries || [], "RIGHT", pack), LG.STYLES.p.wordList);
+        addFrame(page, [136, 82, 198, 126], buildArrowwordClueList(puzzle.entries || [], "DOWN", pack), LG.STYLES.p.wordList);
+    }
+
+    function addSolutionsIntroPage(doc, pack) {
+        var page = doc.pages.add(LocationOptions.AT_END);
+        LG.applyPageMargins(page);
+        page.appliedMaster = doc.masterSpreads.itemByName(LG.MASTERS.solutions);
+
+        addFrame(page, [58, 22, 80, 132], "Solutions", LG.STYLES.p.bookTitle);
+        addFrame(page, [85, 28, 101, 126], "Version compacte 2 grilles par page, avec reponses regroupees.", LG.STYLES.p.bookSubtitle);
+        drawChip(page, [112, 44, 120, 110], LG.volumeLabelFromPack(pack) + "  |  " + LG.bookCodeFromPack(pack), LG.SWATCHES.longokaWarm, 15, LG.SWATCHES.longokaDark);
+    }
+
+    function addSolutionsPages(doc, pack) {
+        var i;
+        for (i = 0; i < pack.puzzles.length; i += 2) {
+            var page = doc.pages.add(LocationOptions.AT_END);
+            LG.applyPageMargins(page);
+            page.appliedMaster = doc.masterSpreads.itemByName(LG.MASTERS.solutions);
+            renderSolutionBlock(doc, page, pack, pack.puzzles[i], i + 1, [22, 20, 109, 132]);
+            if (i + 1 < pack.puzzles.length) {
+                renderSolutionBlock(doc, page, pack, pack.puzzles[i + 1], i + 2, [116, 20, 203, 132]);
+            }
+        }
+    }
+
+    function renderSolutionBlock(doc, page, pack, puzzle, puzzleNumber, box) {
+        var top = box[0];
+        var left = box[1];
+        var bottom = box[2];
+        var right = box[3];
+
+        var panel = page.rectangles.add();
+        panel.itemLayer = page.parent.layers.itemByName(LG.LAYERS.solutions);
+        panel.geometricBounds = box;
+        panel.fillColor = page.parent.colors.itemByName(LG.SWATCHES.longokaPanel);
+        panel.strokeColor = page.parent.colors.itemByName(LG.SWATCHES.longokaAccent);
+        panel.strokeWeight = 0.3;
+
+        addFrame(page, [top + 4, left + 4, top + 11, right - 4], "Solution " + pad2(puzzleNumber) + "  |  " + compactTitle(puzzle.theme || puzzle.title || ""), LG.STYLES.p.solutionTitle);
+        renderArrowwordGrid(doc, page, puzzle, [top + 14, left + 5, top + 58, left + 49], true);
+
+        addFrame(page, [top + 14, left + 54, top + 20, right - 5], buildMetaLine(puzzle, true), LG.STYLES.p.puzzleMeta);
+        addFrame(page, [top + 22, left + 54, bottom - 5, right - 5], buildArrowwordAnswerList(puzzle.entries || [], pack), LG.STYLES.p.solutionBody);
+    }
+
+    function renderArrowwordGrid(doc, page, puzzle, bounds, isSolution) {
+        var cells = puzzle.cells || [];
+        var rows = cells.length;
+        var cols = rows && cells[0] ? cells[0].length : 0;
+        if (!rows || !cols) {
+            return;
+        }
+
+        var tf = page.textFrames.add();
+        tf.itemLayer = doc.layers.itemByName(isSolution ? LG.LAYERS.solutions : LG.LAYERS.content);
+        tf.geometricBounds = bounds;
+        tf.contents = "";
+
+        var table = tf.insertionPoints[0].tables.add({ bodyRowCount: rows, columnCount: cols });
+
+        var tableWidth = bounds[3] - bounds[1];
+        var tableHeight = bounds[2] - bounds[0];
+        var colWidth = tableWidth / cols;
+        var rowHeight = tableHeight / rows;
+        var maxDim = Math.max(rows, cols);
+        var letterSize = isSolution
+            ? (maxDim > 15 ? 5.0 : maxDim > 12 ? 6.2 : 7.2)
+            : (maxDim > 15 ? 7.0 : 9.0);
+        var clueSize = maxDim > 14 ? 3.2 : 3.8;
+        var clueMaxChars = maxDim > 14 ? 42 : 56;
+
+        table.columns.everyItem().width = colWidth;
+        table.rows.everyItem().height = rowHeight;
+
+        var r, c, cellObj, cell, kind, sol;
+        for (r = 0; r < rows; r++) {
+            for (c = 0; c < cols; c++) {
+                cellObj = cells[r][c] || {};
+                kind = String(cellObj.kind || "block").toLowerCase();
+                cell = table.rows[r].cells[c];
+
+                cell.topInset = 0.25;
+                cell.bottomInset = 0.12;
+                cell.leftInset = 0.25;
+                cell.rightInset = 0.12;
+                cell.strokeWeight = 0.34;
+                cell.strokeColor = doc.colors.itemByName(LG.SWATCHES.longokaDark);
+
+                if (kind === "block") {
+                    cell.contents = "";
+                    cell.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaDark);
+                    continue;
+                }
+
+                if (kind === "letter") {
+                    cell.fillColor = doc.swatches.itemByName(LG.SWATCHES.paper);
+                    sol = String(cellObj.solution || "");
+                    if (isSolution && sol) {
+                        cell.contents = sol;
+                        cell.verticalJustification = VerticalJustification.CENTER_ALIGN;
+                        cell.texts[0].justification = Justification.CENTER_ALIGN;
+                        try {
+                            cell.texts[0].appliedCharacterStyle = doc.characterStyles.itemByName(LG.STYLES.c.gridLetter);
+                        } catch (e1) {}
+                        cell.texts[0].pointSize = letterSize;
+                    } else {
+                        cell.contents = "";
+                    }
+                    continue;
+                }
+
+                if (kind === "clue") {
+                    cell.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaWarm);
+                    cell.fillTint = 22;
+                    if (isSolution) {
+                        cell.contents = "";
+                        cell.fillTint = 12;
+                    } else {
+                        cell.contents = arrowPrefixForCell(cellObj) + truncateClue(primaryClueText(cellObj), clueMaxChars);
+                        cell.verticalJustification = VerticalJustification.TOP_ALIGN;
+                        cell.texts[0].justification = Justification.LEFT_ALIGN;
+                        cell.texts[0].pointSize = clueSize;
+                        cell.texts[0].leading = clueSize + 0.35;
+                        try {
+                            cell.texts[0].appliedFont = "Myriad Pro\tRegular";
+                        } catch (e2) {}
+                    }
+                    continue;
+                }
+
+                cell.contents = "";
+                cell.fillColor = doc.swatches.itemByName(LG.SWATCHES.paper);
+            }
+        }
+    }
+
+    /**
+     * Une seule definition courte dans la case (le JSON porte deja l'indice raccourci ;
+     * on n'agrege pas plusieurs directions pour eviter de surcharger la case).
+     */
+    function primaryClueText(cellObj) {
+        if (cellObj.clue && String(cellObj.clue).replace(/^\s+|\s+$/g, "")) {
+            return String(cellObj.clue);
+        }
+        if (cellObj.clues) {
+            var k;
+            for (k in cellObj.clues) {
+                if (cellObj.clues.hasOwnProperty(k) && cellObj.clues[k]) {
+                    return String(cellObj.clues[k]);
+                }
+            }
+        }
+        return "";
+    }
+
+    function arrowPrefixForCell(cellObj) {
+        var a = cellObj.arrows;
+        if (!a || !a.length) {
+            return "";
+        }
+        var hasR = false;
+        var hasD = false;
+        var i;
+        for (i = 0; i < a.length; i++) {
+            if (a[i] === "RIGHT") {
+                hasR = true;
+            }
+            if (a[i] === "DOWN") {
+                hasD = true;
+            }
+        }
+        if (hasR && hasD) {
+            return ">v ";
+        }
+        if (hasR) {
+            return "> ";
+        }
+        if (hasD) {
+            return "v ";
+        }
+        return "";
+    }
+
+    function truncateClue(text, maxLen) {
+        var s = String(text || "").replace(/\r|\n/g, " ");
+        if (s.length <= maxLen) {
+            return s;
+        }
+        return s.substring(0, Math.max(0, maxLen - 1)) + "...";
+    }
+
+    function buildArrowwordClueList(entries, direction, pack) {
+        var sorted = sortArrowwordEntries(entries, direction);
+        var lines = [];
+        var i, entry, clue, extra;
+        for (i = 0; i < sorted.length; i++) {
+            entry = sorted[i];
+            clue = LG.entryMeaningForBook(entry, pack) || entry.clue || "Indice a completer";
+            extra = entry.extraInfo ? " [" + entry.extraInfo + "]" : "";
+            lines.push(entryLabel(entry) + ". " + clue + extra);
+        }
+        return lines.join("\r");
+    }
+
+    function buildArrowwordAnswerList(entries, pack) {
+        var right = sortArrowwordEntries(entries, "RIGHT");
+        var down = sortArrowwordEntries(entries, "DOWN");
+        var lines = ["Horizontaux (droite)"];
+        appendArrowwordAnswerLines(lines, right, pack);
+        lines.push("");
+        lines.push("Verticaux (bas)");
+        appendArrowwordAnswerLines(lines, down, pack);
+        return lines.join("\r");
+    }
+
+    function appendArrowwordAnswerLines(lines, entries, pack) {
+        var i, entry, block;
+        for (i = 0; i < entries.length; i++) {
+            entry = entries[i];
+            block = formatArrowwordSolutionBlock(entry, pack);
+            if (block) {
+                if (lines.length) {
+                    lines.push("");
+                }
+                lines.push(block);
+            }
+        }
+    }
+
+    /** Corrections: mot + sens selon meta.book.meaningLanguage. */
+    function formatArrowwordSolutionBlock(entry, pack) {
+        var head = entry.display || entry.answer || "";
+        if (!head) {
+            return "";
+        }
+        var out = [];
+        out.push(entryLabel(entry) + ". " + head);
+        var tr = LG.entryMeaningForBook(entry, pack);
+        if (tr) {
+            out.push(tr);
+        }
+        if (entry.phonetic) {
+            out.push(entry.phonetic);
+        }
+        if (entry.extraInfo) {
+            out.push("[" + entry.extraInfo + "]");
+        }
+        return out.join("\r");
+    }
+
+    function entryLabel(entry) {
+        if (entry.number !== undefined && entry.number !== null) {
+            return String(entry.number);
+        }
+        return String(entry.id || "");
+    }
+
+    function sortArrowwordEntries(entries, direction) {
+        var filtered = [];
+        var i;
+        for (i = 0; i < entries.length; i++) {
+            if (entries[i].direction === direction) {
+                filtered.push(entries[i]);
+            }
+        }
+        filtered.sort(function (a, b) {
+            return arrowwordEntryOrder(a) - arrowwordEntryOrder(b);
+        });
+        return filtered;
+    }
+
+    function arrowwordEntryOrder(entry) {
+        var id = String(entry.id || "");
+        var m = id.match(/^(\d+)/);
+        return m ? parseInt(m[1], 10) : 0;
+    }
+
+    function buildMetaLine(puzzle, isSolution) {
+        var parts = [];
+        parts.push(LG.languageLabel(puzzle.language || pack.language || ""));
+        parts.push((puzzle.rows || 0) + "x" + (puzzle.cols || 0));
+        parts.push(String(LG.wordCountFromPuzzle(puzzle)) + " entrees");
+        if (puzzle.difficulty) {
+            parts.push(compactTitle(puzzle.difficulty));
+        }
+        if (buildClassesLine(puzzle)) {
+            parts.push(buildClassesLine(puzzle));
+        }
+        if (isSolution) {
+            parts.push("grille resolue");
+        }
+        return parts.join("  |  ");
+    }
+
+    function buildClassesLine(puzzle) {
+        if (puzzle.meta && puzzle.meta.nominalClasses && puzzle.meta.nominalClasses.length) {
+            return puzzle.meta.nominalClasses.join(", ");
+        }
+        return "";
+    }
+
+    function buildCoverBlurb(pack) {
+        var parts = [];
+        parts.push("Definitions dans la grille, mots vers la droite ou vers le bas, memes regles qu'un cahier professionnel.");
+        parts.push("Liste complete a droite, solutions compactes en fin d'ouvrage.");
+        parts.push("Langue : " + LG.languageLabel(pack.language));
+        return parts.join(" ");
+    }
+
+    function buildCoverLead(pack) {
+        return "Un volume mots fleches pour la pratique lexicale, avec identifiant editorial et metadonnees alignees sur la production Longoka.";
+    }
+
+    function drawStepCard(page, bounds, title, body, swatchName) {
+        var card = page.rectangles.add();
+        card.itemLayer = page.parent.layers.itemByName(LG.LAYERS.content);
+        card.geometricBounds = bounds;
+        card.fillColor = page.parent.colors.itemByName(swatchName);
+        card.strokeColor = page.parent.swatches.itemByName("None");
+
+        addFrame(page, [bounds[0] + 6, bounds[1] + 6, bounds[0] + 14, bounds[3] - 6], title, LG.STYLES.p.wordListHeading);
+        addFrame(page, [bounds[0] + 18, bounds[1] + 6, bounds[2] - 6, bounds[3] - 6], body, LG.STYLES.p.body);
+    }
+
+    function drawStatsPanel(page, bounds, lines, invert) {
+        var docRef = page.parent;
+        var panel = page.rectangles.add();
+        panel.itemLayer = docRef.layers.itemByName(LG.LAYERS.content);
+        panel.geometricBounds = bounds;
+        panel.fillColor = docRef.colors.itemByName(invert ? LG.SWATCHES.longokaDark : LG.SWATCHES.longokaPanel);
+        panel.strokeColor = docRef.swatches.itemByName("None");
+
+        var groups = [];
+        var i;
+        for (i = 0; i < lines.length - 1; i++) {
+            if (lines[i] !== "" && lines[i + 1] !== "") {
+                groups.push({ label: lines[i], value: lines[i + 1] });
+                i += 1;
+            }
+        }
+
+        var innerTop = bounds[0] + 6;
+        var innerLeft = bounds[1] + 5;
+        var innerRight = bounds[3] - 5;
+        var blockHeight = (bounds[2] - bounds[0] - 12) / Math.max(groups.length, 1);
+        var labelColor = invert ? docRef.colors.itemByName(LG.SWATCHES.longokaAccent) : docRef.colors.itemByName(LG.SWATCHES.longokaDark);
+        var valueColor = invert ? docRef.swatches.itemByName(LG.SWATCHES.paper) : docRef.colors.itemByName(LG.SWATCHES.longokaDark);
+
+        for (i = 0; i < groups.length; i++) {
+            var top = innerTop + (i * blockHeight);
+            var label = addFrame(page, [top, innerLeft, top + 5, innerRight], String(groups[i].label).toUpperCase(), LG.STYLES.p.footer);
+            label.parentStory.fillColor = labelColor;
+
+            var value = addFrame(page, [top + 5.5, innerLeft, top + 16.5, innerRight], groups[i].value, LG.STYLES.p.solutionTitle);
+            value.paragraphs[0].justification = Justification.LEFT_ALIGN;
+            value.parentStory.fillColor = valueColor;
+
+            if (i < groups.length - 1) {
+                var rule = page.graphicLines.add();
+                rule.itemLayer = docRef.layers.itemByName(LG.LAYERS.content);
+                rule.paths[0].entirePath = [[innerLeft, top + blockHeight - 1.4], [innerRight, top + blockHeight - 1.4]];
+                rule.strokeWeight = 0.35;
+                rule.strokeColor = invert ? docRef.colors.itemByName(LG.SWATCHES.longokaAccent) : docRef.colors.itemByName(LG.SWATCHES.longokaDark);
+                rule.strokeTint = invert ? 55 : 22;
+            }
+        }
+    }
+
+    function drawChip(page, bounds, label, fillName, tint, textSwatchName) {
+        var chip = page.rectangles.add();
+        chip.itemLayer = page.parent.layers.itemByName(LG.LAYERS.content);
+        chip.geometricBounds = bounds;
+        chip.fillColor = page.parent.colors.itemByName(fillName);
+        chip.fillTint = tint || 0;
+        chip.strokeColor = page.parent.swatches.itemByName("None");
+
+        var frame = addFrame(page, [bounds[0] + 1.2, bounds[1] + 2, bounds[2] - 0.8, bounds[3] - 2], label, LG.STYLES.p.footer);
+        frame.parentStory.fillColor = page.parent.swatches.itemByName(textSwatchName || LG.SWATCHES.black);
+        frame.texts[0].tracking = 110;
+    }
+
+    function compactTitle(value) {
+        return String(value || "")
+            .replace(/_/g, " ")
+            .replace(/-/g, " ")
+            .replace(/\s+/g, " ")
+            .replace(/^\s+|\s+$/g, "");
+    }
+
+    function addFrame(page, bounds, text, styleName) {
+        var frame = page.textFrames.add();
+        frame.itemLayer = page.parent.layers.itemByName(LG.LAYERS.content);
+        frame.geometricBounds = bounds;
+        frame.contents = text;
+        if (styleName && frame.paragraphs.length > 0) {
+            frame.paragraphs.everyItem().appliedParagraphStyle = page.parent.paragraphStyles.itemByName(styleName);
+        }
+        return frame;
+    }
+
+    function sanitizeFilename(name) {
+        return name.replace(/[\\\/:*?"<>|]/g, "-");
+    }
+
+    function pad2(value) {
+        return value < 10 ? "0" + value : String(value);
+    }
+})();

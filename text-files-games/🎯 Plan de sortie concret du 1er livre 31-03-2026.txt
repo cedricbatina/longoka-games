@@ -1,0 +1,481 @@
+🎯 Plan de sortie concret du 1er produit
+
+👉 Livre : Mots mêlés Kikongo (noms)
+
+Objectif : produit vendable en 7–10 jours, sans dispersion.
+
+1. Définition du produit (on fige)
+📘 Nom (provisoire mais propre)
+
+Longoka Games – Kikongo
+Mots mêlés – Noms (Volume 1)
+
+📐 Format
+Grilles : 12×12
+Nombre : 48 puzzles
+Niveau : débutant / intermédiaire
+Langue : Kikongo + traduction FR
+📦 Contenu du livre
+Front matter
+Page de titre
+Introduction (courte)
+Instructions
+Corps
+1 grille par page
+Liste de mots en dessous
+Fin
+Solutions (bloc séparé)
+2. Données (tu es déjà prêt)
+
+👉 Tu as déjà ça fonctionnel :
+
+JSON pack mots mêlés Kikongo ✔
+48+ grilles ✔
+entries avec :
+mot
+traduction
+classe nominale
+
+👉 Donc ici : 0 dev à faire côté Java
+
+3. Ce qu’on doit faire maintenant (critique)
+🧩 Étape 1 — Générer LE bon pack
+
+👉 Commande (déjà existante) :
+
+noms uniquement
+48 grilles
+taille 12×12
+
+👉 Output attendu :
+
+kikongo-nouns-wordsearch-book.vX.json
+🧩 Étape 2 — Nettoyage rapide (qualité)
+
+À vérifier dans le JSON :
+
+❌ doublons de mots dans une même grille
+❌ mots trop longs pour 12×12
+❌ traductions vides
+❌ caractères cassés (encodage)
+
+👉 Tu as déjà commencé ça (dédoublonnage ✔)
+
+4. Étape clé : InDesign (le vrai chantier)
+🎯 Objectif
+
+Passer de :
+👉 script technique
+à
+👉 livre éditorial propre
+
+🧱 Layout minimal à implémenter
+Page puzzle
+[Titre]
+Mots mêlés – Famille
+
+[Grille centrée]
+
+[Mots à trouver]
+MAMA – maman
+TATA – père
+NDAKU – maison
+📐 Réglages essentiels
+Police monospaced pour grille
+cellules carrées
+taille lisible (print ≠ écran)
+⚠️ Important
+
+👉 NE PAS améliorer tout le système JSX
+
+👉 Juste :
+
+adapter UN script
+produire UN livre propre
+5. Solutions (fin du livre)
+
+Deux options simples :
+
+Option A (rapide)
+liste des mots par grille
+Option B (mieux)
+grille avec mots surlignés
+
+👉 prends A pour V1
+
+6. Export final
+🎯 2 formats
+1. PDF impression
+haute qualité
+marges correctes
+2. PDF digital
+léger
+optimisé écran
+7. Mise en vente
+
+👉 longoka.com/shop (déjà prêt)
+
+Créer produit :
+
+Titre
+Description
+Image couverture simple
+PDF attaché
+8. Timeline réaliste
+Jour 1–2
+générer JSON propre
+Jour 3–5
+adapter script InDesign
+produire PDF
+Jour 6–7
+corrections + couverture
+Jour 8–10
+mise en ligne
+9. Ce qu’on NE fait PAS maintenant
+
+❌ app Android
+❌ C++
+❌ Scrabble
+❌ nouveaux jeux
+❌ refonte globale
+
+10. Résultat attendu
+
+👉 Tu passes de :
+
+projet technique
+
+👉 à :
+
+produit réel vendable
+
+11. Étape suivante après ça
+
+Une fois ce livre sorti :
+
+👉 on enchaîne immédiatement :
+
+Volume 2 (verbes)
+Lingala
+Crossword
+Si tu veux aller vite maintenant
+
+👉 prochaine étape ultra concrète :
+
+Je peux te faire :
+
+✅ soit
+
+le template exact InDesign (structure + styles)
+
+✅ soit
+
+le contrôle qualité JSON (checklist + script mental)
+
+✅ soit
+
+la page produit pour ton shop
+
+Dis-moi ce que tu veux attaquer maintenant.
+
+ok faisons donc le template exact Indesign, niveau maison d'éditon sérieuse ( eDITION Longoka , fautil faire cela en deux fichiers .jsx , un pour le style et un autre pour remplir le livre ? ou comment ? 
+
+Oui — pour une maison d’édition sérieuse, il vaut mieux séparer.
+
+Pas forcément en seulement 2 fichiers, mais au minimum en 2 couches :
+
+une couche “système éditorial”
+qui crée le document, les styles, les gabarits, les réglages, la grille de page
+une couche “import/génération”
+qui lit le JSON et remplit le livre puzzle par puzzle
+
+C’est précisément la direction recommandée par ton propre état des lieux : les scripts actuels d’import sont encore trop “injection directe”, alors que le script premium va déjà vers une logique plus éditoriale, avec styles et structure. La prochaine étape identifiée est bien de centraliser styles, masters/gabarits, front matter, pages de puzzles et solutions.
+
+Recommandation nette
+Architecture conseillée
+Option minimale sérieuse
+LG_StylesAndMasters.jsx
+LG_BuildWordSearchBook.jsx
+Option vraiment propre
+LG_Config.jsx
+LG_Styles.jsx
+LG_Masters.jsx
+LG_FrontMatter.jsx
+LG_WordSearch_Book.jsx
+
+Mais pour avancer sans te disperser, je te conseille un palier intermédiaire :
+
+Structure idéale pour maintenant
+1. Longoka_Editions_Core.jsx
+
+Contient :
+
+constantes globales
+format de page
+marges
+palette
+styles de paragraphe
+styles de caractère
+gabarits/master pages
+helpers de base
+2. Longoka_WordSearch_Book_FromPack.jsx
+
+Contient :
+
+ouverture du JSON
+validation du pack
+création du document via le Core
+génération :
+page de titre
+copyright
+instructions
+puzzles
+solutions
+export éventuel
+
+👉 Cette séparation est la plus saine dès maintenant.
+
+Pourquoi il faut séparer
+Si tu mets tout dans un seul .jsx
+
+Au début c’est rapide, mais très vite tu te retrouves avec :
+
+styles recréés partout
+marges recopiées
+bugs si tu modifies une taille
+impossibilité de réutiliser la même base pour :
+Kikongo wordsearch
+Lingala wordsearch
+crossword
+arrowword
+Si tu sépares
+
+Tu obtiens :
+
+cohérence visuelle
+réutilisation
+maintenance simple
+vraie logique “collection éditoriale”
+
+Et c’est exactement ce qu’il te faut si tu veux une ligne Éditions Longoka / Longoka Games stable.
+
+La bonne logique éditoriale
+
+Tu ne dois pas penser :
+
+“un script qui remplit des pages”
+
+Tu dois penser :
+
+“un moteur éditorial + un moteur d’import”
+
+Ce que doit contenir le Core
+A. Réglages document
+taille de page
+pages en vis-à-vis ou non
+marges
+fond perdu si besoin
+unités
+pagination de base
+B. Styles de paragraphe
+
+Je te propose cette nomenclature :
+
+LG_BookTitle
+LG_BookSubtitle
+LG_SectionTitle
+LG_PuzzleTitle
+LG_PuzzleMeta
+LG_Instruction
+LG_WordList
+LG_Body
+LG_Footer
+LG_PageNumber
+LG_Copyright
+LG_SolutionTitle
+
+C’est cohérent avec la normalisation déjà envisagée dans ton état des lieux.
+
+C. Styles de caractère
+LG_Strong
+LG_Italic
+LG_Language
+LG_Level
+LG_GridLetter
+LG_SmallCaps
+D. Gabarits / Master pages
+
+Minimum :
+
+LG_Master_Front
+LG_Master_Puzzle
+LG_Master_Solutions
+LG_Master_Copyright
+
+Là aussi, c’est exactement le manque identifié dans tes scripts actuels.
+
+Ce que doit contenir le script “Book_FromPack”
+1. Lecture du JSON
+
+Ton pack wordsearch est déjà bien structuré :
+
+schema
+version
+language
+packId
+title
+description
+puzzles[]
+2. Validation
+
+Le script doit vérifier :
+
+bon schéma
+puzzles présents
+grille cohérente
+entries présentes
+3. Construction du livre
+
+Ordre recommandé :
+
+Front matter
+faux-titre
+page de titre
+copyright
+instructions
+éventuellement “à propos de Longoka”
+Corps
+1 puzzle par page
+Fin
+solutions
+autre volume / shop / contact
+
+Cette structure est déjà alignée avec la doctrine éditoriale proposée dans tes notes.
+
+Template exact recommandé pour ce premier livre
+Format de page
+
+Pour ce premier volume, je te conseille :
+
+6 x 9 pouces si tu vises un format type livre jeux compact
+ou
+A4 si tu veux d’abord un PDF/essai simple
+Mon conseil
+
+Pour une ligne éditoriale sérieuse vendable :
+
+6 x 9 pouces pour les livres standards
+A4 seulement pour prototypes internes
+Maquette type
+Page de titre
+Logo / marque : Éditions Longoka
+Collection : Longoka Games
+Titre : Mots mêlés Kikongo
+Sous-titre : Noms – Volume 1
+Copyright
+nom éditeur
+année
+identifiant éditorial provisoire
+site
+crédits
+
+Ne mets pas de faux ISBN. C’est explicitement recommandé dans tes notes : utiliser plutôt un identifiant éditorial provisoire stable.
+
+Exemple :
+LG-KG-WS-NOUNS-12X12-V1
+
+Instructions
+
+Très courtes :
+
+trouver les mots dans la grille
+directions autorisées
+traductions françaises données en appui
+Page puzzle
+titre puzzle
+thème éventuel
+grille
+liste des mots à trouver
+numéro de page discret
+Solutions
+
+V1 simple :
+
+numéro puzzle
+liste des mots
+éventuellement coordonnées si tu veux rester léger
+Réponse claire à ta question
+Faut-il faire 2 fichiers .jsx ?
+
+Oui.
+C’est le minimum sérieux.
+
+Fais comme ceci :
+Longoka_Editions_Core.jsx
+Longoka_Kikongo_WordSearch_Book.jsx
+Et si tu veux faire encore mieux sans trop compliquer
+
+Après ça, tu pourras scinder le Core en :
+
+LG_Styles.jsx
+LG_Masters.jsx
+
+Mais pas tout de suite.
+Le plus important est de séparer fondation éditoriale et remplissage.
+
+Squelette concret
+Longoka_Editions_Core.jsx
+
+Doit exposer des fonctions du genre :
+
+createLongokaDocument(config)
+ensureParagraphStyles(doc)
+ensureCharacterStyles(doc)
+ensureMasterSpreads(doc)
+applyPageMaster(page, masterName)
+addBookTitlePage(doc, meta)
+addCopyrightPage(doc, meta)
+Longoka_Kikongo_WordSearch_Book.jsx
+
+Doit faire :
+
+charger Longoka_Editions_Core.jsx
+ouvrir le JSON
+valider
+créer le doc
+ajouter front matter
+boucler sur puzzles
+ajouter section solutions
+sauvegarder/exporter
+Décision que je te recommande tout de suite
+
+Pour ne pas te perdre :
+
+Phase 1
+
+Créer seulement :
+
+Longoka_Editions_Core.jsx
+
+et
+
+Longoka_Import_WordSearch_Book.jsx
+Phase 2
+
+Quand ça marche :
+
+dériver Lingala
+dériver crossword
+dériver arrowword
+Conclusion
+
+Oui :
+
+sépare
+fais un Core éditorial
+puis un script de remplissage
+pense collection Longoka Games, pas simple import technique
+
+C’est la bonne base pour une ligne Éditions Longoka crédible, réutilisable et extensible.
+
+Au prochain message, je peux te donner le plan exact des fonctions à mettre dans chacun des 2 fichiers, presque prêt à coder.

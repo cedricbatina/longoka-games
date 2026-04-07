@@ -36,6 +36,9 @@ public final class WordSearchJsonModels {
     /** Langue des définitions / traductions, ex "fr". */
     public String meaningLanguage;
 
+    /** Métadonnées libres au niveau pack. */
+    public Map<String, Object> meta;
+
     /** Liste des grilles. */
     public List<PuzzleV1> puzzles;
   }

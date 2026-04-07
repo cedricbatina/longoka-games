@@ -324,7 +324,8 @@ public class KikongoMixedCrosswordService {
       if (found != null) {
         found.candidate = cand;
         placed.add(found);
-      } else {
+      } else if (placed.isEmpty()) {
+        // On n'autorise un placement libre que pour le tout premier mot.
         PlacedWord fallback = tryPlaceSimple(grid, answer);
         if (fallback != null) {
           fallback.candidate = cand;
@@ -359,8 +360,10 @@ public class KikongoMixedCrosswordService {
     Set<String> nominalClasses = new LinkedHashSet<>();
     Set<String> semanticDomains = new LinkedHashSet<>();
 
-    int number = 1;
-    for (PlacedWord pw : placed) {
+    Map<String, Integer> startNumbers = buildCrosswordStartNumbers(placed);
+    List<PlacedWord> orderedPlaced = sortPlacedWordsForExport(placed);
+
+    for (PlacedWord pw : orderedPlaced) {
       MixedEntryCandidate c = pw.candidate;
       if (c == null) {
         continue;
@@ -370,6 +373,7 @@ public class KikongoMixedCrosswordService {
       if (answer == null) {
         continue;
       }
+      int number = startNumbers.getOrDefault(startKey(pw.row, pw.col), 0);
 
       CrosswordJsonModels.EntryV1 e = new CrosswordJsonModels.EntryV1();
       e.id = number + (pw.across ? "-A" : "-D");
@@ -401,7 +405,6 @@ public class KikongoMixedCrosswordService {
       }
 
       entries.add(e);
-      number++;
     }
 
     puzzle.entries = entries;
@@ -549,14 +552,34 @@ public class KikongoMixedCrosswordService {
   }
 
   private boolean canPlaceAcross(char[][] grid, char[] letters, int row, int startCol) {
+    int rows = grid.length;
     int cols = grid[0].length;
     if (startCol < 0 || startCol + letters.length > cols) {
       return false;
     }
+    if (startCol > 0 && grid[row][startCol - 1] != '#') {
+      return false;
+    }
+    if (startCol + letters.length < cols && grid[row][startCol + letters.length] != '#') {
+      return false;
+    }
     for (int i = 0; i < letters.length; i++) {
-      char existing = grid[row][startCol + i];
+      int col = startCol + i;
+      char existing = grid[row][col];
       if (existing != '#' && existing != letters[i]) {
         return false;
+      }
+      if (existing == '#') {
+        if (row > 0 && grid[row - 1][col] != '#') {
+          return false;
+        }
+        if (row + 1 < rows && grid[row + 1][col] != '#') {
+          return false;
+        }
+      } else {
+        if ((col > 0 && grid[row][col - 1] != '#') || (col + 1 < cols && grid[row][col + 1] != '#')) {
+          return false;
+        }
       }
     }
     return true;
@@ -564,16 +587,68 @@ public class KikongoMixedCrosswordService {
 
   private boolean canPlaceDown(char[][] grid, char[] letters, int startRow, int col) {
     int rows = grid.length;
+    int cols = grid[0].length;
     if (startRow < 0 || startRow + letters.length > rows) {
       return false;
     }
+    if (startRow > 0 && grid[startRow - 1][col] != '#') {
+      return false;
+    }
+    if (startRow + letters.length < rows && grid[startRow + letters.length][col] != '#') {
+      return false;
+    }
     for (int i = 0; i < letters.length; i++) {
-      char existing = grid[startRow + i][col];
+      int row = startRow + i;
+      char existing = grid[row][col];
       if (existing != '#' && existing != letters[i]) {
         return false;
       }
+      if (existing == '#') {
+        if (col > 0 && grid[row][col - 1] != '#') {
+          return false;
+        }
+        if (col + 1 < cols && grid[row][col + 1] != '#') {
+          return false;
+        }
+      } else {
+        if ((row > 0 && grid[row - 1][col] != '#') || (row + 1 < rows && grid[row + 1][col] != '#')) {
+          return false;
+        }
+      }
     }
     return true;
+  }
+
+  private List<PlacedWord> sortPlacedWordsForExport(List<PlacedWord> placed) {
+    List<PlacedWord> ordered = new ArrayList<>(placed);
+    ordered.sort((a, b) -> {
+      int rowCompare = Integer.compare(a.row, b.row);
+      if (rowCompare != 0) {
+        return rowCompare;
+      }
+      int colCompare = Integer.compare(a.col, b.col);
+      if (colCompare != 0) {
+        return colCompare;
+      }
+      return Boolean.compare(a.across, b.across) * -1;
+    });
+    return ordered;
+  }
+
+  private Map<String, Integer> buildCrosswordStartNumbers(List<PlacedWord> placed) {
+    Map<String, Integer> numbering = new HashMap<>();
+    int number = 1;
+    for (PlacedWord pw : sortPlacedWordsForExport(placed)) {
+      String key = startKey(pw.row, pw.col);
+      if (!numbering.containsKey(key)) {
+        numbering.put(key, number++);
+      }
+    }
+    return numbering;
+  }
+
+  private String startKey(int row, int col) {
+    return row + ":" + col;
   }
 
   private void placeAcross(char[][] grid, String answer, int row, int startCol) {

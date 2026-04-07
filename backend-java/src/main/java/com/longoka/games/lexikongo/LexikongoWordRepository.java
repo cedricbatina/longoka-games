@@ -22,7 +22,7 @@ public class LexikongoWordRepository {
    * avec leurs significations dans la langue demandée.
    */
   public List<LexWord> findRandomWords(int limit, String languageCode) throws SQLException {
-    return findRandomWordsInternal(null, limit, languageCode);
+    return findRandomWordsInternal(null, null, limit, languageCode);
   }
 
   /**
@@ -33,14 +33,64 @@ public class LexikongoWordRepository {
    * LingalaWordSearchService appellent.
    */
   public List<LexWord> findRandomWordsByClassId(int classId, int limit, String languageCode) throws SQLException {
-    return findRandomWordsInternal(classId, limit, languageCode);
+    return findRandomWordsInternal(classId, null, limit, languageCode);
+  }
+
+  /**
+   * Tire des mots au hasard, filtrés par radical/root,
+   * avec leurs significations dans la langue demandée.
+   */
+  public List<LexWord> findRandomWordsByRoot(String root, int limit, String languageCode) throws SQLException {
+    return findRandomWordsInternal(null, root, limit, languageCode);
+  }
+
+  /**
+   * Liste les classes nominales qui ont assez de mots exploitables
+   * pour un type de puzzle donne.
+   */
+  public List<NominalClass> listAvailableNominalClasses(
+      int minWords,
+      boolean requireSingular,
+      boolean requirePlural) throws SQLException {
+
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT w.class_id, nc.class_name, COUNT(*) AS word_count ")
+        .append("FROM words w ")
+        .append("LEFT JOIN nominal_classes nc ON nc.class_id = w.class_id ")
+        .append("WHERE w.is_approved = 1 ")
+        .append("AND w.class_id IS NOT NULL ");
+
+    if (requireSingular) {
+      sql.append("AND w.singular IS NOT NULL AND TRIM(w.singular) <> '' ");
+    }
+    if (requirePlural) {
+      sql.append("AND w.plural IS NOT NULL AND TRIM(w.plural) <> '' ");
+    }
+
+    sql.append("GROUP BY w.class_id, nc.class_name ")
+        .append("HAVING COUNT(*) >= ? ")
+        .append("ORDER BY COUNT(*) DESC, w.class_id ASC");
+
+    List<NominalClass> classes = new ArrayList<>();
+    try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+      ps.setInt(1, Math.max(1, minWords));
+      try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+          classes.add(new NominalClass(
+              rs.getInt("class_id"),
+              rs.getString("class_name")));
+        }
+      }
+    }
+
+    return classes;
   }
 
   // ----------------------------------------------------------------------
   // Implementation interne
   // ----------------------------------------------------------------------
 
-  private List<LexWord> findRandomWordsInternal(Integer classIdFilter, int limit, String languageCode)
+  private List<LexWord> findRandomWordsInternal(Integer classIdFilter, String rootFilter, int limit, String languageCode)
       throws SQLException {
 
     // 1) On récupère les mots (sans les meanings pour l'instant)
@@ -59,6 +109,9 @@ public class LexikongoWordRepository {
     if (classIdFilter != null) {
       sql.append("AND w.class_id = ? ");
     }
+    if (rootFilter != null && !rootFilter.isBlank()) {
+      sql.append("AND UPPER(TRIM(w.root)) = UPPER(TRIM(?)) ");
+    }
 
     sql.append("ORDER BY RAND() ");
     sql.append("LIMIT ?");
@@ -70,6 +123,9 @@ public class LexikongoWordRepository {
       int index = 1;
       if (classIdFilter != null) {
         ps.setInt(index++, classIdFilter);
+      }
+      if (rootFilter != null && !rootFilter.isBlank()) {
+        ps.setString(index++, rootFilter);
       }
       ps.setInt(index, limit);
 
