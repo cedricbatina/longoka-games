@@ -29,7 +29,12 @@ ARROWWORD_COLS="${ARROWWORD_COLS:-17}"
 GRID_ENTRIES="${GRID_ENTRIES:-16}"
 MORPHO_ENTRIES="${MORPHO_ENTRIES:-12}"
 
-MVN=(mvn -q -DskipTests exec:java -Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool)
+# En CI : pas de -q pour voir les logs ; -e pour afficher la stack trace Maven si échec.
+if [ "${CI:-}" = "true" ]; then
+  MVN=(mvn -e -DskipTests exec:java -Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool)
+else
+  MVN=(mvn -q -DskipTests exec:java -Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool)
+fi
 
 run_batch() {
   local lang="$1"

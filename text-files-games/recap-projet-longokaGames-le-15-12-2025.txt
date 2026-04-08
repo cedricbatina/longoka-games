@@ -253,3 +253,11 @@ un site web (Nuxt/Next, etc.),
 Relier à Scrabble / autres jeux (dominos de mots, quiz, etc.).
 
 Continuer l’enrichissement Lexikongo / Lexilingala (entrées, phonétique, traductions EN).
+
+────────────────────────────────────────────────────────────────
+Mise à jour 2026-04 — types de packs & stratégie écosystème
+────────────────────────────────────────────────────────────────
+
+Liste à jour des types JSON générés (wordsearch, crossword, arrowword, domino,
+memory, scrabble, anagram), pipeline longoka-games → longoka, et règles
+public / cours / print : voir STRATEGIE-ECOSYSTEME-JEUX-LONGOKA.txt dans ce dossier.
