@@ -26,7 +26,7 @@ function Invoke-BiweeklyGen {
   $execArgs = "--count $CountPerWeek --rows $Rows --cols $Cols --maxEntries $MaxEntries --meaningLang $MeaningLang --type $Type --label $Label"
 
   Write-Host "Running: type=$Type label=$Label count=$CountPerWeek"
-  & mvn -q -DskipTests exec:java "-Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool" "-Dexec.args=$execArgs"
+  & mvn -q -DskipTests compile exec:java "-Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool" "-Dexec.args=$execArgs"
 
   if ($LASTEXITCODE -ne 0) {
     throw "Generation failed for type=$Type label=$Label"

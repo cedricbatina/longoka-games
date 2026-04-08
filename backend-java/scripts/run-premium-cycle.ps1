@@ -28,7 +28,7 @@ function Invoke-PremiumGen {
   $execArgs = "--cadence weekly --count $CountPerPack --meaningLang $MeaningLang --language $LanguageMode --type $Type --label $Label --tier premium --difficulty expert $ExtraArgs".Trim()
 
   Write-Host "Running premium generation: type=$Type label=$Label languages=$LanguageMode"
-  & mvn -q -DskipTests exec:java "-Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool" "-Dexec.args=$execArgs"
+  & mvn -q -DskipTests compile exec:java "-Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool" "-Dexec.args=$execArgs"
 
   if ($LASTEXITCODE -ne 0) {
     throw "Premium generation failed for type=$Type label=$Label"

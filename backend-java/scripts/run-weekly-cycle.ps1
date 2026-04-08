@@ -20,7 +20,7 @@ function Invoke-WeeklyGen {
   $execArgs = "--cadence weekly --count $Count --rows $Rows --cols $Cols --maxEntries $MaxEntries --meaningLang $MeaningLang --type $Type --label $Label"
   Write-Host "Running: cadence=weekly type=$Type label=$Label count=$Count"
 
-  & mvn -q -DskipTests exec:java "-Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool" "-Dexec.args=$execArgs"
+  & mvn -q -DskipTests compile exec:java "-Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool" "-Dexec.args=$execArgs"
   if ($LASTEXITCODE -ne 0) {
     throw "Generation failed for type=$Type label=$Label"
   }
