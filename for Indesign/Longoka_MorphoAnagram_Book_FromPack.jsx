@@ -6,6 +6,7 @@
  */
 
 (function () {
+    try {
     var thisFile = File($.fileName);
     var baseFolder = (typeof LG_BASE_FOLDER !== "undefined" && LG_BASE_FOLDER)
         ? Folder(LG_BASE_FOLDER)
@@ -430,5 +431,8 @@
 
     function pad2(value) {
         return value < 10 ? "0" + value : String(value);
+    }
+    } catch (e) {
+        alert("Erreur InDesign (MorphoAnagram Book)\n\n" + String(e && (e.message || e)) + "\n\n" + String($.stack || ""));
     }
 })();

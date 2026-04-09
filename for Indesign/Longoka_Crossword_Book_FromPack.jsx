@@ -6,6 +6,7 @@
  */
 
 (function () {
+    try {
     var thisFile = File($.fileName);
     var baseFolder = (typeof LG_BASE_FOLDER !== "undefined" && LG_BASE_FOLDER)
         ? Folder(LG_BASE_FOLDER)
@@ -24,7 +25,12 @@
     LG.validateCrosswordPack(pack);
 
     var doc = LG.createDocument();
-    buildBook(doc, pack);
+    var perfState = LG.beginHeavyScript();
+    try {
+        buildBook(doc, pack);
+    } finally {
+        LG.endHeavyScript(perfState);
+    }
 
     var outName = sanitizeFilename(LG.bookCodeFromPack(pack) + "-book.indd");
     var outFile = File(jsonFile.parent + "/" + outName);
@@ -297,7 +303,7 @@
                     cell.verticalJustification = VerticalJustification.TOP_ALIGN;
                     cell.texts[0].justification = Justification.LEFT_ALIGN;
                     cell.texts[0].pointSize = 5.2;
-                    cell.texts[0].appliedFont = "Myriad Pro\tBold";
+                    try { cell.texts[0].appliedFont = "Myriad Pro\tBold"; } catch (eFont) {}
                 } else {
                     cell.contents = "";
                 }
@@ -520,5 +526,8 @@
 
     function pad2(value) {
         return value < 10 ? "0" + value : String(value);
+    }
+    } catch (e) {
+        alert("Erreur InDesign (Crossword Book)\n\n" + String(e && (e.message || e)) + "\n\n" + String($.stack || ""));
     }
 })();

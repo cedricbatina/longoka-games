@@ -65,14 +65,20 @@ LG.applyPageMargins = function(page) {
 
 LG.ensureParagraphStyles = function(doc) {
     function ensure(name, props) {
+        var split = LG.splitPropsFont(props);
+        var safeProps = split.props;
+        var fontName = split.appliedFont;
         try {
             var style = doc.paragraphStyles.itemByName(name);
             var _ = style.name;
-            style.properties = props;
+            style.properties = safeProps;
+            LG.trySetAppliedFont(style, fontName, "Arial\tRegular");
             return style;
         } catch (e) {
-            props.name = name;
-            return doc.paragraphStyles.add(props);
+            safeProps.name = name;
+            var created = doc.paragraphStyles.add(safeProps);
+            LG.trySetAppliedFont(created, fontName, "Arial\tRegular");
+            return created;
         }
     }
 
@@ -201,14 +207,20 @@ LG.ensureParagraphStyles = function(doc) {
 
 LG.ensureCharacterStyles = function(doc) {
     function ensure(name, props) {
+        var split = LG.splitPropsFont(props);
+        var safeProps = split.props;
+        var fontName = split.appliedFont;
         try {
             var style = doc.characterStyles.itemByName(name);
             var _ = style.name;
-            style.properties = props;
+            style.properties = safeProps;
+            LG.trySetAppliedFont(style, fontName, "Arial\tRegular");
             return style;
         } catch (e) {
-            props.name = name;
-            return doc.characterStyles.add(props);
+            safeProps.name = name;
+            var created = doc.characterStyles.add(safeProps);
+            LG.trySetAppliedFont(created, fontName, "Arial\tRegular");
+            return created;
         }
     }
 

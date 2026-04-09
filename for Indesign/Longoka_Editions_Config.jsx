@@ -100,6 +100,79 @@ LG.safeGet = function(obj, key, fallback) {
         : fallback;
 };
 
+/**
+ * InDesign fonts vary by installation (missing families/styles).
+ * This helper prevents hard crashes when a font is unavailable.
+ */
+LG.trySetAppliedFont = function(target, primaryFont, fallbackFont) {
+    if (!target) return false;
+    if (primaryFont) {
+        try {
+            target.appliedFont = primaryFont;
+            return true;
+        } catch (e1) {}
+    }
+    if (fallbackFont) {
+        try {
+            target.appliedFont = fallbackFont;
+            return true;
+        } catch (e2) {}
+    }
+    return false;
+};
+
+LG.splitPropsFont = function(props) {
+    var p = props || {};
+    var out = { props: {}, appliedFont: null };
+    var k;
+    for (k in p) {
+        if (!p.hasOwnProperty(k)) continue;
+        if (k === "appliedFont") {
+            out.appliedFont = p[k];
+        } else {
+            out.props[k] = p[k];
+        }
+    }
+    return out;
+};
+
+/**
+ * Reduces UI redraw during huge loops (many pages / tables). Helps stability on large books.
+ * Always pair with LG.endHeavyScript(state) in a finally block.
+ */
+LG.beginHeavyScript = function() {
+    var state = {};
+    try {
+        state.enableRedraw = app.scriptPreferences.enableRedraw;
+    } catch (e0) {
+        state.enableRedraw = true;
+    }
+    try {
+        state.userInteractionLevel = app.scriptPreferences.userInteractionLevel;
+    } catch (e1) {}
+    try {
+        app.scriptPreferences.enableRedraw = false;
+    } catch (e2) {}
+    try {
+        app.scriptPreferences.userInteractionLevel = UserInteractionLevels.neverInteract;
+    } catch (e3) {}
+    return state;
+};
+
+LG.endHeavyScript = function(state) {
+    if (!state) {
+        return;
+    }
+    try {
+        app.scriptPreferences.enableRedraw = state.enableRedraw;
+    } catch (e0) {}
+    try {
+        if (state.userInteractionLevel !== undefined) {
+            app.scriptPreferences.userInteractionLevel = state.userInteractionLevel;
+        }
+    } catch (e1) {}
+};
+
 LG.languageLabel = function(code) {
     return LG.DEFAULT_LANGUAGE_LABEL[code] || code || "Langue";
 };
