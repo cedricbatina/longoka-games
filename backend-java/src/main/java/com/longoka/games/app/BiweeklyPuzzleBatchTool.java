@@ -107,6 +107,11 @@ public final class BiweeklyPuzzleBatchTool {
     PREMIUM
   }
 
+  private enum ProfileSetMode {
+    ALL,
+    BASE_ONLY
+  }
+
   private enum MorphologyProfileMode {
     GENERAL,
     NOMINAL_CLASS,
@@ -233,6 +238,7 @@ public final class BiweeklyPuzzleBatchTool {
     PuzzleTypeMode puzzleTypeMode = parsePuzzleTypeMode(parseStringArg(args, "--type", DEFAULT_PUZZLE_TYPE));
     String requestedDifficulty = parseStringArg(args, "--difficulty", DEFAULT_DIFFICULTY);
     EditionTier editionTier = parseEditionTier(parseStringArg(args, "--tier", DEFAULT_EDITION_TIER));
+    ProfileSetMode profileSetMode = parseProfileSetMode(parseStringArg(args, "--profileSet", "all"));
     String cadence = parseStringArg(args, "--cadence", DEFAULT_CADENCE).trim().toLowerCase(Locale.ROOT);
     if (cadence.isEmpty()) {
       cadence = DEFAULT_CADENCE;
@@ -264,7 +270,8 @@ public final class BiweeklyPuzzleBatchTool {
             conn,
             nounRadicalLimit,
             verbRadicalLimit,
-            minMorphologyEntries);
+            minMorphologyEntries,
+            profileSetMode);
 
         System.out.println("- profiles for " + language.code + ": " + combinations.size());
 
@@ -400,13 +407,30 @@ public final class BiweeklyPuzzleBatchTool {
       Connection conn,
       int nounRadicalLimit,
       int verbRadicalLimit,
-      int minMorphologyEntries) throws Exception {
+      int minMorphologyEntries,
+      ProfileSetMode profileSetMode) throws Exception {
+
+    if (profileSetMode == ProfileSetMode.BASE_ONLY) {
+      return new ArrayList<>(BASE_COMBINATIONS);
+    }
 
     List<CombinationProfile> profiles = new ArrayList<>(BASE_COMBINATIONS);
     profiles.addAll(discoverNominalClassProfiles(conn, minMorphologyEntries));
     profiles.addAll(discoverNounRadicalProfiles(conn, nounRadicalLimit, minMorphologyEntries));
     profiles.addAll(discoverVerbRadicalProfiles(conn, verbRadicalLimit, Math.max(4, minMorphologyEntries - 2)));
     return profiles;
+  }
+
+  private static ProfileSetMode parseProfileSetMode(String raw) {
+    String value = raw != null ? raw.trim().toLowerCase(Locale.ROOT) : "";
+    if (value.isEmpty() || "all".equals(value) || "full".equals(value)) {
+      return ProfileSetMode.ALL;
+    }
+    if ("base".equals(value) || "base-only".equals(value) || "base_only".equals(value) || "baseonly".equals(value)) {
+      return ProfileSetMode.BASE_ONLY;
+    }
+    // Defensive default: keep current behavior.
+    return ProfileSetMode.ALL;
   }
 
   private static List<CombinationProfile> discoverNominalClassProfiles(Connection conn, int minCount) throws Exception {

@@ -51,7 +51,8 @@ run_batch() {
 for LANG in $LANGUAGES; do
   run_batch "$LANG" wordsearch "$CYCLE_ID-premium-wordsearch" "--rows $WORDSEARCH_ROWS --cols $WORDSEARCH_COLS --maxEntries $GRID_ENTRIES"
   run_batch "$LANG" crossword "$CYCLE_ID-premium-crossword" "--rows $CROSSWORD_ROWS --cols $CROSSWORD_COLS --maxEntries $GRID_ENTRIES"
-  run_batch "$LANG" arrowword "$CYCLE_ID-premium-arrowword" "--rows $ARROWWORD_ROWS --cols $ARROWWORD_COLS --maxEntries $GRID_ENTRIES"
+  # Arrowword est le plus coûteux : on limite aux profils de base pour éviter les runs interminables sur CI.
+  run_batch "$LANG" arrowword "$CYCLE_ID-premium-arrowword" "--rows $ARROWWORD_ROWS --cols $ARROWWORD_COLS --maxEntries $GRID_ENTRIES --profileSet base"
   run_batch "$LANG" domino "$CYCLE_ID-premium-domino" "--maxEntries $MORPHO_ENTRIES"
   run_batch "$LANG" memory "$CYCLE_ID-premium-memory" "--maxEntries $MORPHO_ENTRIES"
   run_batch "$LANG" scrabble "$CYCLE_ID-premium-scrabble" "--maxEntries $MORPHO_ENTRIES"

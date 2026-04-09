@@ -37,7 +37,8 @@ function Invoke-PremiumGen {
 
 Invoke-PremiumGen -Type "wordsearch" -Label "$CycleId-premium-wordsearch" -ExtraArgs "--rows $WordSearchRows --cols $WordSearchCols --maxEntries $GridEntries"
 Invoke-PremiumGen -Type "crossword" -Label "$CycleId-premium-crossword" -ExtraArgs "--rows $CrosswordRows --cols $CrosswordCols --maxEntries $GridEntries"
-Invoke-PremiumGen -Type "arrowword" -Label "$CycleId-premium-arrowword" -ExtraArgs "--rows $ArrowwordRows --cols $ArrowwordCols --maxEntries $GridEntries"
+# Arrowword est le plus coûteux : limiter aux profils de base sur CI.
+Invoke-PremiumGen -Type "arrowword" -Label "$CycleId-premium-arrowword" -ExtraArgs "--rows $ArrowwordRows --cols $ArrowwordCols --maxEntries $GridEntries --profileSet base"
 Invoke-PremiumGen -Type "domino" -Label "$CycleId-premium-domino" -ExtraArgs "--maxEntries $MorphoEntries"
 Invoke-PremiumGen -Type "memory" -Label "$CycleId-premium-memory" -ExtraArgs "--maxEntries $MorphoEntries"
 Invoke-PremiumGen -Type "scrabble" -Label "$CycleId-premium-scrabble" -ExtraArgs "--maxEntries $MorphoEntries"

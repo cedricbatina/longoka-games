@@ -122,3 +122,4 @@ com\longoka\games\lexikongo\LingalaWordSearchService.class
 com\longoka\games\puzzles\scrabble\json\ScrabbleLikeJsonModels$ChallengeV1.class
 com\longoka\games\puzzles\wordsearch\json\WordSearchJsonModels$PackV1.class
 com\longoka\games\puzzles\scrabble\json\ScrabbleLikeJsonModels$PackV1.class
+com\longoka\games\app\BiweeklyPuzzleBatchTool$ProfileSetMode.class
