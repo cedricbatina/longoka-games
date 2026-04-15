@@ -31,7 +31,7 @@
 
     var jsonFile = File.openDialog("Choisir un pack JSON Longoka (cover template)", "JSON:*.json");
     if (!jsonFile) {
-        alert("Operation annulee.");
+        LG.uiCancelled();
         return;
     }
 

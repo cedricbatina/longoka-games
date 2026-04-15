@@ -17,7 +17,7 @@
 
     var jsonFile = File.openDialog("Choisir un pack JSON Longoka mots fleches (arrowword)", "JSON:*.json");
     if (!jsonFile) {
-        alert("Operation annulee.");
+        LG.uiCancelled();
         return;
     }
 
@@ -35,7 +35,7 @@
     var outName = sanitizeFilename(LG.bookCodeFromPack(pack) + "-book.indd");
     var outFile = File(jsonFile.parent + "/" + outName);
     doc.save(outFile);
-    alert("Livre cree :\n" + outFile.fsName);
+    LG.uiBookCreated(outFile);
 
     function buildBook(doc, pack) {
         addTitlePage(doc, pack);
@@ -50,34 +50,34 @@
         var page = doc.pages[0];
         page.appliedMaster = doc.masterSpreads.itemByName(LG.MASTERS.front);
 
-        drawChip(page, [20, 23, 28, 66], LG.collectionLabelFromPack(pack), LG.SWATCHES.longokaAccent, 0, LG.SWATCHES.paper);
-        drawChip(page, [20, 99, 28, 129], String(LG.tierLabelFromPack(pack) + " " + LG.difficultyLabelFromPack(pack)).toUpperCase(), LG.SWATCHES.longokaWarm, 8, LG.SWATCHES.longokaDark);
+        drawChip(page, LG.pageBox(page, 20, 23, 28, 66), LG.collectionLabelFromPack(pack), LG.SWATCHES.longokaAccent, 0, LG.SWATCHES.paper);
+        drawChip(page, LG.pageBox(page, 20, 99, 28, 129), String(LG.tierLabelFromPack(pack) + " " + LG.difficultyLabelFromPack(pack)).toUpperCase(), LG.SWATCHES.longokaWarm, 8, LG.SWATCHES.longokaDark);
 
-        var eyebrow = addFrame(page, [37, 22, 44, 90], "Cahier premium de mots fleches", LG.STYLES.p.bookSubtitle);
+        var eyebrow = addFrame(page, LG.pageBox(page, 37, 22, 44, 90), "Cahier premium de mots fleches", LG.STYLES.p.bookSubtitle);
         eyebrow.paragraphs[0].justification = Justification.LEFT_ALIGN;
-        var volume = addFrame(page, [47, 22, 54, 90], LG.volumeLabelFromPack(pack), LG.STYLES.p.bookSubtitle);
+        var volume = addFrame(page, LG.pageBox(page, 47, 22, 54, 90), LG.volumeLabelFromPack(pack), LG.STYLES.p.bookSubtitle);
         volume.paragraphs[0].justification = Justification.LEFT_ALIGN;
 
-        var title = addFrame(page, [58, 22, 92, 92], compactTitle(LG.bookTitleFromPack(pack) || "Mots fleches"), LG.STYLES.p.bookTitle);
+        var title = addFrame(page, LG.pageBox(page, 58, 22, 92, 92), compactTitle(LG.bookTitleFromPack(pack) || "Mots fleches"), LG.STYLES.p.bookTitle);
         title.paragraphs[0].justification = Justification.LEFT_ALIGN;
 
-        var subline = addFrame(page, [96, 22, 105, 92], LG.languageLabel(pack.language) + "  |  " + LG.modeLabelFromPack(pack), LG.STYLES.p.bookSubtitle);
+        var subline = addFrame(page, LG.pageBox(page, 96, 22, 105, 92), LG.languageLabel(pack.language) + "  |  " + LG.modeLabelFromPack(pack), LG.STYLES.p.bookSubtitle);
         subline.paragraphs[0].justification = Justification.LEFT_ALIGN;
 
-        var deck = addFrame(page, [110, 22, 131, 90], buildCoverLead(pack), LG.STYLES.p.body);
+        var deck = addFrame(page, LG.pageBox(page, 110, 22, 131, 90), buildCoverLead(pack), LG.STYLES.p.body);
         deck.paragraphs[0].justification = Justification.LEFT_ALIGN;
 
-        var bigNo = addFrame(page, [40, 98, 79, 129], LG.volumeNumberFromPack(pack), LG.STYLES.p.bookTitle);
+        var bigNo = addFrame(page, LG.pageBox(page, 40, 98, 79, 129), LG.volumeNumberFromPack(pack), LG.STYLES.p.bookTitle);
         bigNo.paragraphs[0].justification = Justification.RIGHT_ALIGN;
         bigNo.parentStory.fillColor = doc.swatches.itemByName(LG.SWATCHES.paper);
         bigNo.texts[0].pointSize = 55;
         bigNo.texts[0].leading = 52;
         bigNo.texts[0].tracking = -40;
 
-        var code = addFrame(page, [82, 101, 91, 129], LG.bookCodeFromPack(pack), LG.STYLES.p.footer);
+        var code = addFrame(page, LG.pageBox(page, 82, 101, 91, 129), LG.bookCodeFromPack(pack), LG.STYLES.p.footer);
         code.parentStory.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
 
-        drawStatsPanel(page, [99, 99, 188, 130], [
+        drawStatsPanel(page, LG.pageBox(page, 99, 99, 188, 130), [
             "Grilles",
             String(LG.puzzleCountFromPack(pack)),
             "",
@@ -90,12 +90,12 @@
 
         var panel = page.rectangles.add();
         panel.itemLayer = doc.layers.itemByName(LG.LAYERS.content);
-        panel.geometricBounds = [150, 22, 203, 92];
+        panel.geometricBounds = LG.pageBox(page, 150, 22, 203, 92);
         panel.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaWarm);
         panel.fillTint = 25;
         panel.strokeColor = doc.swatches.itemByName("None");
 
-        addFrame(page, [157, 28, 191, 86], buildCoverBlurb(pack), LG.STYLES.p.body);
+        addFrame(page, LG.pageBox(page, 157, 28, 191, 86), buildCoverBlurb(pack), LG.STYLES.p.body);
     }
 
     function addCopyrightPage(doc, pack) {
@@ -127,7 +127,7 @@
         txt.push("");
         txt.push(LG.WEBSITE);
 
-        addFrame(page, [38, 28, 182, 124], txt.join("\r"), LG.STYLES.p.copyright);
+        addFrame(page, LG.pageBox(page, 38, 28, 182, 124), txt.join("\r"), LG.STYLES.p.copyright);
     }
 
     function addInstructionsPage(doc, pack) {
@@ -135,17 +135,17 @@
         LG.applyPageMargins(page);
         page.appliedMaster = doc.masterSpreads.itemByName(LG.MASTERS.front);
 
-        addFrame(page, [24, 22, 36, 132], "Mode d'emploi", LG.STYLES.p.sectionTitle);
-        addFrame(page, [38, 22, 51, 132], "Chaque definition part d'une case grisee: la fleche indique si le mot se lit vers la droite ou vers le bas. La liste detaille reprend les memes entrees.", LG.STYLES.p.body);
-        drawStepCard(page, [58, 22, 98, 132], "1. Partir des cases", "Repere les indices dans la grille et la direction (droite ou bas).", LG.SWATCHES.longokaPanel);
-        drawStepCard(page, [104, 22, 144, 132], "2. Enchainer", "Remplis les lettres en t'appuyant sur les mots deja places.", LG.SWATCHES.longokaPanel);
-        drawStepCard(page, [150, 22, 190, 132], "3. Valider", "Compare avec les solutions compactes en fin de volume.", LG.SWATCHES.longokaPanel);
+        addFrame(page, LG.pageBox(page, 24, 22, 36, 132), "Mode d'emploi", LG.STYLES.p.sectionTitle);
+        addFrame(page, LG.pageBox(page, 38, 22, 51, 132), "Chaque definition part d'une case grisee: la fleche indique si le mot se lit vers la droite ou vers le bas. La liste detaille reprend les memes entrees.", LG.STYLES.p.body);
+        drawStepCard(page, LG.pageBox(page, 58, 22, 98, 132), "1. Partir des cases", "Repere les indices dans la grille et la direction (droite ou bas).", LG.SWATCHES.longokaPanel);
+        drawStepCard(page, LG.pageBox(page, 104, 22, 144, 132), "2. Enchainer", "Remplis les lettres en t'appuyant sur les mots deja places.", LG.SWATCHES.longokaPanel);
+        drawStepCard(page, LG.pageBox(page, 150, 22, 190, 132), "3. Valider", "Compare avec les solutions compactes en fin de volume.", LG.SWATCHES.longokaPanel);
 
         var footer = [];
         footer.push("Pack : " + (pack.packId || ""));
         footer.push("Nombre de grilles : " + LG.puzzleCountFromPack(pack));
         footer.push("Theme : " + LG.modeLabelFromPack(pack));
-        addFrame(page, [192, 22, 205, 132], footer.join("  |  "), LG.STYLES.p.footer);
+        addFrame(page, LG.pageBox(page, 192, 22, 205, 132), footer.join("  |  "), LG.STYLES.p.footer);
     }
 
     function addPuzzlePages(doc, pack) {
@@ -159,22 +159,22 @@
     }
 
     function renderPuzzlePage(doc, page, puzzle, puzzleNumber) {
-        addFrame(page, [19, 20, 28, 132], "Grille " + pad2(puzzleNumber) + "  |  " + compactTitle(puzzle.title || pack.title || "Mots fleches"), LG.STYLES.p.puzzleTitle);
-        addFrame(page, [29, 20, 35, 132], buildMetaLine(puzzle, false), LG.STYLES.p.puzzleMeta);
+        addFrame(page, LG.pageBox(page, 19, 20, 28, 132), "Grille " + pad2(puzzleNumber) + "  |  " + compactTitle(puzzle.title || pack.title || "Mots fleches"), LG.STYLES.p.puzzleTitle);
+        addFrame(page, LG.pageBox(page, 29, 20, 35, 132), buildMetaLine(puzzle, false), LG.STYLES.p.puzzleMeta);
 
-        drawChip(page, [38, 20, 45, 52], String(LG.wordCountFromPuzzle(puzzle)) + " entrees", LG.SWATCHES.longokaAccent, 10, LG.SWATCHES.longokaDark);
-        drawChip(page, [38, 55, 45, 83], compactTitle(puzzle.difficulty || "standard"), LG.SWATCHES.longokaWarm, 10, LG.SWATCHES.longokaDark);
+        drawChip(page, LG.pageBox(page, 38, 20, 45, 52), String(LG.wordCountFromPuzzle(puzzle)) + " entrees", LG.SWATCHES.longokaAccent, 10, LG.SWATCHES.longokaDark);
+        drawChip(page, LG.pageBox(page, 38, 55, 45, 83), compactTitle(puzzle.difficulty || "standard"), LG.SWATCHES.longokaWarm, 10, LG.SWATCHES.longokaDark);
 
         var gridPanel = page.rectangles.add();
         gridPanel.itemLayer = doc.layers.itemByName(LG.LAYERS.content);
-        gridPanel.geometricBounds = [48, 20, 116, 88];
+        gridPanel.geometricBounds = LG.pageBox(page, 48, 20, 116, 88);
         gridPanel.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaLight);
         gridPanel.strokeColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
         gridPanel.strokeWeight = 0.45;
 
-        renderArrowwordGrid(doc, page, puzzle, [52, 24, 112, 84], false);
+        renderArrowwordGrid(doc, page, puzzle, LG.pageBox(page, 52, 24, 112, 84), false);
 
-        drawStatsPanel(page, [48, 92, 116, 132], [
+        drawStatsPanel(page, LG.pageBox(page, 48, 92, 116, 132), [
             "Theme",
             compactTitle(puzzle.theme || ""),
             "",
@@ -187,7 +187,7 @@
 
         var cluesPanel = page.rectangles.add();
         cluesPanel.itemLayer = doc.layers.itemByName(LG.LAYERS.content);
-        cluesPanel.geometricBounds = [122, 20, 205, 132];
+        cluesPanel.geometricBounds = LG.pageBox(page, 122, 20, 205, 132);
         cluesPanel.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaPanel);
         cluesPanel.strokeColor = doc.swatches.itemByName("None");
 
@@ -198,10 +198,10 @@
         divider.strokeColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
         divider.strokeTint = 40;
 
-        addFrame(page, [127, 26, 134, 76], "Horizontaux (droite)", LG.STYLES.p.wordListHeading);
-        addFrame(page, [127, 82, 134, 126], "Verticaux (bas)", LG.STYLES.p.wordListHeading);
-        addFrame(page, [136, 26, 198, 76], buildArrowwordClueList(puzzle.entries || [], "RIGHT", pack), LG.STYLES.p.wordList);
-        addFrame(page, [136, 82, 198, 126], buildArrowwordClueList(puzzle.entries || [], "DOWN", pack), LG.STYLES.p.wordList);
+        addFrame(page, LG.pageBox(page, 127, 26, 134, 76), "Horizontaux (droite)", LG.STYLES.p.wordListHeading);
+        addFrame(page, LG.pageBox(page, 127, 82, 134, 126), "Verticaux (bas)", LG.STYLES.p.wordListHeading);
+        addFrame(page, LG.pageBox(page, 136, 26, 198, 76), buildArrowwordClueList(puzzle.entries || [], "RIGHT", pack), LG.STYLES.p.wordList);
+        addFrame(page, LG.pageBox(page, 136, 82, 198, 126), buildArrowwordClueList(puzzle.entries || [], "DOWN", pack), LG.STYLES.p.wordList);
     }
 
     function addSolutionsIntroPage(doc, pack) {
@@ -209,9 +209,9 @@
         LG.applyPageMargins(page);
         page.appliedMaster = doc.masterSpreads.itemByName(LG.MASTERS.solutions);
 
-        addFrame(page, [58, 22, 80, 132], "Solutions", LG.STYLES.p.bookTitle);
-        addFrame(page, [85, 28, 101, 126], "Version compacte 2 grilles par page, avec reponses regroupees.", LG.STYLES.p.bookSubtitle);
-        drawChip(page, [112, 44, 120, 110], LG.volumeLabelFromPack(pack) + "  |  " + LG.bookCodeFromPack(pack), LG.SWATCHES.longokaWarm, 15, LG.SWATCHES.longokaDark);
+        addFrame(page, LG.pageBox(page, 58, 22, 80, 132), "Solutions", LG.STYLES.p.bookTitle);
+        addFrame(page, LG.pageBox(page, 85, 28, 101, 126), "Version compacte 2 grilles par page, avec reponses regroupees.", LG.STYLES.p.bookSubtitle);
+        drawChip(page, LG.pageBox(page, 112, 44, 120, 110), LG.volumeLabelFromPack(pack) + "  |  " + LG.bookCodeFromPack(pack), LG.SWATCHES.longokaWarm, 15, LG.SWATCHES.longokaDark);
     }
 
     function addSolutionsPages(doc, pack) {
@@ -220,9 +220,9 @@
             var page = doc.pages.add(LocationOptions.AT_END);
             LG.applyPageMargins(page);
             page.appliedMaster = doc.masterSpreads.itemByName(LG.MASTERS.solutions);
-            renderSolutionBlock(doc, page, pack, pack.puzzles[i], i + 1, [22, 20, 109, 132]);
+            renderSolutionBlock(doc, page, pack, pack.puzzles[i], i + 1, LG.pageBox(page, 22, 20, 109, 132));
             if (i + 1 < pack.puzzles.length) {
-                renderSolutionBlock(doc, page, pack, pack.puzzles[i + 1], i + 2, [116, 20, 203, 132]);
+                renderSolutionBlock(doc, page, pack, pack.puzzles[i + 1], i + 2, LG.pageBox(page, 116, 20, 203, 132));
             }
         }
     }
@@ -287,7 +287,7 @@
                 cell.bottomInset = 0.12;
                 cell.leftInset = 0.25;
                 cell.rightInset = 0.12;
-                cell.strokeWeight = 0.34;
+                LG.setCellStrokeUniform(cell, 0.34);
                 cell.strokeColor = doc.colors.itemByName(LG.SWATCHES.longokaDark);
 
                 if (kind === "block") {

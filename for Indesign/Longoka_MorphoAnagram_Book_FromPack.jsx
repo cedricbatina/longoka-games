@@ -17,7 +17,7 @@
 
     var jsonFile = File.openDialog("Choisir un pack JSON Longoka anagrammes morphologiques", "JSON:*.json");
     if (!jsonFile) {
-        alert("Operation annulee.");
+        LG.uiCancelled();
         return;
     }
 
@@ -25,12 +25,17 @@
     LG.validateMorphoAnagramPack(pack);
 
     var doc = LG.createDocument();
-    buildBook(doc, pack);
+    var perfState = LG.beginHeavyScript();
+    try {
+        buildBook(doc, pack);
+    } finally {
+        LG.endHeavyScript(perfState);
+    }
 
     var outName = sanitizeFilename(LG.bookCodeFromPack(pack) + "-book.indd");
     var outFile = File(jsonFile.parent + "/" + outName);
     doc.save(outFile);
-    alert("Livre cree :\n" + outFile.fsName);
+    LG.uiBookCreated(outFile);
 
     function buildBook(doc, pack) {
         addTitlePage(doc, pack);
@@ -45,31 +50,31 @@
         var page = doc.pages[0];
         page.appliedMaster = doc.masterSpreads.itemByName(LG.MASTERS.front);
 
-        drawChip(page, [20, 23, 28, 66], LG.collectionLabelFromPack(pack), LG.SWATCHES.longokaAccent, 0, LG.SWATCHES.paper);
-        drawChip(page, [20, 99, 28, 129], String(LG.tierLabelFromPack(pack) + " " + LG.difficultyLabelFromPack(pack)).toUpperCase(), LG.SWATCHES.longokaWarm, 8, LG.SWATCHES.longokaDark);
+        drawChip(page, LG.pageBox(page, 20, 23, 28, 66), LG.collectionLabelFromPack(pack), LG.SWATCHES.longokaAccent, 0, LG.SWATCHES.paper);
+        drawChip(page, LG.pageBox(page, 20, 99, 28, 129), String(LG.tierLabelFromPack(pack) + " " + LG.difficultyLabelFromPack(pack)).toUpperCase(), LG.SWATCHES.longokaWarm, 8, LG.SWATCHES.longokaDark);
 
-        addFrame(page, [37, 22, 44, 90], "Cahier premium d'anagrammes morphologiques", LG.STYLES.p.bookSubtitle).paragraphs[0].justification = Justification.LEFT_ALIGN;
-        addFrame(page, [47, 22, 54, 90], LG.volumeLabelFromPack(pack), LG.STYLES.p.bookSubtitle).paragraphs[0].justification = Justification.LEFT_ALIGN;
+        addFrame(page, LG.pageBox(page, 37, 22, 44, 90), "Cahier premium d'anagrammes morphologiques", LG.STYLES.p.bookSubtitle).paragraphs[0].justification = Justification.LEFT_ALIGN;
+        addFrame(page, LG.pageBox(page, 47, 22, 54, 90), LG.volumeLabelFromPack(pack), LG.STYLES.p.bookSubtitle).paragraphs[0].justification = Justification.LEFT_ALIGN;
 
-        var title = addFrame(page, [58, 22, 92, 92], compactTitle(LG.bookTitleFromPack(pack) || "Anagrammes morphologiques"), LG.STYLES.p.bookTitle);
+        var title = addFrame(page, LG.pageBox(page, 58, 22, 92, 92), compactTitle(LG.bookTitleFromPack(pack) || "Anagrammes morphologiques"), LG.STYLES.p.bookTitle);
         title.paragraphs[0].justification = Justification.LEFT_ALIGN;
 
-        var subline = addFrame(page, [96, 22, 105, 92], LG.languageLabel(pack.language) + "  |  " + LG.modeLabelFromPack(pack), LG.STYLES.p.bookSubtitle);
+        var subline = addFrame(page, LG.pageBox(page, 96, 22, 105, 92), LG.languageLabel(pack.language) + "  |  " + LG.modeLabelFromPack(pack), LG.STYLES.p.bookSubtitle);
         subline.paragraphs[0].justification = Justification.LEFT_ALIGN;
 
-        addFrame(page, [110, 22, 131, 90], buildCoverLead(pack), LG.STYLES.p.body).paragraphs[0].justification = Justification.LEFT_ALIGN;
+        addFrame(page, LG.pageBox(page, 110, 22, 131, 90), buildCoverLead(pack), LG.STYLES.p.body).paragraphs[0].justification = Justification.LEFT_ALIGN;
 
-        var bigNo = addFrame(page, [40, 98, 79, 129], LG.volumeNumberFromPack(pack), LG.STYLES.p.bookTitle);
+        var bigNo = addFrame(page, LG.pageBox(page, 40, 98, 79, 129), LG.volumeNumberFromPack(pack), LG.STYLES.p.bookTitle);
         bigNo.paragraphs[0].justification = Justification.RIGHT_ALIGN;
         bigNo.parentStory.fillColor = doc.swatches.itemByName(LG.SWATCHES.paper);
         bigNo.texts[0].pointSize = 55;
         bigNo.texts[0].leading = 52;
         bigNo.texts[0].tracking = -40;
 
-        var code = addFrame(page, [82, 101, 91, 129], LG.bookCodeFromPack(pack), LG.STYLES.p.footer);
+        var code = addFrame(page, LG.pageBox(page, 82, 101, 91, 129), LG.bookCodeFromPack(pack), LG.STYLES.p.footer);
         code.parentStory.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
 
-        drawStatsPanel(page, [99, 99, 188, 130], [
+        drawStatsPanel(page, LG.pageBox(page, 99, 99, 188, 130), [
             "Pages jeu",
             String(LG.puzzleCountFromPack(pack)),
             "",
@@ -82,12 +87,12 @@
 
         var panel = page.rectangles.add();
         panel.itemLayer = doc.layers.itemByName(LG.LAYERS.content);
-        panel.geometricBounds = [150, 22, 203, 92];
+        panel.geometricBounds = LG.pageBox(page, 150, 22, 203, 92);
         panel.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaWarm);
         panel.fillTint = 25;
         panel.strokeColor = doc.swatches.itemByName("None");
 
-        addFrame(page, [157, 28, 191, 86], buildCoverBlurb(pack), LG.STYLES.p.body);
+        addFrame(page, LG.pageBox(page, 157, 28, 191, 86), buildCoverBlurb(pack), LG.STYLES.p.body);
     }
 
     function addCopyrightPage(doc, pack) {
@@ -119,7 +124,7 @@
         txt.push("");
         txt.push(LG.WEBSITE);
 
-        addFrame(page, [38, 28, 182, 124], txt.join("\r"), LG.STYLES.p.copyright);
+        addFrame(page, LG.pageBox(page, 38, 28, 182, 124), txt.join("\r"), LG.STYLES.p.copyright);
     }
 
     function addInstructionsPage(doc, pack) {
@@ -127,13 +132,13 @@
         LG.applyPageMargins(page);
         page.appliedMaster = doc.masterSpreads.itemByName(LG.MASTERS.front);
 
-        addFrame(page, [24, 22, 36, 132], "Mode d'emploi", LG.STYLES.p.sectionTitle);
-        addFrame(page, [38, 22, 51, 132], "Reconstitue chaque forme cible en ordonnant les pieces dans les emplacements. Les corrections en fin de volume donnent le detail lexical complet.", LG.STYLES.p.body);
-        drawStepCard(page, [58, 22, 98, 132], "1. Lire", "Repere la consigne et la forme a reconstruire.", LG.SWATCHES.longokaPanel);
-        drawStepCard(page, [104, 22, 144, 132], "2. Composer", "Glisse mentalement (ou sur epreuve) les segments dans l'ordre logique.", LG.SWATCHES.longokaPanel);
-        drawStepCard(page, [150, 22, 190, 132], "3. Verifier", "Compare avec la correction : traductions FR/EN, phonetique, notes.", LG.SWATCHES.longokaPanel);
+        addFrame(page, LG.pageBox(page, 24, 22, 36, 132), "Mode d'emploi", LG.STYLES.p.sectionTitle);
+        addFrame(page, LG.pageBox(page, 38, 22, 51, 132), "Reconstitue chaque forme cible en ordonnant les pieces dans les emplacements. Les corrections en fin de volume donnent le detail lexical complet.", LG.STYLES.p.body);
+        drawStepCard(page, LG.pageBox(page, 58, 22, 98, 132), "1. Lire", "Repere la consigne et la forme a reconstruire.", LG.SWATCHES.longokaPanel);
+        drawStepCard(page, LG.pageBox(page, 104, 22, 144, 132), "2. Composer", "Glisse mentalement (ou sur epreuve) les segments dans l'ordre logique.", LG.SWATCHES.longokaPanel);
+        drawStepCard(page, LG.pageBox(page, 150, 22, 190, 132), "3. Verifier", "Compare avec la correction : traductions FR/EN, phonetique, notes.", LG.SWATCHES.longokaPanel);
 
-        addFrame(page, [192, 22, 205, 132], "Pack : " + (pack.packId || "") + "  |  Defis : " + LG.puzzleCountFromPack(pack), LG.STYLES.p.footer);
+        addFrame(page, LG.pageBox(page, 192, 22, 205, 132), "Pack : " + (pack.packId || "") + "  |  Defis : " + LG.puzzleCountFromPack(pack), LG.STYLES.p.footer);
     }
 
     function addPuzzlePages(doc, pack) {
@@ -147,8 +152,8 @@
     }
 
     function renderPuzzlePage(doc, page, puzzle, puzzleNumber, pack) {
-        addFrame(page, [19, 20, 28, 132], "Defi " + pad2(puzzleNumber) + "  |  " + compactTitle(puzzle.title || pack.title || "Anagrammes"), LG.STYLES.p.puzzleTitle);
-        addFrame(page, [29, 20, 36, 132], buildPuzzleMetaLine(puzzle, pack), LG.STYLES.p.puzzleMeta);
+        addFrame(page, LG.pageBox(page, 19, 20, 28, 132), "Defi " + pad2(puzzleNumber) + "  |  " + compactTitle(puzzle.title || pack.title || "Anagrammes"), LG.STYLES.p.puzzleTitle);
+        addFrame(page, LG.pageBox(page, 29, 20, 36, 132), buildPuzzleMetaLine(puzzle, pack), LG.STYLES.p.puzzleMeta);
 
         var challenges = puzzle.challenges || [];
         var cursorY = 42;
@@ -163,7 +168,7 @@
             }
             var challenge = challenges[c];
             var shortHint = truncateOneLine(challengeLinePrimary(challenge), 78);
-            addFrame(page, [cursorY, left, cursorY + 7, right], (c + 1) + ". " + shortHint + "  |  " + (challenge.score || 0) + " pts", LG.STYLES.p.wordListHeading);
+            addFrame(page, LG.pageBox(page, cursorY, left, cursorY + 7, right), (c + 1) + ". " + shortHint + "  |  " + (challenge.score || 0) + " pts", LG.STYLES.p.wordListHeading);
 
             var slotY = cursorY + 8;
             var slotW = 19;
@@ -175,7 +180,7 @@
                 var slotX = left + (s * (slotW + slotGap));
                 var slotRect = page.rectangles.add();
                 slotRect.itemLayer = doc.layers.itemByName(LG.LAYERS.content);
-                slotRect.geometricBounds = [slotY, slotX, slotY + slotH, slotX + slotW];
+                slotRect.geometricBounds = LG.pageBox(page, slotY, slotX, slotY + slotH, slotX + slotW);
                 slotRect.strokeColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
                 slotRect.strokeWeight = 0.4;
                 slotRect.fillColor = doc.swatches.itemByName(LG.SWATCHES.paper);
@@ -195,7 +200,7 @@
         }
 
         if (cursorY < bottom - 12) {
-            addFrame(page, [bottom - 10, left, bottom, right], "Correction detaillee en fin de volume.", LG.STYLES.p.footer);
+            addFrame(page, LG.pageBox(page, bottom - 10, left, bottom, right), "Correction detaillee en fin de volume.", LG.STYLES.p.footer);
         }
     }
 
@@ -216,18 +221,18 @@
     function drawPiece(page, x, y, w, h, piece, docRef) {
         var rect = page.rectangles.add();
         rect.itemLayer = docRef.layers.itemByName(LG.LAYERS.content);
-        rect.geometricBounds = [y, x, y + h, x + w];
+        rect.geometricBounds = LG.pageBox(page, y, x, y + h, x + w);
         rect.strokeColor = docRef.colors.itemByName(LG.SWATCHES.longokaDark);
         rect.strokeWeight = 0.35;
         rect.fillColor = docRef.colors.itemByName(LG.SWATCHES.longokaLight);
         rect.fillTint = 40;
 
         var txt = String(piece && piece.text ? piece.text : "");
-        addFrame(page, [y + 1.2, x + 1.5, y + h - 2, x + w - 1.5], txt, LG.STYLES.p.wordList);
+        addFrame(page, LG.pageBox(page, y + 1.2, x + 1.5, y + h - 2, x + w - 1.5), txt, LG.STYLES.p.wordList);
         var role = String(piece && piece.role ? piece.role : "");
         var pts = piece && piece.points ? ("  " + piece.points + " pts") : "";
         if (role || pts) {
-            addFrame(page, [y + h - 6.5, x + 1.5, y + h - 1, x + w - 1.5], role + pts, LG.STYLES.p.footer);
+            addFrame(page, LG.pageBox(page, y + h - 6.5, x + 1.5, y + h - 1, x + w - 1.5), role + pts, LG.STYLES.p.footer);
         }
     }
 
@@ -247,9 +252,9 @@
         LG.applyPageMargins(page);
         page.appliedMaster = doc.masterSpreads.itemByName(LG.MASTERS.solutions);
 
-        addFrame(page, [58, 22, 80, 132], "Corrections", LG.STYLES.p.bookTitle);
-        addFrame(page, [85, 28, 101, 126], "Traductions completes (FR, EN si disponible), phonetique et ordre de solution pour chaque defi.", LG.STYLES.p.bookSubtitle);
-        drawChip(page, [112, 44, 120, 110], LG.volumeLabelFromPack(pack) + "  |  " + LG.bookCodeFromPack(pack), LG.SWATCHES.longokaWarm, 15, LG.SWATCHES.longokaDark);
+        addFrame(page, LG.pageBox(page, 58, 22, 80, 132), "Corrections", LG.STYLES.p.bookTitle);
+        addFrame(page, LG.pageBox(page, 85, 28, 101, 126), "Traductions completes (FR, EN si disponible), phonetique et ordre de solution pour chaque defi.", LG.STYLES.p.bookSubtitle);
+        drawChip(page, LG.pageBox(page, 112, 44, 120, 110), LG.volumeLabelFromPack(pack) + "  |  " + LG.bookCodeFromPack(pack), LG.SWATCHES.longokaWarm, 15, LG.SWATCHES.longokaDark);
     }
 
     function addSolutionsPages(doc, pack) {
@@ -265,13 +270,13 @@
     function renderSolutionPage(doc, page, puzzle, puzzleNumber, pack) {
         var panel = page.rectangles.add();
         panel.itemLayer = doc.layers.itemByName(LG.LAYERS.solutions);
-        panel.geometricBounds = [22, 20, 203, 132];
+        panel.geometricBounds = LG.pageBox(page, 22, 20, 203, 132);
         panel.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaPanel);
         panel.strokeColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
         panel.strokeWeight = 0.3;
 
-        addFrame(page, [26, 24, 36, 128], "Correction defi " + pad2(puzzleNumber) + "  |  " + compactTitle(puzzle.title || ""), LG.STYLES.p.solutionTitle);
-        addFrame(page, [38, 24, 198, 128], buildFullAnagramCorrectionText(puzzle, pack), LG.STYLES.p.solutionBody);
+        addFrame(page, LG.pageBox(page, 26, 24, 36, 128), "Correction defi " + pad2(puzzleNumber) + "  |  " + compactTitle(puzzle.title || ""), LG.STYLES.p.solutionTitle);
+        addFrame(page, LG.pageBox(page, 38, 24, 198, 128), buildFullAnagramCorrectionText(puzzle, pack), LG.STYLES.p.solutionBody);
     }
 
     function buildFullAnagramCorrectionText(puzzle, pack) {

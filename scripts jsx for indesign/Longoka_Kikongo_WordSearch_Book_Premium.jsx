@@ -161,6 +161,20 @@ Longoka Games — Kikongo Wordsearch (Premium Book Builder)
     return lines;
   }
 
+  /** InDesign 21+ : Cell n'a plus strokeWeight — utiliser les bords. */
+  function setTableCellStrokeUniform(cell, strokePt) {
+    try {
+      cell.strokeWeight = strokePt;
+      return;
+    } catch (e0) {}
+    try {
+      cell.topEdgeStrokeWeight = strokePt;
+      cell.leftEdgeStrokeWeight = strokePt;
+      cell.bottomEdgeStrokeWeight = strokePt;
+      cell.rightEdgeStrokeWeight = strokePt;
+    } catch (e1) {}
+  }
+
   function createGridTable(page, gb, rows, cols, gridLines, opts) {
     opts = opts || {};
     var cellSizePt = opts.cellSizePt;
@@ -179,7 +193,7 @@ Longoka Games — Kikongo Wordsearch (Premium Book Builder)
     for (var rr = 0; rr < rows; rr++) {
       for (var cc = 0; cc < cols; cc++) {
         var cell = table.rows[rr].cells[cc];
-        cell.strokeWeight = strokePt;
+        setTableCellStrokeUniform(cell, strokePt);
         cell.verticalJustification = VerticalJustification.CENTER_ALIGN;
         try { cell.texts[0].appliedFont = fontName; } catch (_) {}
         cell.texts[0].pointSize = textPt;

@@ -11,7 +11,7 @@ if (typeof LG === "undefined") {
 
 LG.createDocument = function(customConfig) {
     var cfg = customConfig || {};
-    var page = cfg.page || LG.PAGE;
+    var page = cfg.page || LG.getPageSpec();
 
     var doc = app.documents.add();
     doc.documentPreferences.properties = {
@@ -281,8 +281,9 @@ LG.decorateMasterFront = function(master) {
     LG.clearMasterPageItems(master);
     var page = master.pages[0];
     var doc = master.parent;
-    var pageWidth = page.bounds[3];
-    var pageHeight = page.bounds[2];
+    var pb = page.bounds;
+    var pageWidth = pb[3];
+    var pageHeight = pb[2];
 
     var background = page.rectangles.add();
     background.geometricBounds = [0, 0, pageHeight, pageWidth];
@@ -290,37 +291,37 @@ LG.decorateMasterFront = function(master) {
     background.strokeColor = doc.swatches.itemByName("None");
 
     var accentBand = page.rectangles.add();
-    accentBand.geometricBounds = [0, 0, pageHeight, 14];
+    accentBand.geometricBounds = LG.pageBox(page, 0, 0, LG.LAYOUT_REF_MM.height, 14);
     accentBand.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
     accentBand.strokeColor = doc.swatches.itemByName("None");
 
     var topRule = page.rectangles.add();
-    topRule.geometricBounds = [0, 0, 7, pageWidth];
+    topRule.geometricBounds = LG.pageBox(page, 0, 0, 7, LG.LAYOUT_REF_MM.width);
     topRule.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
     topRule.fillTint = 18;
     topRule.strokeColor = doc.swatches.itemByName("None");
 
     var darkBlock = page.rectangles.add();
-    darkBlock.geometricBounds = [0, 94, pageHeight, pageWidth];
+    darkBlock.geometricBounds = LG.pageBox(page, 0, 94, LG.LAYOUT_REF_MM.height, LG.LAYOUT_REF_MM.width);
     darkBlock.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaDark);
     darkBlock.fillTint = 92;
     darkBlock.strokeColor = doc.swatches.itemByName("None");
 
     var splitRule = page.rectangles.add();
-    splitRule.geometricBounds = [20, 92, pageHeight - 16, 94];
+    splitRule.geometricBounds = LG.pageBox(page, 20, 92, LG.LAYOUT_REF_MM.height - 16, 94);
     splitRule.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
     splitRule.fillTint = 70;
     splitRule.strokeColor = doc.swatches.itemByName("None");
 
     var warmPanel = page.rectangles.add();
-    warmPanel.geometricBounds = [148, 20, 208, 92];
+    warmPanel.geometricBounds = LG.pageBox(page, 148, 20, 208, 92);
     warmPanel.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaWarm);
     warmPanel.fillTint = 32;
     warmPanel.strokeColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
     warmPanel.strokeWeight = 0.35;
 
     var footer = page.textFrames.add();
-    footer.geometricBounds = [214, 22, 222, 130];
+    footer.geometricBounds = [pageHeight - 22, pb[1] + 22, pageHeight - 8, pageWidth - 22];
     footer.contents = LG.BRAND + "  |  " + LG.IMPRINT;
     footer.paragraphs[0].appliedParagraphStyle = doc.paragraphStyles.itemByName(LG.STYLES.p.footer);
 };
@@ -331,12 +332,12 @@ LG.decorateMasterCopyright = function(master) {
     var doc = master.parent;
 
     var band = page.rectangles.add();
-    band.geometricBounds = [15, 20, 19, 132];
+    band.geometricBounds = LG.pageBox(page, 15, 20, 19, 132);
     band.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
     band.strokeColor = doc.swatches.itemByName("None");
 
     var panel = page.rectangles.add();
-    panel.geometricBounds = [28, 20, 196, 132];
+    panel.geometricBounds = LG.pageBox(page, 28, 20, 196, 132);
     panel.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaPanel);
     panel.strokeColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
     panel.strokeWeight = 0.25;
@@ -346,24 +347,26 @@ LG.decorateMasterPuzzle = function(master) {
     LG.clearMasterPageItems(master);
     var page = master.pages[0];
     var doc = master.parent;
+    var pb = page.bounds;
 
     var topBand = page.rectangles.add();
-    topBand.geometricBounds = [0, 0, 16, 152.4];
+    topBand.geometricBounds = [pb[0], pb[1], 16, pb[3]];
     topBand.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaDark);
     topBand.strokeColor = doc.swatches.itemByName("None");
 
     var accentStrip = page.rectangles.add();
-    accentStrip.geometricBounds = [16, 20, 19, 132];
+    accentStrip.geometricBounds = [16, pb[1] + 20, 19, pb[3] - 20];
     accentStrip.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
     accentStrip.strokeColor = doc.swatches.itemByName("None");
 
+    var yRule = pb[2] - 18;
     var footerRule = page.graphicLines.add();
-    footerRule.paths[0].entirePath = [[20, 210], [132, 210]];
+    footerRule.paths[0].entirePath = [[pb[1] + 20, yRule], [pb[3] - 20, yRule]];
     footerRule.strokeWeight = 0.7;
     footerRule.strokeColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
 
     var footer = page.textFrames.add();
-    footer.geometricBounds = [214, 20, 222, 132];
+    footer.geometricBounds = [pb[2] - 22, pb[1] + 20, pb[2] - 8, pb[3] - 20];
     footer.contents = SpecialCharacters.AUTO_PAGE_NUMBER;
     footer.paragraphs[0].appliedParagraphStyle = doc.paragraphStyles.itemByName(LG.STYLES.p.pageNumber);
 };
@@ -372,25 +375,27 @@ LG.decorateMasterSolutions = function(master) {
     LG.clearMasterPageItems(master);
     var page = master.pages[0];
     var doc = master.parent;
+    var pb = page.bounds;
 
     var topBand = page.rectangles.add();
-    topBand.geometricBounds = [0, 0, 16, 152.4];
+    topBand.geometricBounds = [pb[0], pb[1], 16, pb[3]];
     topBand.fillColor = doc.colors.itemByName(LG.SWATCHES.longokaWarm);
     topBand.fillTint = 55;
     topBand.strokeColor = doc.swatches.itemByName("None");
 
     var header = page.textFrames.add();
-    header.geometricBounds = [7, 22, 15, 130];
+    header.geometricBounds = [7, pb[1] + 22, 15, pb[3] - 22];
     header.contents = "Solutions";
     header.paragraphs[0].appliedParagraphStyle = doc.paragraphStyles.itemByName(LG.STYLES.p.footer);
 
+    var yRule = pb[2] - 18;
     var footerRule = page.graphicLines.add();
-    footerRule.paths[0].entirePath = [[20, 210], [132, 210]];
+    footerRule.paths[0].entirePath = [[pb[1] + 20, yRule], [pb[3] - 20, yRule]];
     footerRule.strokeWeight = 0.7;
     footerRule.strokeColor = doc.colors.itemByName(LG.SWATCHES.longokaAccent);
 
     var footer = page.textFrames.add();
-    footer.geometricBounds = [214, 20, 222, 132];
+    footer.geometricBounds = [pb[2] - 22, pb[1] + 20, pb[2] - 8, pb[3] - 20];
     footer.contents = SpecialCharacters.AUTO_PAGE_NUMBER;
     footer.paragraphs[0].appliedParagraphStyle = doc.paragraphStyles.itemByName(LG.STYLES.p.pageNumber);
 };

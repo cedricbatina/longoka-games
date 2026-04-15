@@ -8,7 +8,7 @@
 
 var LG = LG || {};
 
-LG.VERSION = "1.2.0";
+LG.VERSION = "1.4.0";
 LG.BRAND = "Editions Longoka";
 LG.IMPRINT = "Longoka Games";
 LG.WEBSITE = "https://longoka.com";
@@ -17,6 +17,7 @@ LG.DEFAULT_LANGUAGE_LABEL = {
     ln: "Lingala"
 };
 
+/** Format livre jeux (trade paperback 6×9 in) — défaut, gabarits LG_* calibrés pour cette taille. */
 LG.PAGE = {
     width: "6in",
     height: "9in",
@@ -27,6 +28,83 @@ LG.PAGE = {
     inside: "0.56in",
     outside: "0.56in",
     bleed: "0.125in"
+};
+
+/** Même gabarit physique que le livre cours Longoka (createBook.jsx / Livres/.../config.jsx) : A5 + marges. */
+LG.PAGE_LONGOKA_BOOK = {
+    width: "148mm",
+    height: "210mm",
+    facingPages: false,
+    pagesPerDocument: 1,
+    top: "18mm",
+    bottom: "22mm",
+    inside: "18mm",
+    outside: "16mm",
+    bleed: "3mm"
+};
+
+/**
+ * "longokaA5" : même format que le livre cours Longoka (createBook).
+ * "trade6x9" : ancien format 6×9 in (mise en page inchangée si page = ref).
+ */
+LG.DOCUMENT_PAGE_PROFILE = "longokaA5";
+
+LG.getPageSpec = function() {
+    if (LG.DOCUMENT_PAGE_PROFILE === "longokaA5") {
+        return LG.PAGE_LONGOKA_BOOK;
+    }
+    return LG.PAGE;
+};
+
+/**
+ * Maquette historique des scripts FromPack (6×9 in en mm, repère haut-gauche).
+ * Les boîtes [y1,x1,y2,x2] du code d’origine sont exprimées dans ce repère.
+ */
+LG.LAYOUT_REF_MM = {
+    width: 152.4,
+    height: 228.6
+};
+
+/**
+ * Convertit une boîte de la maquette de référence vers les bounds réels de la page.
+ * @param {Page} page
+ * @param {Number} top ref Y haut
+ * @param {Number} left ref X gauche
+ * @param {Number} bottom ref Y bas
+ * @param {Number} right ref X droite
+ * @returns {Number[]} geometricBounds [top,left,bottom,right]
+ */
+LG.pageBox = function(page, top, left, bottom, right) {
+    var pb = page.bounds;
+    var pw = pb[3] - pb[1];
+    var ph = pb[2] - pb[0];
+    var rw = LG.LAYOUT_REF_MM.width;
+    var rh = LG.LAYOUT_REF_MM.height;
+    var sx = pw / rw;
+    var sy = ph / rh;
+    return [
+        pb[0] + Number(top) * sy,
+        pb[1] + Number(left) * sx,
+        pb[0] + Number(bottom) * sy,
+        pb[1] + Number(right) * sx
+    ];
+};
+
+/** InDesign 21+ : Cell peut ne plus exposer strokeWeight. */
+LG.setCellStrokeUniform = function(cell, strokePt) {
+    if (!cell) {
+        return;
+    }
+    try {
+        cell.strokeWeight = strokePt;
+        return;
+    } catch (e0) {}
+    try {
+        cell.topEdgeStrokeWeight = strokePt;
+        cell.leftEdgeStrokeWeight = strokePt;
+        cell.bottomEdgeStrokeWeight = strokePt;
+        cell.rightEdgeStrokeWeight = strokePt;
+    } catch (e1) {}
 };
 
 LG.LAYERS = {
@@ -94,6 +172,19 @@ LG.COVER = {
     }
 };
 
+/** Textes UI (createBook / placeBookFromManifest : ton identique, \u pour ExtendScript). */
+LG.uiCancelled = function() {
+    alert("Op\u00e9ration annul\u00e9e.");
+};
+
+LG.uiBookCreated = function(outFile) {
+    var p = "";
+    try {
+        p = outFile && outFile.fsName ? outFile.fsName : "";
+    } catch (e0) {}
+    alert("Livre cr\u00e9\u00e9 :\r" + p);
+};
+
 LG.safeGet = function(obj, key, fallback) {
     return (obj && obj.hasOwnProperty(key) && obj[key] !== null && obj[key] !== undefined)
         ? obj[key]
@@ -140,6 +231,17 @@ LG.splitPropsFont = function(props) {
  * Reduces UI redraw during huge loops (many pages / tables). Helps stability on large books.
  * Always pair with LG.endHeavyScript(state) in a finally block.
  */
+/** Même intention que createBook.jsx : jamais d’interruption UI ; compatibilité FR / versions InDesign. */
+LG.setNeverInteract = function() {
+    try {
+        app.scriptPreferences.userInteractionLevel = UserInteractionLevels.NEVER_INTERACT;
+        return;
+    } catch (e0) {}
+    try {
+        app.scriptPreferences.userInteractionLevel = UserInteractionLevels.neverInteract;
+    } catch (e1) {}
+};
+
 LG.beginHeavyScript = function() {
     var state = {};
     try {
@@ -153,9 +255,7 @@ LG.beginHeavyScript = function() {
     try {
         app.scriptPreferences.enableRedraw = false;
     } catch (e2) {}
-    try {
-        app.scriptPreferences.userInteractionLevel = UserInteractionLevels.neverInteract;
-    } catch (e3) {}
+    LG.setNeverInteract();
     return state;
 };
 
@@ -215,6 +315,26 @@ LG.mm = function(value) {
     return value + "mm";
 };
 
+/**
+ * Joint un chemin fichier (ExtendScript : Folder.separator peut être indéfini selon contexte).
+ * @param {String} baseFs
+ * @param {String} rel ex. "dist/book.json" ou "Longoka_Editions_Config.jsx"
+ */
+LG.joinFsPath = function(baseFs, rel) {
+    var base = String(baseFs || "").replace(/[\\\/]+$/, "");
+    if (!rel) return base;
+    var sep = "/";
+    try {
+        if (typeof Folder !== "undefined" && Folder.separator) {
+            sep = Folder.separator;
+        }
+    } catch (e0) {}
+    if (!sep || sep === "undefined") {
+        sep = base.indexOf("\\") >= 0 ? "\\" : "/";
+    }
+    return base + sep + String(rel).replace(/^[\\\/]+/, "");
+};
+
 LG.addTextFrame = function(page, bounds, contents, paraStyleName, layerName) {
     var frame = page.textFrames.add();
     if (layerName) {
@@ -250,12 +370,50 @@ LG.parseJson = function(raw) {
     return eval("(" + text + ")");
 };
 
+/**
+ * Indique quel script livre utiliser selon le schema/format du JSON (évite confusion wordsearch/crossword/arrowword).
+ * @param {string} marker valeur de pack.schema ou pack.format
+ * @returns {string}
+ */
+LG.packKindScriptHint = function(marker) {
+    var m = String(marker || "").trim();
+    var hints = {
+        "longoka.wordsearch.pack.v1":
+            "Ce JSON est un pack MOTS MÊLÉS : lancer Longoka_WordSearch_Book_FromPack.jsx (pas Arrowword/Crossword).",
+        "longoka.crossword.pack.v1":
+            "Ce JSON est un pack MOTS CROISÉS : lancer Longoka_Crossword_Book_FromPack.jsx.",
+        "longoka.arrowword.pack.v1":
+            "Ce JSON est un pack MOTS FLÉCHÉS : lancer Longoka_Arrowword_Book_FromPack.jsx.",
+        "longoka.morpho-anagram.pack.v1":
+            "Ce JSON est un pack MORPHO-ANAGRAMMES : lancer Longoka_MorphoAnagram_Book_FromPack.jsx.",
+    };
+    return hints[m] || "";
+};
+
+/**
+ * @param {string} marker
+ * @param {string} expected ex. longoka.arrowword.pack.v1
+ */
+LG.throwPackMismatch = function(marker, expected) {
+    var m = String(marker || "").trim() || "(vide)";
+    var tip = LG.packKindScriptHint(m);
+    var msg =
+        "Fichier JSON incompatible avec ce script.\n" +
+        "Attendu : " +
+        expected +
+        "\nReçu : " +
+        m +
+        (tip ? "\n\n" + tip : "");
+    throw new Error(msg);
+};
+
 LG.validateWordSearchPack = function(pack) {
     if (!pack) {
         throw new Error("Pack JSON vide.");
     }
-    if (pack.schema !== "longoka.wordsearch.pack.v1") {
-        throw new Error("Schema inattendu: " + pack.schema);
+    var marker = String(pack.schema || pack.format || "");
+    if (marker !== "longoka.wordsearch.pack.v1") {
+        LG.throwPackMismatch(marker, "longoka.wordsearch.pack.v1");
     }
     if (!pack.puzzles || !pack.puzzles.length) {
         throw new Error("Le pack ne contient aucun puzzle.");
@@ -266,8 +424,9 @@ LG.validateCrosswordPack = function(pack) {
     if (!pack) {
         throw new Error("Pack JSON vide.");
     }
-    if (pack.format !== "longoka.crossword.pack.v1") {
-        throw new Error("Format inattendu: " + pack.format);
+    var marker = String(pack.format || pack.schema || "");
+    if (marker !== "longoka.crossword.pack.v1") {
+        LG.throwPackMismatch(marker, "longoka.crossword.pack.v1");
     }
     if (!pack.puzzles || !pack.puzzles.length) {
         throw new Error("Le pack ne contient aucun puzzle.");
@@ -278,8 +437,9 @@ LG.validateArrowwordPack = function(pack) {
     if (!pack) {
         throw new Error("Pack JSON vide.");
     }
-    if (pack.format !== "longoka.arrowword.pack.v1") {
-        throw new Error("Format inattendu: " + pack.format);
+    var marker = String(pack.format || pack.schema || "");
+    if (marker !== "longoka.arrowword.pack.v1") {
+        LG.throwPackMismatch(marker, "longoka.arrowword.pack.v1");
     }
     if (!pack.puzzles || !pack.puzzles.length) {
         throw new Error("Le pack ne contient aucun puzzle.");
@@ -294,8 +454,9 @@ LG.validateMorphoAnagramPack = function(pack) {
     if (!pack) {
         throw new Error("Pack JSON vide.");
     }
-    if (pack.format !== "longoka.morpho-anagram.pack.v1") {
-        throw new Error("Format inattendu: " + pack.format);
+    var marker = String(pack.format || pack.schema || "");
+    if (marker !== "longoka.morpho-anagram.pack.v1") {
+        LG.throwPackMismatch(marker, "longoka.morpho-anagram.pack.v1");
     }
     if (!pack.puzzles || !pack.puzzles.length) {
         throw new Error("Le pack ne contient aucun puzzle.");
