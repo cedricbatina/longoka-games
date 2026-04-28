@@ -138,7 +138,14 @@
         drawStepCard(page, LG.pageBox(page, 104, 22, 144, 132), "2. Composer", "Glisse mentalement (ou sur epreuve) les segments dans l'ordre logique.", LG.SWATCHES.longokaPanel);
         drawStepCard(page, LG.pageBox(page, 150, 22, 190, 132), "3. Verifier", "Compare avec la correction : traductions FR/EN, phonetique, notes.", LG.SWATCHES.longokaPanel);
 
-        addFrame(page, LG.pageBox(page, 192, 22, 205, 132), "Pack : " + (pack.packId || "") + "  |  Defis : " + LG.puzzleCountFromPack(pack), LG.STYLES.p.footer);
+        var tail = [];
+        var lexNote = LG.lexiconPolicyTextFromPack(pack);
+        if (lexNote) {
+            tail.push(lexNote);
+            tail.push("");
+        }
+        tail.push("Pack : " + (pack.packId || "") + "  |  Defis : " + LG.puzzleCountFromPack(pack));
+        addFrame(page, LG.pageBox(page, 172, 22, 205, 132), tail.join("\r"), LG.STYLES.p.instruction);
     }
 
     function addPuzzlePages(doc, pack) {

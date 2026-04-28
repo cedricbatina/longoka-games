@@ -33,6 +33,8 @@ D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app\LingalaVerbCrosswordJsonExportTool.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app\LingalaVerbWordSearchJsonExportTool.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app\LingalaWordsTool.java
+D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app\NatikongoBasicsMemoryMatchJsonExportTool.java
+D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\app\NatikongoMemoryMatchPackExporter.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\KikongoArrowwordService.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\KikongoCrosswordService.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\KikongoMixedCrosswordService.java
@@ -52,11 +54,13 @@ D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lex
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\LingalaWordSearchService.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\NominalClass.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\lexikongo\NumberVariability.java
+D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\meta\PackMeaningMeta.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\anagram\json\MorphoAnagramJsonModels.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\anagram\MorphoAnagramValidator.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\arrowword\ArrowwordFromCrosswordConverter.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\arrowword\ArrowwordValidator.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\arrowword\json\ArrowwordJsonModels.java
+D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\crossword\CrosswordGridQuality.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\crossword\json\CrosswordJsonModels.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\domino\json\MorphoDominoJsonModels.java
 D:\works\lectures\longoka-games\backend-java\src\main\java\com\longoka\games\puzzles\domino\MorphoDominoValidator.java

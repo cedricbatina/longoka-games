@@ -9,7 +9,9 @@ param(
   [int]$ArrowwordRows = 17,
   [int]$ArrowwordCols = 17,
   [int]$GridEntries = 16,
-  [int]$MorphoEntries = 12
+  [int]$MorphoEntries = 12,
+  [ValidateSet("full", "base")]
+  [string]$ArrowwordProfileSet = "full"
 )
 
 Set-StrictMode -Version Latest
@@ -29,4 +31,5 @@ $sharedScript = Join-Path $PSScriptRoot "run-premium-cycle.ps1"
   -ArrowwordRows $ArrowwordRows `
   -ArrowwordCols $ArrowwordCols `
   -GridEntries $GridEntries `
-  -MorphoEntries $MorphoEntries
+  -MorphoEntries $MorphoEntries `
+  -ArrowwordProfileSet $ArrowwordProfileSet

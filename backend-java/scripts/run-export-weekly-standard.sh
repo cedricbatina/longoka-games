@@ -21,7 +21,7 @@ MAX_ENTRIES="${MAX_ENTRIES:-10}"
 
 W1="${CYCLE_ID}-semaine-1"
 
-MVN=(mvn -q -DskipTests compile exec:java -Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool)
+MVN=(mvn -q -DskipTests exec:java -Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool)
 
 run() {
   local type="$1" label="$2"
@@ -34,5 +34,5 @@ run() {
 run wordsearch "$W1"
 run crossword "$W1"
 
-echo "Termine: target/weekly/$W1"
+echo "Termine: target/packs/$W1"
 

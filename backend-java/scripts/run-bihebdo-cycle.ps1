@@ -23,7 +23,7 @@ function Invoke-BiweeklyGen {
     [string]$Label
   )
 
-  $execArgs = "--count $CountPerWeek --rows $Rows --cols $Cols --maxEntries $MaxEntries --meaningLang $MeaningLang --type $Type --label $Label"
+  $execArgs = "--cadence weekly --count $CountPerWeek --rows $Rows --cols $Cols --maxEntries $MaxEntries --meaningLang $MeaningLang --type $Type --label $Label"
 
   Write-Host "Running: type=$Type label=$Label count=$CountPerWeek"
   & mvn -q -DskipTests compile exec:java "-Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool" "-Dexec.args=$execArgs"
@@ -44,8 +44,8 @@ if ($IncludeMorphoPacks) {
 }
 
 Write-Host "Done."
-Write-Host "Week1 folder: target/biweekly/$week1Label"
-Write-Host "Week2 folder: target/biweekly/$week2Label"
+Write-Host "Week1 folder: target/packs/$week1Label"
+Write-Host "Week2 folder: target/packs/$week2Label"
 if ($IncludeMorphoPacks) {
-  Write-Host "Morpho anagram folder: target/biweekly/$CycleId-morpho-anagram"
+  Write-Host "Morpho anagram folder: target/packs/$CycleId-morpho-anagram"
 }

@@ -1,6 +1,7 @@
 package com.longoka.games.lexikongo;
 
 import com.longoka.games.app.DbConfig;
+import com.longoka.games.puzzles.crossword.CrosswordGridQuality;
 import com.longoka.games.puzzles.crossword.json.CrosswordJsonModels;
 import com.longoka.games.puzzles.wordsearch.json.SemanticTagger;
 
@@ -419,6 +420,7 @@ public class KikongoMixedCrosswordService {
     if (!semanticDomains.isEmpty()) {
       meta.put("semanticDomains", new ArrayList<>(semanticDomains));
     }
+    meta.put("whiteRegionConnected", CrosswordGridQuality.whiteCellsOrthogonallyConnected(puzzle));
 
     puzzle.meta = meta;
 
@@ -554,32 +556,31 @@ public class KikongoMixedCrosswordService {
   private boolean canPlaceAcross(char[][] grid, char[] letters, int row, int startCol) {
     int rows = grid.length;
     int cols = grid[0].length;
-    if (startCol < 0 || startCol + letters.length > cols) {
+    int len = letters.length;
+    if (startCol < 0 || startCol + len > cols) {
       return false;
     }
     if (startCol > 0 && grid[row][startCol - 1] != '#') {
       return false;
     }
-    if (startCol + letters.length < cols && grid[row][startCol + letters.length] != '#') {
+    if (startCol + len < cols && grid[row][startCol + len] != '#') {
       return false;
     }
-    for (int i = 0; i < letters.length; i++) {
-      int col = startCol + i;
-      char existing = grid[row][col];
-      if (existing != '#' && existing != letters[i]) {
+    for (int i = 0; i < len; i++) {
+      int c = startCol + i;
+      char g = grid[row][c];
+      if (g != '#' && g != letters[i]) {
         return false;
       }
-      if (existing == '#') {
-        if (row > 0 && grid[row - 1][col] != '#') {
-          return false;
-        }
-        if (row + 1 < rows && grid[row + 1][col] != '#') {
-          return false;
-        }
-      } else {
-        if ((col > 0 && grid[row][col - 1] != '#') || (col + 1 < cols && grid[row][col + 1] != '#')) {
-          return false;
-        }
+      if (i > 0 && grid[row][c - 1] != letters[i - 1]) {
+        return false;
+      }
+      char need = letters[i];
+      if (row > 0 && grid[row - 1][c] != '#' && grid[row - 1][c] != need) {
+        return false;
+      }
+      if (row + 1 < rows && grid[row + 1][c] != '#' && grid[row + 1][c] != need) {
+        return false;
       }
     }
     return true;
@@ -588,32 +589,31 @@ public class KikongoMixedCrosswordService {
   private boolean canPlaceDown(char[][] grid, char[] letters, int startRow, int col) {
     int rows = grid.length;
     int cols = grid[0].length;
-    if (startRow < 0 || startRow + letters.length > rows) {
+    int len = letters.length;
+    if (startRow < 0 || startRow + len > rows) {
       return false;
     }
     if (startRow > 0 && grid[startRow - 1][col] != '#') {
       return false;
     }
-    if (startRow + letters.length < rows && grid[startRow + letters.length][col] != '#') {
+    if (startRow + len < rows && grid[startRow + len][col] != '#') {
       return false;
     }
-    for (int i = 0; i < letters.length; i++) {
+    for (int i = 0; i < len; i++) {
       int row = startRow + i;
-      char existing = grid[row][col];
-      if (existing != '#' && existing != letters[i]) {
+      char g = grid[row][col];
+      if (g != '#' && g != letters[i]) {
         return false;
       }
-      if (existing == '#') {
-        if (col > 0 && grid[row][col - 1] != '#') {
-          return false;
-        }
-        if (col + 1 < cols && grid[row][col + 1] != '#') {
-          return false;
-        }
-      } else {
-        if ((row > 0 && grid[row - 1][col] != '#') || (row + 1 < rows && grid[row + 1][col] != '#')) {
-          return false;
-        }
+      if (i > 0 && grid[row - 1][col] != letters[i - 1]) {
+        return false;
+      }
+      char need = letters[i];
+      if (col > 0 && grid[row][col - 1] != '#' && grid[row][col - 1] != need) {
+        return false;
+      }
+      if (col + 1 < cols && grid[row][col + 1] != '#' && grid[row][col + 1] != need) {
+        return false;
       }
     }
     return true;

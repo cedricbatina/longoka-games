@@ -2,6 +2,8 @@ package com.longoka.games.puzzles.arrowword;
 
 import com.longoka.games.puzzles.arrowword.json.ArrowwordJsonModels;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -92,6 +94,72 @@ public final class ArrowwordValidator {
         }
       }
     }
+
+    require(
+      letterCellsOrthogonallyConnected(puzzle),
+      "grille mots fléchés : cases LETTRE en plusieurs îlots (composantes orthogonales disjointes)"
+    );
+  }
+
+  /**
+   * Toutes les cases {@code LETTER} doivent former une seule composante orthogonale
+   * (équivalent « zone blanche » du mots croisé source — pas de solution en îlots).
+   */
+  public static boolean letterCellsOrthogonallyConnected(ArrowwordJsonModels.PuzzleV1 puzzle) {
+    if (puzzle == null || puzzle.cells == null || puzzle.rows < 1 || puzzle.cols < 1) {
+      return true;
+    }
+    int rows = puzzle.rows;
+    int cols = puzzle.cols;
+    int startR = -1;
+    int startC = -1;
+    int letters = 0;
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        ArrowwordJsonModels.CellV1 cell = puzzle.cells.get(r).get(c);
+        if ("LETTER".equals(normalize(cell.kind))) {
+          letters++;
+          if (startR < 0) {
+            startR = r;
+            startC = c;
+          }
+        }
+      }
+    }
+    if (letters <= 1) {
+      return true;
+    }
+
+    boolean[][] vis = new boolean[rows][cols];
+    Deque<int[]> q = new ArrayDeque<>();
+    vis[startR][startC] = true;
+    q.add(new int[] { startR, startC });
+    int seen = 0;
+    int[] dr = { -1, 1, 0, 0 };
+    int[] dc = { 0, 0, -1, 1 };
+
+    while (!q.isEmpty()) {
+      int[] p = q.poll();
+      int r = p[0];
+      int c = p[1];
+      if (!"LETTER".equals(normalize(puzzle.cells.get(r).get(c).kind))) {
+        continue;
+      }
+      seen++;
+      for (int k = 0; k < 4; k++) {
+        int nr = r + dr[k];
+        int nc = c + dc[k];
+        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols || vis[nr][nc]) {
+          continue;
+        }
+        if (!"LETTER".equals(normalize(puzzle.cells.get(nr).get(nc).kind))) {
+          continue;
+        }
+        vis[nr][nc] = true;
+        q.add(new int[] { nr, nc });
+      }
+    }
+    return seen == letters;
   }
 
   private static void validateEntry(

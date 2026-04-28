@@ -6,6 +6,9 @@
  *   var LONGOKA_GAMES_FOR_INDESIGN = "D:/works/lectures/longoka-games/for Indesign";
  *
  * Vous pouvez aussi définir une fois $.global.LONGOKA_GAMES_FOR_INDESIGN (script de démarrage).
+ *
+ * Si le dossier LongokaGamesBundle (copié à côté des scripts par games:sync) est présent,
+ * il est utilisé en priorité — plus besoin du dossier « for Indesign » ailleurs sur le disque.
  */
 
 var LONGOKA_GAMES_FOR_INDESIGN = "";
@@ -25,6 +28,10 @@ function longokaGamesResolveForIndesignFolder(scriptFile) {
     if (abs.exists) return abs;
   }
   var parent = scriptFile.parent;
+  var bundle = new Folder(parent.fsName + "/LongokaGamesBundle");
+  if (bundle.exists && new File(bundle.fsName + "/Longoka_Editions_Config.jsx").exists) {
+    return bundle;
+  }
   var repoStyle = new Folder(parent.parent.fsName + "/for Indesign");
   if (repoStyle.exists) return repoStyle;
   var sibling = new Folder(parent.fsName + "/for Indesign");

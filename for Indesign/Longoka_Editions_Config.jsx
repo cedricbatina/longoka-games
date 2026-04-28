@@ -90,21 +90,17 @@ LG.pageBox = function(page, top, left, bottom, right) {
     ];
 };
 
-/** InDesign 21+ : Cell peut ne plus exposer strokeWeight. */
+/** Table Cell : ne pas assigner strokeWeight (ID 21+ erreur 55) — uniquement les bords. */
 LG.setCellStrokeUniform = function(cell, strokePt) {
     if (!cell) {
         return;
     }
     try {
-        cell.strokeWeight = strokePt;
-        return;
-    } catch (e0) {}
-    try {
         cell.topEdgeStrokeWeight = strokePt;
         cell.leftEdgeStrokeWeight = strokePt;
         cell.bottomEdgeStrokeWeight = strokePt;
         cell.rightEdgeStrokeWeight = strokePt;
-    } catch (e1) {}
+    } catch (e) {}
 };
 
 LG.LAYERS = {
@@ -560,6 +556,40 @@ LG.meaningLanguageFromPack = function(pack) {
         return "en";
     }
     return "fr";
+};
+
+/**
+ * Texte court pour la page « Mode d'emploi » (aligné locales Longoka : meaningPolicySingularOnly / IncludesPlural).
+ * Utilise pack.meta.translationsSingularOnly (defaut true) et pack.meta.includesPluralGameForms.
+ * @returns {String} peut etre vide si aucune consigne utile
+ */
+LG.lexiconPolicyTextFromPack = function(pack) {
+    var m = pack && pack.meta ? pack.meta : {};
+    var singFalse = m.hasOwnProperty("translationsSingularOnly") && m.translationsSingularOnly === false;
+    var plur = m.hasOwnProperty("includesPluralGameForms") && !!m.includesPluralGameForms;
+    var en = LG.meaningLanguageFromPack(pack) === "en";
+    var parts = [];
+    if (!singFalse) {
+        parts.push(
+            en
+                ? "Meanings (FR/EN): lexicon base entries are singular, even when the word in play is plural."
+                : "Sens FR/EN : entr\u00e9es du lexique au singulier (forme de base), m\u00eame si le mot en jeu est au pluriel."
+        );
+    } else {
+        parts.push(
+            en
+                ? "Meanings: glosses may not be strictly singular-only for this pack."
+                : "Sens des traductions : des formes autres que le singulier peuvent appara\u00eetre dans les gloses."
+        );
+    }
+    if (plur) {
+        parts.push(
+            en
+                ? "This volume includes plural forms in grids or challenges."
+                : "Ce volume inclut des formes plurielles dans les grilles ou les d\u00e9fis."
+        );
+    }
+    return parts.join("\r");
 };
 
 /** Une seule colonne sens selon la langue du livre (listes et corrections). */

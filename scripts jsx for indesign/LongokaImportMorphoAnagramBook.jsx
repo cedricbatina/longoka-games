@@ -2,6 +2,15 @@
 
 (function () {
   var thisFile = File($.fileName);
+  var autonomousBundle = new Folder(thisFile.parent.fsName + "/LongokaGamesBundle");
+  if (autonomousBundle.exists) {
+    var bundledEntry = File(autonomousBundle.fsName + "/Longoka_MorphoAnagram_Book_FromPack.jsx");
+    if (bundledEntry.exists) {
+      $.global.LG_BASE_FOLDER = autonomousBundle.fsName;
+      $.evalFile(bundledEntry);
+      return;
+    }
+  }
   try {
     var helper = File(thisFile.parent + "/LongokaGames_forIndesignFolder.jsx");
     if (helper.exists) $.evalFile(helper);

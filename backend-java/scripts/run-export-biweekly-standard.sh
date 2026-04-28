@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Meme logique que run-bihebdo-cycle.ps1 (sans -IncludeMorphoPacks):
 #   semaine 1 : word search, semaine 2 : mots croises — langues kg + ln dans chaque dossier.
+# Cadence d’export : weekly (nom du fichier historique « biweekly » conservé).
 #
 # Usage: cd backend-java && bash scripts/run-export-biweekly-standard.sh
 
@@ -24,7 +25,7 @@ MVN=(mvn -q -DskipTests compile exec:java -Dexec.mainClass=com.longoka.games.app
 
 run() {
   local type="$1" label="$2"
-  local args="--count $COUNT --rows $ROWS --cols $COLS --maxEntries $MAX_ENTRIES --meaningLang $MEANING_LANG --type $type --label $label"
+  local args="--cadence weekly --count $COUNT --rows $ROWS --cols $COLS --maxEntries $MAX_ENTRIES --meaningLang $MEANING_LANG --type $type --label $label"
   echo ">>> $type -> $label"
   "${MVN[@]}" -Dexec.args="$args"
 }
@@ -32,4 +33,4 @@ run() {
 run wordsearch "$W1"
 run crossword "$W2"
 
-echo "Termine: target/biweekly/$W1 et target/biweekly/$W2"
+echo "Termine: target/packs/$W1 et target/packs/$W2"

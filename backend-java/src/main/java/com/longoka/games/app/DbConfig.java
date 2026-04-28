@@ -13,10 +13,8 @@ public final class DbConfig {
   private static final Properties PROPS = new Properties();
   private static final String ACTIVE_PROFILE;
 
-  // Options communes pour toutes les connexions JDBC.
-  // allowPublicKeyRetrieval=true : requis pour certains serveurs MySQL 8.x depuis CI (GitHub Actions) avec useSSL=false.
-  private static final String JDBC_OPTIONS =
-      "?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true";
+  // Options communes pour toutes les connexions JDBC
+  private static final String JDBC_OPTIONS = "?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
 
   static {
     // 1) Déterminer l'environnement : local ou prod

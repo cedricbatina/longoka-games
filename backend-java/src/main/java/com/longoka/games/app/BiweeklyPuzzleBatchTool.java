@@ -2,6 +2,7 @@ package com.longoka.games.app;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.longoka.games.meta.PackMeaningMeta;
 import com.longoka.games.lexikongo.LexMeaning;
 import com.longoka.games.lexikongo.LexVerb;
 import com.longoka.games.lexikongo.LexWord;
@@ -11,6 +12,7 @@ import com.longoka.games.puzzles.anagram.MorphoAnagramValidator;
 import com.longoka.games.puzzles.anagram.json.MorphoAnagramJsonModels;
 import com.longoka.games.puzzles.arrowword.ArrowwordFromCrosswordConverter;
 import com.longoka.games.puzzles.arrowword.json.ArrowwordJsonModels;
+import com.longoka.games.puzzles.crossword.CrosswordGridQuality;
 import com.longoka.games.puzzles.crossword.json.CrosswordJsonModels;
 import com.longoka.games.puzzles.domino.MorphoDominoValidator;
 import com.longoka.games.puzzles.domino.json.MorphoDominoJsonModels;
@@ -46,7 +48,7 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * Generates biweekly puzzle packs directly from DB for Kikongo and Lingala.
+ * Generates puzzle packs directly from DB for Kikongo and Lingala (sortie sous target/packs/).
  *
  * Profiles supported:
  * - verbs only
@@ -63,6 +65,9 @@ public final class BiweeklyPuzzleBatchTool {
   private static final int DEFAULT_MAX_ENTRIES = 12;
   private static final int DENSE_GENERATION_ATTEMPTS = 8;
   private static final int EXTRA_WORD_BUFFER = 8;
+
+  /** Tentatives par puzzle arrowword (grille dérivée d’un crossword) si le batch interne renvoie une grille vide. */
+  private static final int ARROWWORD_SLOT_MAX_TRIES = 12;
   private static final int DEFAULT_MAX_NOUN_RADICALS = 8;
   private static final int DEFAULT_MAX_VERB_RADICALS = 8;
   private static final String DEFAULT_MEANING_LANG = "fr";
@@ -243,18 +248,25 @@ public final class BiweeklyPuzzleBatchTool {
     if (cadence.isEmpty()) {
       cadence = DEFAULT_CADENCE;
     }
+    if ("biweekly".equals(cadence)) {
+      System.out.println("Cadence 'biweekly' fusionnée avec 'weekly' (meta.exportCadence = weekly).");
+      cadence = "weekly";
+    } else if (!"weekly".equals(cadence)) {
+      System.err.println("Cadence inconnue '" + cadence + "', utilisation de weekly.");
+      cadence = "weekly";
+    }
     System.setProperty("longoka.cadence", cadence);
     List<LanguageProfile> selectedLanguages = parseLanguageProfiles(languageMode);
 
-    String cadenceDir = cadence.equals("biweekly") ? "biweekly" : "weekly";
-    Path outDir = Path.of("target", cadenceDir, outputLabel);
+    // Sortie unique : target/packs/<label>/ (plus de séparation weekly/ biweekly sur le disque).
+    Path outDir = Path.of("target", "packs", outputLabel);
     Files.createDirectories(outDir);
 
     Random random = new Random();
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-    System.out.println("== Puzzle Batch (" + cadenceDir + ") ==");
+    System.out.println("== Puzzle Batch (target/packs) cadence=" + cadence + " ==");
     System.out.println("label=" + outputLabel
         + ", bookSize=" + puzzleCount
         + ", type=" + puzzleTypeMode
@@ -600,7 +612,8 @@ public final class BiweeklyPuzzleBatchTool {
     pack.meta.put("cols", cols);
     pack.meta.put("entryTarget", maxEntries);
     pack.meta.put("targetEntries", maxEntries);
-    finalizePackBookMeta(pack.meta, pack.title, puzzles.size(), editionTier, meaningLang);
+    finalizePackBookMeta(
+        pack.meta, pack.title, pack.description, pack.packId, puzzles.size(), editionTier, meaningLang);
     pack.puzzles = puzzles;
     return pack;
   }
@@ -650,7 +663,8 @@ public final class BiweeklyPuzzleBatchTool {
     pack.meta.put("cols", cols);
     pack.meta.put("entryTarget", maxEntries);
     pack.meta.put("targetEntries", maxEntries);
-    finalizePackBookMeta(pack.meta, pack.title, puzzles.size(), editionTier, meaningLang);
+    finalizePackBookMeta(
+        pack.meta, pack.title, pack.description, pack.packId, puzzles.size(), editionTier, meaningLang);
     pack.puzzles = puzzles;
     return pack;
   }
@@ -674,19 +688,28 @@ public final class BiweeklyPuzzleBatchTool {
 
     List<ArrowwordJsonModels.PuzzleV1> puzzles = new ArrayList<>();
     String packDifficulty = resolveDifficulty(requestedDifficulty, editionTier);
+    int seedRows = rows - 1;
+    int seedCols = cols - 1;
     for (int i = 1; i <= puzzleCount; i++) {
-      CrosswordJsonModels.PuzzleV1 crossword = buildBestGeneratedCrosswordPuzzle(
-          conn,
-          language,
-          combination,
-          rows - 1,
-          cols - 1,
-          maxEntries,
-          meaningLang,
-          editionTier,
-          packDifficulty,
-          random,
-          i);
+      CrosswordJsonModels.PuzzleV1 crossword = null;
+      for (int slotTry = 0; slotTry < ARROWWORD_SLOT_MAX_TRIES; slotTry++) {
+        CrosswordJsonModels.PuzzleV1 candidate = buildBestGeneratedCrosswordPuzzle(
+            conn,
+            language,
+            combination,
+            seedRows,
+            seedCols,
+            maxEntries,
+            meaningLang,
+            editionTier,
+            packDifficulty,
+            random,
+            i);
+        if (candidate != null && countCrosswordEntries(candidate) > 0) {
+          crossword = candidate;
+          break;
+        }
+      }
       if (crossword == null) {
         continue;
       }
@@ -706,8 +729,21 @@ public final class BiweeklyPuzzleBatchTool {
     pack.meta.put("crosswordSeedCols", cols - 1);
     pack.meta.put("entryTarget", maxEntries);
     pack.meta.put("targetEntries", maxEntries);
-    finalizePackBookMeta(pack.meta, pack.title, puzzles.size(), editionTier, meaningLang);
+    finalizePackBookMeta(
+        pack.meta, pack.title, pack.description, pack.packId, puzzles.size(), editionTier, meaningLang);
     pack.puzzles = puzzles;
+    if (puzzles.isEmpty()) {
+      throw new IllegalStateException(
+          "Aucun pack mots fléchés généré pour "
+              + language.code
+              + " / "
+              + combination.id
+              + " (grille source "
+              + seedRows
+              + "x"
+              + seedCols
+              + "). Enrichir le lexique, utiliser --profileSet full, ou augmenter --rows/--cols.");
+    }
     return pack;
   }
 
@@ -757,7 +793,8 @@ public final class BiweeklyPuzzleBatchTool {
     pack.meta.put("layout", "chain");
     pack.meta.put("tileTarget", safeTileTarget);
     pack.meta.put("targetItems", safeTileTarget);
-    finalizePackBookMeta(pack.meta, pack.title, puzzles.size(), editionTier, meaningLang);
+    finalizePackBookMeta(
+        pack.meta, pack.title, pack.description, pack.packId, puzzles.size(), editionTier, meaningLang);
     pack.puzzles = puzzles;
     MorphoDominoValidator.validatePack(pack);
     return pack;
@@ -809,7 +846,14 @@ public final class BiweeklyPuzzleBatchTool {
     pack.meta.put("layout", "grid");
     pack.meta.put("pairTarget", safePairTarget);
     pack.meta.put("targetItems", safePairTarget);
-    finalizePackBookMeta(pack.meta, pack.title, puzzles.size(), editionTier, meaningLanguage);
+    finalizePackBookMeta(
+        pack.meta,
+        pack.title,
+        pack.description,
+        pack.packId,
+        puzzles.size(),
+        editionTier,
+        meaningLanguage);
     pack.puzzles = puzzles;
     MemoryMatchValidator.validatePack(pack);
     return pack;
@@ -861,7 +905,14 @@ public final class BiweeklyPuzzleBatchTool {
     pack.meta.put("layout", "stacked-racks");
     pack.meta.put("challengeTarget", safeChallengeTarget);
     pack.meta.put("targetItems", safeChallengeTarget);
-    finalizePackBookMeta(pack.meta, pack.title, puzzles.size(), editionTier, meaningLanguage);
+    finalizePackBookMeta(
+        pack.meta,
+        pack.title,
+        pack.description,
+        pack.packId,
+        puzzles.size(),
+        editionTier,
+        meaningLanguage);
     pack.puzzles = puzzles;
     ScrabbleLikeValidator.validatePack(pack);
     return pack;
@@ -913,7 +964,14 @@ public final class BiweeklyPuzzleBatchTool {
     pack.meta.put("layout", "stacked-segments");
     pack.meta.put("challengeTarget", safeChallengeTarget);
     pack.meta.put("targetItems", safeChallengeTarget);
-    finalizePackBookMeta(pack.meta, pack.title, puzzles.size(), editionTier, meaningLanguage);
+    finalizePackBookMeta(
+        pack.meta,
+        pack.title,
+        pack.description,
+        pack.packId,
+        puzzles.size(),
+        editionTier,
+        meaningLanguage);
     pack.puzzles = puzzles;
     MorphoAnagramValidator.validatePack(pack);
     return pack;
@@ -2288,6 +2346,47 @@ public final class BiweeklyPuzzleBatchTool {
       }
     }
 
+    if (best != null && !CrosswordGridQuality.whiteCellsOrthogonallyConnected(best)) {
+      CrosswordJsonModels.PuzzleV1 bestConnected = null;
+      int extra = Math.max(30, DENSE_GENERATION_ATTEMPTS * 4);
+      for (int attempt = DENSE_GENERATION_ATTEMPTS; attempt < DENSE_GENERATION_ATTEMPTS + extra; attempt++) {
+        List<WordToFind> selectedWords = selectWordsFromDb(
+            conn,
+            language,
+            combination,
+            candidateTarget,
+            meaningLanguage,
+            random);
+        if (selectedWords.isEmpty()) {
+          continue;
+        }
+        Collections.shuffle(selectedWords, random);
+        CrosswordJsonModels.PuzzleV1 candidate = buildCrosswordPuzzle(
+            selectedWords,
+            language,
+            combination,
+            rows,
+            cols,
+            maxEntries,
+            meaningLanguage,
+            editionTier,
+            difficulty,
+            index);
+        if (!CrosswordGridQuality.whiteCellsOrthogonallyConnected(candidate)) {
+          continue;
+        }
+        if (bestConnected == null || isBetterCrosswordPuzzle(candidate, bestConnected)) {
+          bestConnected = candidate;
+        }
+      }
+      if (bestConnected != null) {
+        best = bestConnected;
+      }
+    }
+
+    if (best != null && countCrosswordEntries(best) == 0) {
+      return null;
+    }
     return best;
   }
 
@@ -2411,6 +2510,12 @@ public final class BiweeklyPuzzleBatchTool {
       return true;
     }
 
+    boolean cConn = CrosswordGridQuality.whiteCellsOrthogonallyConnected(candidate);
+    boolean bConn = CrosswordGridQuality.whiteCellsOrthogonallyConnected(currentBest);
+    if (cConn != bConn) {
+      return cConn;
+    }
+
     int candidateEntries = countCrosswordEntries(candidate);
     int currentEntries = countCrosswordEntries(currentBest);
     if (candidateEntries != currentEntries) {
@@ -2516,64 +2621,65 @@ public final class BiweeklyPuzzleBatchTool {
 
   private static boolean canPlaceAcross(char[][] grid, char[] letters, int row, int startCol) {
     int rows = grid.length;
-    if (startCol < 0 || startCol + letters.length > grid[0].length) {
+    int cols = grid[0].length;
+    int len = letters.length;
+    if (startCol < 0 || startCol + len > cols) {
       return false;
     }
     if (startCol > 0 && grid[row][startCol - 1] != '#') {
       return false;
     }
-    if (startCol + letters.length < grid[0].length && grid[row][startCol + letters.length] != '#') {
+    if (startCol + len < cols && grid[row][startCol + len] != '#') {
       return false;
     }
-    for (int i = 0; i < letters.length; i++) {
-      int col = startCol + i;
-      char existing = grid[row][col];
-      if (existing != '#' && existing != letters[i]) {
+    for (int i = 0; i < len; i++) {
+      int c = startCol + i;
+      char g = grid[row][c];
+      if (g != '#' && g != letters[i]) {
         return false;
       }
-      if (existing == '#') {
-        if (row > 0 && grid[row - 1][col] != '#') {
-          return false;
-        }
-        if (row + 1 < rows && grid[row + 1][col] != '#') {
-          return false;
-        }
-      } else {
-        if ((col > 0 && grid[row][col - 1] != '#') || (col + 1 < grid[0].length && grid[row][col + 1] != '#')) {
-          return false;
-        }
+      if (i > 0 && grid[row][c - 1] != letters[i - 1]) {
+        return false;
+      }
+      char need = letters[i];
+      if (row > 0 && grid[row - 1][c] != '#' && grid[row - 1][c] != need) {
+        return false;
+      }
+      if (row + 1 < rows && grid[row + 1][c] != '#' && grid[row + 1][c] != need) {
+        return false;
       }
     }
     return true;
   }
 
   private static boolean canPlaceDown(char[][] grid, char[] letters, int startRow, int col) {
-    if (startRow < 0 || startRow + letters.length > grid.length) {
+    int rows = grid.length;
+    int cols = grid[0].length;
+    int len = letters.length;
+    if (startRow < 0 || startRow + len > rows) {
       return false;
     }
     if (startRow > 0 && grid[startRow - 1][col] != '#') {
       return false;
     }
-    if (startRow + letters.length < grid.length && grid[startRow + letters.length][col] != '#') {
+    if (startRow + len < rows && grid[startRow + len][col] != '#') {
       return false;
     }
-    for (int i = 0; i < letters.length; i++) {
+    for (int i = 0; i < len; i++) {
       int row = startRow + i;
-      char existing = grid[row][col];
-      if (existing != '#' && existing != letters[i]) {
+      char g = grid[row][col];
+      if (g != '#' && g != letters[i]) {
         return false;
       }
-      if (existing == '#') {
-        if (col > 0 && grid[row][col - 1] != '#') {
-          return false;
-        }
-        if (col + 1 < grid[0].length && grid[row][col + 1] != '#') {
-          return false;
-        }
-      } else {
-        if ((row > 0 && grid[row - 1][col] != '#') || (row + 1 < grid.length && grid[row + 1][col] != '#')) {
-          return false;
-        }
+      if (i > 0 && grid[row - 1][col] != letters[i - 1]) {
+        return false;
+      }
+      char need = letters[i];
+      if (col > 0 && grid[row][col - 1] != '#' && grid[row][col - 1] != need) {
+        return false;
+      }
+      if (col + 1 < cols && grid[row][col + 1] != '#' && grid[row][col + 1] != need) {
+        return false;
       }
     }
     return true;
@@ -2660,10 +2766,8 @@ public final class BiweeklyPuzzleBatchTool {
       EditionTier editionTier) {
 
     String tierSuffix = editionTier == EditionTier.PREMIUM ? "-premium" : "";
-    String cadence = System.getProperty("longoka.cadence", System.getenv("LONGOKA_CADENCE"));
-    String key = cadence == null ? "" : cadence.trim().toLowerCase(Locale.ROOT);
-    String cadenceLabel = key.equals("biweekly") ? "biweekly" : "weekly";
-    return language.code + "-" + combination.id + "-" + gameType + tierSuffix + "-" + cadenceLabel + "-" + LocalDate.now();
+    // Identifiant pack unifié : segment "batch" (détails dans meta.exportCadence / meta.scope).
+    return language.code + "-" + combination.id + "-" + gameType + tierSuffix + "-batch-" + LocalDate.now();
   }
 
   private static Map<String, Object> buildPackMeta(
@@ -2676,9 +2780,8 @@ public final class BiweeklyPuzzleBatchTool {
       int puzzleCount) {
 
     Map<String, Object> meta = buildCommonMeta(language, combination, gameType, editionTier, difficulty, meaningLanguage);
-    String cadence = System.getProperty("longoka.cadence", System.getenv("LONGOKA_CADENCE"));
-    String key = cadence == null ? "" : cadence.trim().toLowerCase(Locale.ROOT);
-    meta.put("scope", key.equals("biweekly") ? "biweekly-batch" : "weekly-batch");
+    meta.put("scope", "longoka-batch");
+    meta.put("exportCadence", "weekly");
     meta.put("profileLabel", profileLabel(combination));
     meta.put("puzzleCount", puzzleCount);
     meta.put("targets", List.of("web", "jsx", "indesign"));
@@ -2766,10 +2869,13 @@ public final class BiweeklyPuzzleBatchTool {
 
   /**
    * Met a jour {@code meta.book} une fois le titre du pack connu (exports boutiques / InDesign).
+   * Renseigne aussi {@code translationsSingularOnly} et {@code includesPluralGameForms} (Longoka).
    */
   private static void finalizePackBookMeta(
       Map<String, Object> packMeta,
       String packTitle,
+      String packDescription,
+      String packId,
       int puzzleCount,
       EditionTier editionTier,
       String meaningLanguage) {
@@ -2799,6 +2905,25 @@ public final class BiweeklyPuzzleBatchTool {
         "printVariant",
         editionTier == EditionTier.PREMIUM ? "premium-softcover" : "standard-softcover");
     book.put("binding", "perfect-bound");
+
+    packMeta.put("translationsSingularOnly", PackMeaningMeta.defaultTranslationsSingularOnly());
+    packMeta.put(
+        "includesPluralGameForms",
+        PackMeaningMeta.resolveIncludesPluralGameForms(
+            null,
+            stringMeta(packMeta.get("numberPolicy")),
+            stringMeta(packMeta.get("morphologyProfile")),
+            stringMeta(packMeta.get("relationType")),
+            stringMeta(packMeta.get("lexicalProfile")),
+            stringMeta(packMeta.get("profileId")),
+            stringMeta(packMeta.get("profileLabel")),
+            packTitle,
+            packDescription,
+            packId));
+  }
+
+  private static String stringMeta(Object value) {
+    return value == null ? null : String.valueOf(value);
   }
 
   private static int estimateBookPageCount(int puzzleCount) {

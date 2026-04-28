@@ -1,8 +1,11 @@
 com\longoka\games\puzzles\wordsearch\json\SemanticTagger.class
 com\longoka\games\puzzles\memory\json\MemoryMatchJsonModels$PuzzleV1.class
 com\longoka\games\app\KikongoMixedCrosswordJsonExportTool.class
+com\longoka\games\app\NatikongoMemoryMatchPackExporter$GlyphEntry.class
 com\longoka\games\app\LexikongoMissingDataReportTool$Entry.class
+com\longoka\games\app\NatikongoBasicsMemoryMatchJsonExportTool.class
 com\longoka\games\app\KikongoNominalClassPluralDominoJsonExportTool.class
+com\longoka\games\app\NatikongoMemoryMatchPackExporter.class
 com\longoka\games\lexikongo\LexikongoWordRepository.class
 com\longoka\games\lexikongo\LexMeaning.class
 com\longoka\games\lexikongo\NumberVariability.class
@@ -33,6 +36,7 @@ com\longoka\games\puzzles\arrowword\json\ArrowwordJsonModels$PackV1.class
 com\longoka\games\app\LingalaMixedWordSearchJsonExportTool.class
 com\longoka\games\app\KikongoArrowwordPackExporter.class
 com\longoka\games\puzzles\anagram\MorphoAnagramValidator.class
+com\longoka\games\meta\PackMeaningMeta.class
 com\longoka\games\puzzles\wordsearch\WordSearchGenerator.class
 com\longoka\games\puzzles\anagram\json\MorphoAnagramJsonModels$ChallengeV1.class
 com\longoka\games\app\KikongoNominalClassSingularDominoJsonExportTool.class
@@ -92,6 +96,7 @@ com\longoka\games\app\KikongoVerbWordSearchJsonExportTool.class
 com\longoka\games\puzzles\wordsearch\WordSearchGenerator$1.class
 com\longoka\games\app\LingalaVerbWordSearchJsonExportTool.class
 com\longoka\games\puzzles\arrowword\json\ArrowwordJsonModels.class
+com\longoka\games\puzzles\crossword\CrosswordGridQuality.class
 com\longoka\games\app\LingalaMixedArrowwordJsonExportTool.class
 com\longoka\games\app\BiweeklyPuzzleBatchTool$1.class
 com\longoka\games\lexikongo\KikongoMorphoDominoService$NumberPolicy.class

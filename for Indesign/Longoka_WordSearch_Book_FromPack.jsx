@@ -144,10 +144,19 @@
             : "Relis la traduction francaise et la classe nominale quand elle existe.", LG.SWATCHES.longokaPanel);
 
         var footer = [];
-        footer.push("Pack : " + (pack.packId || ""));
-        footer.push("Nombre de grilles : " + LG.puzzleCountFromPack(pack));
-        footer.push("Theme : " + LG.modeLabelFromPack(pack));
-        addFrame(page, LG.pageBox(page, 192, 22, 205, 132), footer.join("  |  "), LG.STYLES.p.footer);
+        var lexNote = LG.lexiconPolicyTextFromPack(pack);
+        if (lexNote) {
+            footer.push(lexNote);
+            footer.push("");
+        }
+        footer.push(
+            "Pack : "
+                + (pack.packId || "")
+                + "  |  Nombre de grilles : "
+                + LG.puzzleCountFromPack(pack)
+                + "  |  Theme : "
+                + LG.modeLabelFromPack(pack));
+        addFrame(page, LG.pageBox(page, 172, 22, 205, 132), footer.join("\r"), LG.STYLES.p.instruction);
     }
 
     function addPuzzlePages(doc, pack) {

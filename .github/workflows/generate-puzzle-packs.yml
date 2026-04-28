@@ -72,11 +72,11 @@ jobs:
           export LONGOKA_CADENCE=weekly
           bash scripts/run-export-all-premium.sh
 
-      - name: Upload weekly JSON artifacts
+      - name: Upload pack JSON artifacts
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: longoka-puzzle-packs-${{ github.run_id }}
-          path: backend-java/target/weekly/
+          path: backend-java/target/packs/
           if-no-files-found: warn
           retention-days: 30

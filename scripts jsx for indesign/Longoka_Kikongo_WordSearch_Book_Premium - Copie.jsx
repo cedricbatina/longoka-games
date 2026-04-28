@@ -94,6 +94,14 @@ Longoka Games — Kikongo Wordsearch (Premium Book Builder)
     return ps;
   }
 
+  function getOrCreateCharacterStyle(doc, name, props) {
+    var cs;
+    try { cs = doc.characterStyles.itemByName(name); cs.name; }
+    catch (e) { cs = doc.characterStyles.add({ name: name }); }
+    try { for (var k in props) if (props[k] !== undefined) cs[k] = props[k]; } catch (_) {}
+    return cs;
+  }
+
   function setMargins(doc) {
     for (var i = 0; i < doc.pages.length; i++) {
       var mp = doc.pages[i].marginPreferences;
@@ -161,18 +169,14 @@ Longoka Games — Kikongo Wordsearch (Premium Book Builder)
     return lines;
   }
 
-  /** InDesign 21+ : Cell n'a plus strokeWeight — utiliser les bords. */
+  /** Table Cell : ne pas assigner strokeWeight (ID 21+ → erreur 55). Uniquement les bords. */
   function setTableCellStrokeUniform(cell, strokePt) {
-    try {
-      cell.strokeWeight = strokePt;
-      return;
-    } catch (e0) {}
     try {
       cell.topEdgeStrokeWeight = strokePt;
       cell.leftEdgeStrokeWeight = strokePt;
       cell.bottomEdgeStrokeWeight = strokePt;
       cell.rightEdgeStrokeWeight = strokePt;
-    } catch (e1) {}
+    } catch (e) {}
   }
 
   function createGridTable(page, gb, rows, cols, gridLines, opts) {
@@ -181,6 +185,7 @@ Longoka Games — Kikongo Wordsearch (Premium Book Builder)
     var fontName = opts.fontName;
     var textPt = opts.textPt;
     var strokePt = opts.strokePt;
+    var gridCharStyle = opts.gridCharStyle;
 
     var tf = page.textFrames.add();
     tf.geometricBounds = gb;
@@ -195,13 +200,18 @@ Longoka Games — Kikongo Wordsearch (Premium Book Builder)
         var cell = table.rows[rr].cells[cc];
         setTableCellStrokeUniform(cell, strokePt);
         cell.verticalJustification = VerticalJustification.CENTER_ALIGN;
-        try { cell.texts[0].appliedFont = fontName; } catch (_) {}
-        cell.texts[0].pointSize = textPt;
-        cell.texts[0].leading = textPt + 1;
-        try { cell.texts[0].justification = Justification.CENTER_ALIGN; } catch (_) {}
-
         var ch = (gridLines && gridLines[rr] && gridLines[rr].length > cc) ? gridLines[rr].charAt(cc) : "";
         cell.contents = ch;
+        try {
+          if (gridCharStyle) {
+            cell.texts[0].appliedCharacterStyle = gridCharStyle;
+          } else {
+            try { cell.texts[0].appliedFont = fontName; } catch (_) {}
+          }
+          cell.texts[0].pointSize = textPt;
+          cell.texts[0].leading = textPt + 1;
+          cell.texts[0].justification = Justification.CENTER_ALIGN;
+        } catch (_) {}
       }
     }
     return { textFrame: tf, table: table };
@@ -273,7 +283,7 @@ Longoka Games — Kikongo Wordsearch (Premium Book Builder)
   var dp = doc.documentPreferences;
   dp.pageWidth = PAGE_W_MM + "mm";
   dp.pageHeight = PAGE_H_MM + "mm";
-  dp.facingPages = false;
+  dp.facingPages = true;
   dp.pagesPerDocument = 1;
 
   // Colors
@@ -291,6 +301,8 @@ Longoka Games — Kikongo Wordsearch (Premium Book Builder)
   var psWordTerm = getOrCreateParaStyle(doc, "LG_WordTerm", { appliedFont: FONT_SANS_BOLD, pointSize: 10.5, leading: 12 });
   var psWordDef = getOrCreateParaStyle(doc, "LG_WordDef", { appliedFont: FONT_REG, pointSize: 9.8, leading: 12, spaceAfter: 4 });
   var psSolHdr = getOrCreateParaStyle(doc, "LG_SolutionHeader", { appliedFont: FONT_SANS_BOLD, pointSize: 10.5, leading: 12 });
+
+  var csGridLetter = getOrCreateCharacterStyle(doc, "LG_GridLetter", { appliedFont: FONT_SANS_BOLD });
 
   function newPage() { return doc.pages.add(LocationOptions.AT_END); }
   setMargins(doc);
@@ -408,18 +420,54 @@ Longoka Games — Kikongo Wordsearch (Premium Book Builder)
     meta.contents = (domains ? domains : "") + (domains && classes ? "    |    " : "") + (classes ? classes : "");
 
     var gridTop = metaY + metaH + mm(6);
-    var gridSizePt = mm(GRID_MM);
-    var gridGb = [gridTop, cb.left, gridTop + gridSizePt, cb.left + gridSizePt];
+
+    var lines = normalizeGridLines(puzzle);
+    var rows = Math.max(1, puzzle.rows || (lines && lines.length ? lines.length : 12));
+    var cols = Math.max(1, puzzle.cols || (lines && lines[0] ? lines[0].length : 12));
+
+    var availW = cb.right - cb.left;
+    var footerH = mm(8);
+    var listReserve = mm(28);
+    var maxGridBottom = cb.bottom - footerH - listReserve;
+    var availH = maxGridBottom - gridTop;
+    if (availH < mm(30)) {
+      availH = mm(30);
+    }
+
+    var cellByW = availW / cols;
+    var cellByH = availH / rows;
+    var cellSize = cellByW < cellByH ? cellByW : cellByH;
+
+    var capW = mm(GRID_MM) / cols;
+    var capH = mm(GRID_MM) / rows;
+    var capPreset = capW < capH ? capW : capH;
+    if (cellSize > capPreset) {
+      cellSize = capPreset;
+    }
+
+    var tableW = cellSize * cols;
+    var tableH = cellSize * rows;
+    var gridLeft = cb.left + (availW - tableW) / 2;
+    var gridGb = [gridTop, gridLeft, gridTop + tableH, gridLeft + tableW];
 
     var listTop = gridGb[2] + mm(8);
     var listGb = [listTop, cb.left, cb.bottom - mm(10), cb.right];
 
-    var lines = normalizeGridLines(puzzle);
-    var rows = puzzle.rows || (lines ? lines.length : 12);
-    var cols = puzzle.cols || (lines && lines[0] ? lines[0].length : 12);
-    var cellSize = gridSizePt / cols;
+    var sugText = cellSize * 0.52;
+    var textPt = GRID_TEXT_PT;
+    if (sugText < 6) {
+      textPt = 6;
+    } else if (sugText < GRID_TEXT_PT) {
+      textPt = sugText;
+    }
 
-    createGridTable(page, gridGb, rows, cols, lines, { cellSizePt: cellSize, fontName: FONT_SANS_BOLD, textPt: GRID_TEXT_PT, strokePt: GRID_STROKE_PT });
+    createGridTable(page, gridGb, rows, cols, lines, {
+      cellSizePt: cellSize,
+      fontName: FONT_SANS_BOLD,
+      textPt: textPt,
+      strokePt: GRID_STROKE_PT,
+      gridCharStyle: csGridLetter
+    });
 
     var tf = addTextFrame(page, listGb, "", psBody);
     tf.textFramePreferences.textColumnCount = 2;
@@ -469,21 +517,41 @@ Longoka Games — Kikongo Wordsearch (Premium Book Builder)
 
     var top = cb.top + mm(14);
     var left = cb.left;
+    var gutter = mm(10);
+    var labelBlock = mm(22);
+    var bottomPad = mm(12);
 
     var twoByTwo = (countOnPage >= 4);
-    var gridSize = mm(twoByTwo ? SOL_GRID_MM : 110);
-    var gutter = mm(10);
+    var availW = cb.right - cb.left;
+    var availH = cb.bottom - top - bottomPad;
+
+    var gridSize;
+    if (twoByTwo) {
+      var maxW = (availW - gutter) / 2;
+      var maxH = (availH - gutter) / 2 - labelBlock;
+      gridSize = maxW < maxH ? maxW : maxH;
+      if (gridSize > mm(SOL_GRID_MM)) {
+        gridSize = mm(SOL_GRID_MM);
+      }
+    } else {
+      var maxW2 = availW;
+      var maxH2 = (availH - gutter) / 2 - labelBlock;
+      gridSize = maxW2 < maxH2 ? maxW2 : maxH2;
+      if (gridSize > mm(110)) {
+        gridSize = mm(110);
+      }
+    }
 
     var positions = [];
     if (twoByTwo) {
       var x1 = left;
       var x2 = left + gridSize + gutter;
       var y1 = top;
-      var y2 = top + gridSize + mm(22) + gutter;
+      var y2 = top + gridSize + labelBlock + gutter;
       positions = [{x:x1,y:y1},{x:x2,y:y1},{x:x1,y:y2},{x:x2,y:y2}];
     } else {
       var yA = top;
-      var yB = top + gridSize + mm(22) + gutter;
+      var yB = top + gridSize + labelBlock + gutter;
       positions = [{x:left,y:yA},{x:left,y:yB}];
     }
 
@@ -496,14 +564,34 @@ Longoka Games — Kikongo Wordsearch (Premium Book Builder)
       addTextFrame(page, [pos.y, pos.x, pos.y + mm(8), pos.x + gridSize], label + " — " + (puzzle.id || ""), psSolHdr);
 
       var gridTop = pos.y + mm(10);
-      var gridGb = [gridTop, pos.x, gridTop + gridSize, pos.x + gridSize];
-
       var lines = normalizeGridLines(puzzle);
-      var rows = puzzle.rows || (lines ? lines.length : 12);
-      var cols = puzzle.cols || (lines && lines[0] ? lines[0].length : 12);
+      var rows = Math.max(1, puzzle.rows || (lines && lines.length ? lines.length : 12));
+      var cols = Math.max(1, puzzle.cols || (lines && lines[0] ? lines[0].length : 12));
       var cellSize = gridSize / cols;
+      if (gridSize / rows < cellSize) {
+        cellSize = gridSize / rows;
+      }
+      var tableW = cellSize * cols;
+      var tableH = cellSize * rows;
+      var gx0 = pos.x + (gridSize - tableW) / 2;
+      var gy0 = gridTop + (gridSize - tableH) / 2;
+      var gridGb = [gy0, gx0, gy0 + tableH, gx0 + tableW];
 
-      var g = createGridTable(page, gridGb, rows, cols, lines, { cellSizePt: cellSize, fontName: FONT_SANS_BOLD, textPt: (twoByTwo ? SOL_GRID_TEXT_PT : 10), strokePt: 0.25 });
+      var solText = SOL_GRID_TEXT_PT;
+      var sugSol = cellSize * 0.52;
+      if (sugSol < 5) {
+        solText = 5;
+      } else if (sugSol < SOL_GRID_TEXT_PT) {
+        solText = sugSol;
+      }
+
+      var g = createGridTable(page, gridGb, rows, cols, lines, {
+        cellSizePt: cellSize,
+        fontName: FONT_SANS_BOLD,
+        textPt: solText,
+        strokePt: 0.25,
+        gridCharStyle: csGridLetter
+      });
       highlightSolution(g.table, puzzle.placements || [], colHighlight);
     }
 
