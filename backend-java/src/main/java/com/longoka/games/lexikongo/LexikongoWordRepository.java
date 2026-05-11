@@ -33,7 +33,14 @@ public class LexikongoWordRepository {
    * LingalaWordSearchService appellent.
    */
   public List<LexWord> findRandomWordsByClassId(int classId, int limit, String languageCode) throws SQLException {
-    return findRandomWordsInternal(classId, null, limit, languageCode);
+    return findRandomWordsInternal(List.of(classId), null, limit, languageCode);
+  }
+
+  /**
+   * Tire des mots au hasard, filtres sur plusieurs class_id.
+   */
+  public List<LexWord> findRandomWordsByClassIds(List<Integer> classIds, int limit, String languageCode) throws SQLException {
+    return findRandomWordsInternal(classIds, null, limit, languageCode);
   }
 
   /**
@@ -90,7 +97,7 @@ public class LexikongoWordRepository {
   // Implementation interne
   // ----------------------------------------------------------------------
 
-  private List<LexWord> findRandomWordsInternal(Integer classIdFilter, String rootFilter, int limit, String languageCode)
+  private List<LexWord> findRandomWordsInternal(List<Integer> classIdsFilter, String rootFilter, int limit, String languageCode)
       throws SQLException {
 
     // 1) On récupère les mots (sans les meanings pour l'instant)
@@ -106,8 +113,15 @@ public class LexikongoWordRepository {
         .append("LEFT JOIN nominal_classes nc ON nc.class_id = w.class_id ")
         .append("WHERE w.is_approved = 1 ");
 
-    if (classIdFilter != null) {
-      sql.append("AND w.class_id = ? ");
+    if (classIdsFilter != null && !classIdsFilter.isEmpty()) {
+      sql.append("AND w.class_id IN (");
+      for (int i = 0; i < classIdsFilter.size(); i++) {
+        if (i > 0) {
+          sql.append(",");
+        }
+        sql.append("?");
+      }
+      sql.append(") ");
     }
     if (rootFilter != null && !rootFilter.isBlank()) {
       sql.append("AND UPPER(TRIM(w.root)) = UPPER(TRIM(?)) ");
@@ -121,8 +135,10 @@ public class LexikongoWordRepository {
 
     try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
       int index = 1;
-      if (classIdFilter != null) {
-        ps.setInt(index++, classIdFilter);
+      if (classIdsFilter != null && !classIdsFilter.isEmpty()) {
+        for (Integer classId : classIdsFilter) {
+          ps.setInt(index++, classId);
+        }
       }
       if (rootFilter != null && !rootFilter.isBlank()) {
         ps.setString(index++, rootFilter);

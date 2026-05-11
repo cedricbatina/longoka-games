@@ -132,6 +132,7 @@ public final class BiweeklyPuzzleBatchTool {
     final String lexicalProfile;
     final MorphologyProfileMode morphologyProfile;
     final Integer nominalClassId;
+    final List<Integer> nominalClassIds;
     final String nominalClassName;
     final String radical;
 
@@ -143,6 +144,7 @@ public final class BiweeklyPuzzleBatchTool {
         String lexicalProfile,
         MorphologyProfileMode morphologyProfile,
         Integer nominalClassId,
+        List<Integer> nominalClassIds,
         String nominalClassName,
         String radical) {
       this.id = id;
@@ -151,7 +153,19 @@ public final class BiweeklyPuzzleBatchTool {
       this.nounNumberMode = nounNumberMode;
       this.lexicalProfile = lexicalProfile;
       this.morphologyProfile = morphologyProfile;
-      this.nominalClassId = nominalClassId;
+      LinkedHashSet<Integer> classIds = new LinkedHashSet<>();
+      if (nominalClassIds != null) {
+        for (Integer classId : nominalClassIds) {
+          if (classId != null && classId > 0) {
+            classIds.add(classId);
+          }
+        }
+      }
+      if (classIds.isEmpty() && nominalClassId != null && nominalClassId > 0) {
+        classIds.add(nominalClassId);
+      }
+      this.nominalClassIds = List.copyOf(classIds);
+      this.nominalClassId = !this.nominalClassIds.isEmpty() ? this.nominalClassIds.get(0) : nominalClassId;
       this.nominalClassName = nominalClassName;
       this.radical = radical;
     }
@@ -168,6 +182,7 @@ public final class BiweeklyPuzzleBatchTool {
           lexicalProfile,
           MorphologyProfileMode.GENERAL,
           null,
+              null,
           null,
           null);
     }
@@ -182,9 +197,26 @@ public final class BiweeklyPuzzleBatchTool {
           "nouns",
           MorphologyProfileMode.NOMINAL_CLASS,
           classId,
+              List.of(classId),
           className,
           null);
     }
+
+            static CombinationProfile nominalClassGroup(String groupToken, List<Integer> classIds, String className, NumberMode nounNumberMode) {
+          String suffix = nounNumberMode == NumberMode.PLURAL_ONLY ? "plural" : "singular";
+          Integer primaryClassId = (classIds != null && !classIds.isEmpty()) ? classIds.get(0) : null;
+          return new CombinationProfile(
+              "class-" + groupToken + "-" + suffix,
+              true,
+              false,
+              nounNumberMode,
+              "nouns",
+              MorphologyProfileMode.NOMINAL_CLASS,
+              primaryClassId,
+              classIds,
+              className,
+              null);
+            }
 
     static CombinationProfile radicalNouns(String radical, NumberMode nounNumberMode) {
       String suffix = nounNumberMode == NumberMode.PLURAL_ONLY ? "plural" : "singular";
@@ -197,6 +229,7 @@ public final class BiweeklyPuzzleBatchTool {
           "nouns",
           MorphologyProfileMode.RADICAL_NOUNS,
           null,
+              null,
           null,
           normalizeRadicalLabel(radical));
     }
@@ -212,7 +245,22 @@ public final class BiweeklyPuzzleBatchTool {
           MorphologyProfileMode.RADICAL_VERBS,
           null,
           null,
+          null,
           normalizeRadicalLabel(radical));
+    }
+  }
+
+  private static final class NominalClassAvailability {
+    final int classId;
+    final String className;
+    final int singularCount;
+    final int pluralCount;
+
+    NominalClassAvailability(int classId, String className, int singularCount, int pluralCount) {
+      this.classId = classId;
+      this.className = className;
+      this.singularCount = singularCount;
+      this.pluralCount = pluralCount;
     }
   }
 
@@ -244,6 +292,7 @@ public final class BiweeklyPuzzleBatchTool {
     String requestedDifficulty = parseStringArg(args, "--difficulty", DEFAULT_DIFFICULTY);
     EditionTier editionTier = parseEditionTier(parseStringArg(args, "--tier", DEFAULT_EDITION_TIER));
     ProfileSetMode profileSetMode = parseProfileSetMode(parseStringArg(args, "--profileSet", "all"));
+    Set<String> requestedProfileIds = parseProfileIdsArg(args, "--profiles");
     String cadence = parseStringArg(args, "--cadence", DEFAULT_CADENCE).trim().toLowerCase(Locale.ROOT);
     if (cadence.isEmpty()) {
       cadence = DEFAULT_CADENCE;
@@ -280,12 +329,19 @@ public final class BiweeklyPuzzleBatchTool {
       try (Connection conn = openLexConnection(language.code)) {
         List<CombinationProfile> combinations = buildCombinationProfiles(
             conn,
+            language,
             nounRadicalLimit,
             verbRadicalLimit,
             minMorphologyEntries,
-            profileSetMode);
+            profileSetMode,
+            requestedProfileIds);
 
         System.out.println("- profiles for " + language.code + ": " + combinations.size());
+
+        if (combinations.isEmpty()) {
+          System.out.println("- no eligible profiles for " + language.code + " with current filters");
+          continue;
+        }
 
         for (CombinationProfile combination : combinations) {
           System.out.println("- generating " + language.code + " / " + combination.id + " ...");
@@ -303,8 +359,10 @@ public final class BiweeklyPuzzleBatchTool {
                 editionTier,
                 requestedDifficulty,
                 random);
-            Path wsPath = outDir.resolve(language.code + "-" + combination.id + "-wordsearch-pack.v1.json");
-            mapper.writeValue(wsPath.toFile(), wordSearchPack);
+            if (wordSearchPack != null && wordSearchPack.puzzles != null && !wordSearchPack.puzzles.isEmpty()) {
+              Path wsPath = outDir.resolve(language.code + "-" + combination.id + "-wordsearch-pack.v1.json");
+              mapper.writeValue(wsPath.toFile(), wordSearchPack);
+            }
           }
 
           if (shouldGenerateCrossword(puzzleTypeMode)) {
@@ -320,8 +378,10 @@ public final class BiweeklyPuzzleBatchTool {
                 editionTier,
                 requestedDifficulty,
                 random);
-            Path cwPath = outDir.resolve(language.code + "-" + combination.id + "-crossword-pack.v1.json");
-            mapper.writeValue(cwPath.toFile(), crosswordPack);
+            if (crosswordPack != null && crosswordPack.puzzles != null && !crosswordPack.puzzles.isEmpty()) {
+              Path cwPath = outDir.resolve(language.code + "-" + combination.id + "-crossword-pack.v1.json");
+              mapper.writeValue(cwPath.toFile(), crosswordPack);
+            }
           }
 
           if (shouldGenerateArrowword(puzzleTypeMode)) {
@@ -337,8 +397,10 @@ public final class BiweeklyPuzzleBatchTool {
                 editionTier,
                 requestedDifficulty,
                 random);
-            Path awPath = outDir.resolve(language.code + "-" + combination.id + "-arrowword-pack.v1.json");
-            mapper.writeValue(awPath.toFile(), arrowwordPack);
+            if (arrowwordPack != null && arrowwordPack.puzzles != null && !arrowwordPack.puzzles.isEmpty()) {
+              Path awPath = outDir.resolve(language.code + "-" + combination.id + "-arrowword-pack.v1.json");
+              mapper.writeValue(awPath.toFile(), arrowwordPack);
+            }
           }
 
           if (shouldGenerateDomino(puzzleTypeMode) && supportsMorphoDomino(combination)) {
@@ -417,20 +479,22 @@ public final class BiweeklyPuzzleBatchTool {
 
   private static List<CombinationProfile> buildCombinationProfiles(
       Connection conn,
+      LanguageProfile language,
       int nounRadicalLimit,
       int verbRadicalLimit,
       int minMorphologyEntries,
-      ProfileSetMode profileSetMode) throws Exception {
+      ProfileSetMode profileSetMode,
+      Set<String> requestedProfileIds) throws Exception {
 
     if (profileSetMode == ProfileSetMode.BASE_ONLY) {
-      return new ArrayList<>(BASE_COMBINATIONS);
+      return filterProfiles(new ArrayList<>(BASE_COMBINATIONS), requestedProfileIds);
     }
 
     List<CombinationProfile> profiles = new ArrayList<>(BASE_COMBINATIONS);
-    profiles.addAll(discoverNominalClassProfiles(conn, minMorphologyEntries));
+    profiles.addAll(discoverNominalClassProfiles(conn, language, minMorphologyEntries));
     profiles.addAll(discoverNounRadicalProfiles(conn, nounRadicalLimit, minMorphologyEntries));
     profiles.addAll(discoverVerbRadicalProfiles(conn, verbRadicalLimit, Math.max(4, minMorphologyEntries - 2)));
-    return profiles;
+    return filterProfiles(profiles, requestedProfileIds);
   }
 
   private static ProfileSetMode parseProfileSetMode(String raw) {
@@ -445,7 +509,7 @@ public final class BiweeklyPuzzleBatchTool {
     return ProfileSetMode.ALL;
   }
 
-  private static List<CombinationProfile> discoverNominalClassProfiles(Connection conn, int minCount) throws Exception {
+  private static List<CombinationProfile> discoverNominalClassProfiles(Connection conn, LanguageProfile language, int minCount) throws Exception {
     String sql = """
         SELECT w.class_id,
                COALESCE(NULLIF(TRIM(nc.class_name), ''), CONCAT('class-', w.class_id)) AS class_name,
@@ -459,7 +523,7 @@ public final class BiweeklyPuzzleBatchTool {
         ORDER BY w.class_id ASC
         """;
 
-    List<CombinationProfile> profiles = new ArrayList<>();
+    Map<Integer, NominalClassAvailability> availabilityById = new LinkedHashMap<>();
     try (PreparedStatement ps = conn.prepareStatement(sql);
          ResultSet rs = ps.executeQuery()) {
       while (rs.next()) {
@@ -468,15 +532,85 @@ public final class BiweeklyPuzzleBatchTool {
         int singularCount = rs.getInt("singular_count");
         int pluralCount = rs.getInt("plural_count");
 
-        if (singularCount >= minCount) {
-          profiles.add(CombinationProfile.nominalClass(classId, className, NumberMode.SINGULAR_ONLY));
-        }
-        if (pluralCount >= minCount) {
-          profiles.add(CombinationProfile.nominalClass(classId, className, NumberMode.PLURAL_ONLY));
-        }
+        availabilityById.put(classId, new NominalClassAvailability(classId, className, singularCount, pluralCount));
       }
     }
+
+    List<CombinationProfile> profiles = new ArrayList<>();
+    if (language == LanguageProfile.KG) {
+      addSingleNominalClassProfiles(profiles, availabilityById.get(1), minCount);
+      addSingleNominalClassProfiles(profiles, availabilityById.get(4), minCount);
+      addSingleNominalClassProfiles(profiles, availabilityById.get(5), minCount);
+      addGroupedNominalClassProfiles(profiles, availabilityById, "mu-family", "mu-ba + mu-mi", List.of(2, 3), minCount);
+      addGroupedNominalClassProfiles(profiles, availabilityById, "bu-ku-family", "bu-ma + ku-ma", List.of(6, 10), minCount);
+      addGroupedNominalClassProfiles(profiles, availabilityById, "lu-family", "lu-tu + lu-zi + lu-ma", List.of(7, 8, 9), minCount);
+      return profiles;
+    }
+
+    for (NominalClassAvailability availability : availabilityById.values()) {
+      addSingleNominalClassProfiles(profiles, availability, minCount);
+    }
     return profiles;
+  }
+
+  private static void addSingleNominalClassProfiles(
+      List<CombinationProfile> profiles,
+      NominalClassAvailability availability,
+      int minCount) {
+
+    if (availability == null) {
+      return;
+    }
+    if (availability.singularCount >= minCount) {
+      profiles.add(CombinationProfile.nominalClass(availability.classId, availability.className, NumberMode.SINGULAR_ONLY));
+    }
+    if (availability.pluralCount >= minCount) {
+      profiles.add(CombinationProfile.nominalClass(availability.classId, availability.className, NumberMode.PLURAL_ONLY));
+    }
+  }
+
+  private static void addGroupedNominalClassProfiles(
+      List<CombinationProfile> profiles,
+      Map<Integer, NominalClassAvailability> availabilityById,
+      String groupToken,
+      String groupLabel,
+      List<Integer> classIds,
+      int minCount) {
+
+    int singularCount = 0;
+    int pluralCount = 0;
+    List<Integer> activeClassIds = new ArrayList<>();
+    for (Integer classId : classIds) {
+      NominalClassAvailability availability = availabilityById.get(classId);
+      if (availability == null) {
+        continue;
+      }
+      activeClassIds.add(classId);
+      singularCount += availability.singularCount;
+      pluralCount += availability.pluralCount;
+    }
+    if (activeClassIds.isEmpty()) {
+      return;
+    }
+    if (singularCount >= minCount) {
+      profiles.add(CombinationProfile.nominalClassGroup(groupToken, activeClassIds, groupLabel, NumberMode.SINGULAR_ONLY));
+    }
+    if (pluralCount >= minCount) {
+      profiles.add(CombinationProfile.nominalClassGroup(groupToken, activeClassIds, groupLabel, NumberMode.PLURAL_ONLY));
+    }
+  }
+
+  private static List<CombinationProfile> filterProfiles(List<CombinationProfile> profiles, Set<String> requestedProfileIds) {
+    if (requestedProfileIds == null || requestedProfileIds.isEmpty()) {
+      return profiles;
+    }
+    List<CombinationProfile> filtered = new ArrayList<>();
+    for (CombinationProfile profile : profiles) {
+      if (requestedProfileIds.contains(profile.id)) {
+        filtered.add(profile);
+      }
+    }
+    return filtered;
   }
 
   private static List<CombinationProfile> discoverNounRadicalProfiles(Connection conn, int limit, int minCount) throws Exception {
@@ -605,7 +739,7 @@ public final class BiweeklyPuzzleBatchTool {
     pack.language = language.code;
     pack.packId = buildPackId(language, combination, "wordsearch", editionTier);
     pack.title = titleFor(language, combination, "wordsearch", editionTier);
-    pack.description = descriptionFor(language, combination, "wordsearch", editionTier, packDifficulty);
+    pack.description = descriptionFor(language, combination, "wordsearch", editionTier, packDifficulty, meaningLang, puzzles.size());
     pack.meaningLanguage = meaningLang;
     pack.meta = buildPackMeta(language, combination, "wordsearch", editionTier, packDifficulty, meaningLang, puzzles.size());
     pack.meta.put("rows", rows);
@@ -615,6 +749,9 @@ public final class BiweeklyPuzzleBatchTool {
     finalizePackBookMeta(
         pack.meta, pack.title, pack.description, pack.packId, puzzles.size(), editionTier, meaningLang);
     pack.puzzles = puzzles;
+    if (puzzles.isEmpty()) {
+      return null;
+    }
     return pack;
   }
 
@@ -656,7 +793,7 @@ public final class BiweeklyPuzzleBatchTool {
     pack.language = language.code;
     pack.packId = buildPackId(language, combination, "crossword", editionTier);
     pack.title = titleFor(language, combination, "crossword", editionTier);
-    pack.description = descriptionFor(language, combination, "crossword", editionTier, packDifficulty);
+    pack.description = descriptionFor(language, combination, "crossword", editionTier, packDifficulty, meaningLang, puzzles.size());
     pack.meaningLanguage = meaningLang;
     pack.meta = buildPackMeta(language, combination, "crossword", editionTier, packDifficulty, meaningLang, puzzles.size());
     pack.meta.put("rows", rows);
@@ -666,6 +803,9 @@ public final class BiweeklyPuzzleBatchTool {
     finalizePackBookMeta(
         pack.meta, pack.title, pack.description, pack.packId, puzzles.size(), editionTier, meaningLang);
     pack.puzzles = puzzles;
+    if (puzzles.isEmpty()) {
+      return null;
+    }
     return pack;
   }
 
@@ -722,7 +862,7 @@ public final class BiweeklyPuzzleBatchTool {
     pack.language = language.code;
     pack.packId = buildPackId(language, combination, "arrowword", editionTier);
     pack.title = titleFor(language, combination, "arrowword", editionTier);
-    pack.description = descriptionFor(language, combination, "arrowword", editionTier, packDifficulty);
+    pack.description = descriptionFor(language, combination, "arrowword", editionTier, packDifficulty, meaningLang, puzzles.size());
     pack.meaningLanguage = meaningLang;
     pack.meta = buildPackMeta(language, combination, "arrowword", editionTier, packDifficulty, meaningLang, puzzles.size());
     pack.meta.put("crosswordSeedRows", rows - 1);
@@ -733,7 +873,7 @@ public final class BiweeklyPuzzleBatchTool {
         pack.meta, pack.title, pack.description, pack.packId, puzzles.size(), editionTier, meaningLang);
     pack.puzzles = puzzles;
     if (puzzles.isEmpty()) {
-      throw new IllegalStateException(
+      System.err.println(
           "Aucun pack mots fléchés généré pour "
               + language.code
               + " / "
@@ -742,7 +882,8 @@ public final class BiweeklyPuzzleBatchTool {
               + seedRows
               + "x"
               + seedCols
-              + "). Enrichir le lexique, utiliser --profileSet full, ou augmenter --rows/--cols.");
+              + "). Pack ignoré pour ce cycle.");
+      return null;
     }
     return pack;
   }
@@ -786,7 +927,7 @@ public final class BiweeklyPuzzleBatchTool {
     pack.language = language.code;
     pack.packId = buildPackId(language, combination, "domino", editionTier);
     pack.title = titleFor(language, combination, "domino", editionTier);
-    pack.description = descriptionFor(language, combination, "domino", editionTier, packDifficulty);
+    pack.description = descriptionFor(language, combination, "domino", editionTier, packDifficulty, meaningLang, puzzles.size());
     pack.meaningLanguage = meaningLang;
     pack.meta = buildPackMeta(language, combination, "domino", editionTier, packDifficulty, meaningLang, puzzles.size());
     pack.meta.put("relationType", dominoRelationType(combination));
@@ -839,7 +980,7 @@ public final class BiweeklyPuzzleBatchTool {
     pack.language = language.code;
     pack.packId = buildPackId(language, combination, "memory", editionTier);
     pack.title = titleFor(language, combination, "memory", editionTier);
-    pack.description = descriptionFor(language, combination, "memory", editionTier, packDifficulty);
+    pack.description = descriptionFor(language, combination, "memory", editionTier, packDifficulty, meaningLanguage, puzzles.size());
     pack.meaningLanguage = meaningLanguage;
     pack.meta = buildPackMeta(language, combination, "memory", editionTier, packDifficulty, meaningLanguage, puzzles.size());
     pack.meta.put("relationType", memoryRelationType(combination));
@@ -898,7 +1039,7 @@ public final class BiweeklyPuzzleBatchTool {
     pack.language = language.code;
     pack.packId = buildPackId(language, combination, "scrabble", editionTier);
     pack.title = titleFor(language, combination, "scrabble", editionTier);
-    pack.description = descriptionFor(language, combination, "scrabble", editionTier, packDifficulty);
+    pack.description = descriptionFor(language, combination, "scrabble", editionTier, packDifficulty, meaningLanguage, puzzles.size());
     pack.meaningLanguage = meaningLanguage;
     pack.meta = buildPackMeta(language, combination, "scrabble", editionTier, packDifficulty, meaningLanguage, puzzles.size());
     pack.meta.put("relationType", scrabbleRelationType(combination));
@@ -957,7 +1098,7 @@ public final class BiweeklyPuzzleBatchTool {
     pack.language = language.code;
     pack.packId = buildPackId(language, combination, "anagram", editionTier);
     pack.title = titleFor(language, combination, "anagram", editionTier);
-    pack.description = descriptionFor(language, combination, "anagram", editionTier, packDifficulty);
+    pack.description = descriptionFor(language, combination, "anagram", editionTier, packDifficulty, meaningLanguage, puzzles.size());
     pack.meaningLanguage = meaningLanguage;
     pack.meta = buildPackMeta(language, combination, "anagram", editionTier, packDifficulty, meaningLanguage, puzzles.size());
     pack.meta.put("relationType", anagramRelationType(combination));
@@ -1051,10 +1192,13 @@ public final class BiweeklyPuzzleBatchTool {
 
     LexikongoWordRepository repo = new LexikongoWordRepository(conn);
     List<LexWord> lexWords;
-    if (combination.morphologyProfile == MorphologyProfileMode.NOMINAL_CLASS && combination.nominalClassId != null) {
-      lexWords = repo.findRandomWordsByClassId(combination.nominalClassId, target * 8, meaningLang);
+    if (combination.morphologyProfile == MorphologyProfileMode.NOMINAL_CLASS && !combination.nominalClassIds.isEmpty()) {
+      int sampleSize = target * Math.max(8, combination.nominalClassIds.size() * 6);
+      lexWords = combination.nominalClassIds.size() == 1
+          ? repo.findRandomWordsByClassId(combination.nominalClassIds.get(0), sampleSize, meaningLang)
+          : repo.findRandomWordsByClassIds(combination.nominalClassIds, sampleSize, meaningLang);
     } else if (combination.morphologyProfile == MorphologyProfileMode.RADICAL_NOUNS && combination.radical != null) {
-      lexWords = repo.findRandomWordsByRoot(combination.radical, target * 8, meaningLang);
+      lexWords = repo.findRandomWords(target * 16, meaningLang);
     } else {
       lexWords = repo.findRandomWords(target * 6, meaningLang);
     }
@@ -1067,6 +1211,11 @@ public final class BiweeklyPuzzleBatchTool {
 
       String base = selectNounForm(w, numberMode, random);
       if (base == null || base.isBlank()) {
+        continue;
+      }
+
+      if (combination.morphologyProfile == MorphologyProfileMode.RADICAL_NOUNS
+          && !matchesSharedLetterProfile(nounSharedLetterSource(w, base), combination)) {
         continue;
       }
 
@@ -1114,7 +1263,7 @@ public final class BiweeklyPuzzleBatchTool {
     LexikongoVerbRepository repo = new LexikongoVerbRepository(conn);
     List<LexVerb> verbs;
     if (combination.morphologyProfile == MorphologyProfileMode.RADICAL_VERBS && combination.radical != null) {
-      verbs = repo.findRandomVerbsByRoot(combination.radical, 3, 12, target * 8, meaningLang);
+      verbs = repo.findRandomVerbsByLength(3, 12, target * 16, meaningLang);
     } else {
       verbs = repo.findRandomVerbsByLength(3, 12, target * 6, meaningLang);
     }
@@ -1125,8 +1274,15 @@ public final class BiweeklyPuzzleBatchTool {
         break;
       }
 
-      String base = v.getGridForm();
+      String base = combination.morphologyProfile == MorphologyProfileMode.RADICAL_VERBS
+          ? firstNonBlank(v.getRoot(), v.getGridForm(), v.getName())
+          : v.getGridForm();
       if (base == null || base.isBlank()) {
+        continue;
+      }
+
+      if (combination.morphologyProfile == MorphologyProfileMode.RADICAL_VERBS
+          && !matchesSharedLetterProfile(firstNonBlank(v.getRoot(), base), combination)) {
         continue;
       }
 
@@ -2638,14 +2794,17 @@ public final class BiweeklyPuzzleBatchTool {
       if (g != '#' && g != letters[i]) {
         return false;
       }
-      if (i > 0 && grid[row][c - 1] != letters[i - 1]) {
-        return false;
-      }
       char need = letters[i];
-      if (row > 0 && grid[row - 1][c] != '#' && grid[row - 1][c] != need) {
+      if (g == '#') {
+        if (row > 0 && grid[row - 1][c] != '#') {
+          return false;
+        }
+        if (row + 1 < rows && grid[row + 1][c] != '#') {
+          return false;
+        }
+      } else if (row > 0 && grid[row - 1][c] != '#' && grid[row - 1][c] != need) {
         return false;
-      }
-      if (row + 1 < rows && grid[row + 1][c] != '#' && grid[row + 1][c] != need) {
+      } else if (row + 1 < rows && grid[row + 1][c] != '#' && grid[row + 1][c] != need) {
         return false;
       }
     }
@@ -2671,14 +2830,17 @@ public final class BiweeklyPuzzleBatchTool {
       if (g != '#' && g != letters[i]) {
         return false;
       }
-      if (i > 0 && grid[row - 1][col] != letters[i - 1]) {
-        return false;
-      }
       char need = letters[i];
-      if (col > 0 && grid[row][col - 1] != '#' && grid[row][col - 1] != need) {
+      if (g == '#') {
+        if (col > 0 && grid[row][col - 1] != '#') {
+          return false;
+        }
+        if (col + 1 < cols && grid[row][col + 1] != '#') {
+          return false;
+        }
+      } else if (col > 0 && grid[row][col - 1] != '#' && grid[row][col - 1] != need) {
         return false;
-      }
-      if (col + 1 < cols && grid[row][col + 1] != '#' && grid[row][col + 1] != need) {
+      } else if (col + 1 < cols && grid[row][col + 1] != '#' && grid[row][col + 1] != need) {
         return false;
       }
     }
@@ -2745,7 +2907,151 @@ public final class BiweeklyPuzzleBatchTool {
     return profileLabel(combination);
   }
 
-  private static String descriptionFor(
+  private static String storefrontProfileLabel(CombinationProfile combination) {
+    if (combination.morphologyProfile == MorphologyProfileMode.NOMINAL_CLASS) {
+      if (combination.nounNumberMode == NumberMode.PLURAL_ONLY) {
+        return "classes nominales au pluriel";
+      }
+      if (combination.nounNumberMode == NumberMode.SINGULAR_ONLY) {
+        return "classes nominales au singulier";
+      }
+      return "classes nominales";
+    }
+    if (combination.morphologyProfile == MorphologyProfileMode.RADICAL_NOUNS) {
+      return nounProfileLabel(combination.nounNumberMode)
+          + " partageant "
+          + sharedLettersDescriptor(combination)
+          + " avec "
+          + displayRadical(combination.radical).toLowerCase(Locale.ROOT);
+    }
+    if (combination.morphologyProfile == MorphologyProfileMode.RADICAL_VERBS) {
+      return "verbes partageant "
+          + sharedLettersDescriptor(combination)
+          + " avec "
+          + displayRadical(combination.radical).toLowerCase(Locale.ROOT);
+    }
+    if (combination.includeNouns && combination.includeVerbs) {
+      return "noms et verbes";
+    }
+    if (combination.includeVerbs) {
+      return "verbes";
+    }
+    if (combination.nounNumberMode == NumberMode.PLURAL_ONLY) {
+      return "noms au pluriel";
+    }
+    if (combination.nounNumberMode == NumberMode.SINGULAR_ONLY) {
+      return "noms";
+    }
+    return "noms";
+  }
+
+  private static String storefrontProfileObject(CombinationProfile combination) {
+    if (combination.morphologyProfile == MorphologyProfileMode.NOMINAL_CLASS) {
+      if (combination.nounNumberMode == NumberMode.PLURAL_ONLY) {
+        return "les classes nominales au pluriel";
+      }
+      if (combination.nounNumberMode == NumberMode.SINGULAR_ONLY) {
+        return "les classes nominales au singulier";
+      }
+      return "les classes nominales";
+    }
+    if (combination.morphologyProfile == MorphologyProfileMode.RADICAL_NOUNS) {
+      return "les "
+          + nounProfileLabel(combination.nounNumberMode)
+          + " partageant "
+          + sharedLettersDescriptor(combination)
+          + " avec "
+          + displayRadical(combination.radical).toLowerCase(Locale.ROOT);
+    }
+    if (combination.morphologyProfile == MorphologyProfileMode.RADICAL_VERBS) {
+      return "les verbes partageant "
+          + sharedLettersDescriptor(combination)
+          + " avec "
+          + displayRadical(combination.radical).toLowerCase(Locale.ROOT);
+    }
+    if (combination.includeNouns && combination.includeVerbs) {
+      return "les noms et les verbes";
+    }
+    if (combination.includeVerbs) {
+      return "les verbes";
+    }
+    if (combination.nounNumberMode == NumberMode.PLURAL_ONLY) {
+      return "les noms au pluriel";
+    }
+    return "les noms";
+  }
+
+  private static String meaningAudienceLabel(String meaningLanguage) {
+    String ml = meaningLanguage == null ? "fr" : meaningLanguage.trim().toLowerCase(Locale.ROOT);
+    if (ml.startsWith("en")) {
+      return "anglais";
+    }
+    if (ml.startsWith("es")) {
+      return "espagnol";
+    }
+    if (ml.startsWith("pt")) {
+      return "portugais";
+    }
+    return "français";
+  }
+
+  private static String difficultyStorefrontLabel(String difficulty) {
+    String raw = difficulty == null ? "" : difficulty.trim().toLowerCase(Locale.ROOT);
+    if (raw.isEmpty()) {
+      return "";
+    }
+    if (raw.equals("easy") || raw.equals("debutant")) {
+      return "accessible";
+    }
+    if (raw.equals("medium") || raw.equals("intermediate")) {
+      return "équilibré";
+    }
+    if (raw.equals("hard") || raw.equals("expert")) {
+      return "soutenu";
+    }
+    return raw;
+  }
+
+  private static String countedLabel(int count, String singular, String plural) {
+    return count + " " + (count == 1 ? singular : plural);
+  }
+
+  private static String puzzleCountLabel(String puzzleType, int puzzleCount) {
+    int safeCount = Math.max(0, puzzleCount);
+    switch (puzzleType.toLowerCase(Locale.ROOT)) {
+      case "crossword":
+        return countedLabel(safeCount, "grille de mots croisés", "grilles de mots croisés");
+      case "wordsearch":
+        return countedLabel(safeCount, "grille de mots mêlés", "grilles de mots mêlés");
+      case "arrowword":
+        return countedLabel(safeCount, "grille de mots fléchés", "grilles de mots fléchés");
+      case "domino":
+        return countedLabel(safeCount, "jeu de dominos", "jeux de dominos");
+      case "memory":
+        return countedLabel(safeCount, "partie de memory", "parties de memory");
+      case "scrabble":
+        return countedLabel(safeCount, "jeu de lettres", "jeux de lettres");
+      case "anagram":
+        return countedLabel(safeCount, "jeu d'anagrammes", "jeux d'anagrammes");
+      default:
+        return countedLabel(safeCount, "jeu de langue", "jeux de langue");
+    }
+  }
+
+  private static String stationerySubtitleFor(
+      CombinationProfile combination,
+      EditionTier editionTier,
+      String meaningLanguage) {
+
+    return String.format(
+        Locale.ROOT,
+        "%s · %s · sens %s",
+        editionLabel(editionTier),
+        storefrontProfileLabel(combination),
+        meaningAudienceLabel(meaningLanguage));
+  }
+
+  private static String technicalDescriptionFor(
       LanguageProfile language,
       CombinationProfile combination,
       String puzzleType,
@@ -2757,6 +3063,40 @@ public final class BiweeklyPuzzleBatchTool {
         + " généré depuis la base " + language.source
         + ", profil " + profileLabel(combination).toLowerCase(Locale.ROOT)
         + ", niveau " + difficulty + ".";
+  }
+
+  private static String descriptionFor(
+      LanguageProfile language,
+      CombinationProfile combination,
+      String puzzleType,
+      EditionTier editionTier,
+      String difficulty,
+      String meaningLanguage,
+      int puzzleCount) {
+
+    StringBuilder out = new StringBuilder();
+    out.append("Un cahier ")
+        .append(editionTier == EditionTier.PREMIUM ? "premium" : "standard")
+        .append(" de ")
+        .append(puzzleCountLabel(puzzleType, puzzleCount))
+        .append(" pour travailler ")
+        .append(storefrontProfileObject(combination))
+        .append(" en ")
+        .append(languageLabel(language).toLowerCase(Locale.ROOT))
+        .append('.');
+
+    if ("domino".equalsIgnoreCase(puzzleType)) {
+      out.append(" Chaque partie est courte, visuelle et pensée pour faire mémoriser plus vite les correspondances utiles.");
+    } else {
+      out.append(" Le format reste simple à reprendre au fil de la semaine pour jouer, réviser et progresser sans jargon inutile.");
+    }
+
+    String storefrontDifficulty = difficultyStorefrontLabel(difficulty);
+    if (!storefrontDifficulty.isBlank()) {
+      out.append(" Le niveau reste ").append(storefrontDifficulty).append('.');
+    }
+    out.append(" Les repères restent en ").append(meaningAudienceLabel(meaningLanguage)).append('.');
+    return out.toString();
   }
 
   private static String buildPackId(
@@ -2788,6 +3128,7 @@ public final class BiweeklyPuzzleBatchTool {
     meta.put("generatedOn", LocalDate.now().toString());
     meta.put("createdAt", Instant.now().toString());
     meta.put("schemaVersion", 1);
+    meta.put("backofficeDescription", technicalDescriptionFor(language, combination, gameType, editionTier, difficulty));
     return meta;
   }
 
@@ -2798,6 +3139,10 @@ public final class BiweeklyPuzzleBatchTool {
       EditionTier editionTier,
       String difficulty,
       String meaningLanguage) {
+
+    LocalDate publicationStart = LocalDate.now();
+    LocalDate publicationEnd = publicationStart.plusDays(resolveFeaturedWindowDays() - 1L);
+    LocalDate archiveAfter = publicationStart.plusDays(resolveArchiveWindowDays() - 1L);
 
     Map<String, Object> meta = new LinkedHashMap<>();
     meta.put("source", language.source);
@@ -2822,12 +3167,16 @@ public final class BiweeklyPuzzleBatchTool {
     if (combination.nominalClassId != null) {
       meta.put("nominalClassId", combination.nominalClassId);
     }
+    if (combination.nominalClassIds != null && combination.nominalClassIds.size() > 1) {
+      meta.put("nominalClassIds", new ArrayList<>(combination.nominalClassIds));
+    }
     if (blankToNull(combination.nominalClassName) != null) {
       meta.put("nominalClassName", combination.nominalClassName);
     }
     if (blankToNull(combination.radical) != null) {
       meta.put("radical", combination.radical);
       meta.put("radicalLabel", displayRadical(combination.radical));
+      meta.put("sharedLetterTarget", sharedLetterTarget(combination));
     }
 
     // Bloc "book" : metadonnees editoriales stables, consommees par InDesign et Longoka.
@@ -2844,11 +3193,58 @@ public final class BiweeklyPuzzleBatchTool {
     book.put("difficulty", difficulty);
     book.put("bookCode", meta.get("bookCode"));
     book.put("createdAt", Instant.now().toString());
-    book.put("generatedOn", LocalDate.now().toString());
+    book.put("generatedOn", publicationStart.toString());
+    book.put("publishedAt", publicationStart.toString());
+    book.put("publicationStart", publicationStart.toString());
+    book.put("publicationEnd", publicationEnd.toString());
+    book.put("archiveAfter", archiveAfter.toString());
     book.put("isbn", resolveReleaseIsbn(String.valueOf(meta.get("bookCode"))));
     meta.put("book", book);
 
     return meta;
+  }
+
+  private static int resolveFeaturedWindowDays() {
+    String featuredEnv = System.getenv("LONGOKA_GAME_BOOK_FEATURED_DAYS");
+    if (featuredEnv != null && !featuredEnv.isBlank()) {
+      try {
+        return Math.max(1, Integer.parseInt(featuredEnv.trim()));
+      } catch (NumberFormatException ignored) {
+      }
+    }
+    String env = System.getenv("LONGOKA_GAME_BOOK_WINDOW_DAYS");
+    if (env != null && !env.isBlank()) {
+      try {
+        return Math.max(1, Integer.parseInt(env.trim()));
+      } catch (NumberFormatException ignored) {
+      }
+    }
+    String prop = System.getProperty("longoka.game.book.window.days");
+    if (prop != null && !prop.isBlank()) {
+      try {
+        return Math.max(1, Integer.parseInt(prop.trim()));
+      } catch (NumberFormatException ignored) {
+      }
+    }
+    return 8;
+  }
+
+  private static int resolveArchiveWindowDays() {
+    String env = System.getenv("LONGOKA_GAME_BOOK_ARCHIVE_DAYS");
+    if (env != null && !env.isBlank()) {
+      try {
+        return Math.max(1, Integer.parseInt(env.trim()));
+      } catch (NumberFormatException ignored) {
+      }
+    }
+    String prop = System.getProperty("longoka.game.book.archive.days");
+    if (prop != null && !prop.isBlank()) {
+      try {
+        return Math.max(1, Integer.parseInt(prop.trim()));
+      } catch (NumberFormatException ignored) {
+      }
+    }
+    return 30;
   }
 
   /**
@@ -2889,22 +3285,66 @@ public final class BiweeklyPuzzleBatchTool {
     boolean english = ml.startsWith("en");
     book.put("meaningLanguage", english ? "en" : "fr");
     book.put("title", packTitle != null ? packTitle : "");
-    String profile = String.valueOf(packMeta.getOrDefault("profileLabel", ""));
-    String sens = english ? "anglais" : "français";
-    book.put(
-        "subtitle",
-        String.format(
-            Locale.ROOT,
-            "%s · %s · sens %s",
-            editionLabel(editionTier),
-            profile,
-            sens));
+    book.put("subtitle", stationerySubtitleFor(metaToCombination(packMeta), editionTier, meaningLanguage));
+    book.put("description", packDescription != null ? packDescription : "");
     book.put("pages", estimateBookPageCount(puzzleCount));
     book.put("trimSize", "6x9in");
     book.put(
         "printVariant",
         editionTier == EditionTier.PREMIUM ? "premium-softcover" : "standard-softcover");
     book.put("binding", "perfect-bound");
+
+    Map<String, Object> stationery = new LinkedHashMap<>();
+    stationery.put("name", packTitle);
+    stationery.put("subtitle", book.get("subtitle"));
+    stationery.put("description", packDescription);
+    stationery.put("publisher", book.get("publisher"));
+    stationery.put("contentLanguage", packMeta.get("language"));
+    stationery.put("meaningLanguage", book.get("meaningLanguage"));
+    stationery.put("format", "print:6x9in");
+    stationery.put("pageCount", book.get("pages"));
+    stationery.put("brand", "Longoka Games");
+    stationery.put("requiresShipping", 1);
+    stationery.put("isDigital", 0);
+    stationery.put("categorySlug", "games");
+    stationery.put("thumbnailStrategy", "generated-svg-cover");
+    stationery.put("skuHint", packMeta.get("bookCode"));
+    stationery.put("bookCode", packMeta.get("bookCode"));
+    stationery.put("publicationStart", book.get("publicationStart"));
+    stationery.put("publicationEnd", book.get("publicationEnd"));
+    stationery.put("archiveAfter", book.get("archiveAfter"));
+    packMeta.put("stationery", stationery);
+
+    Map<String, Object> editorial = new LinkedHashMap<>();
+    String bookCode = String.valueOf(packMeta.getOrDefault("bookCode", ""));
+    editorial.put("bookKey", bookCode);
+    editorial.put("title", packTitle);
+    editorial.put("summary", packDescription);
+    editorial.put("language", packMeta.get("language"));
+    editorial.put("meaningLanguage", book.get("meaningLanguage"));
+    editorial.put("editionTier", packMeta.get("editionTier"));
+    editorial.put("editionLabel", packMeta.get("editionLabel"));
+    editorial.put("editorialStatus", "ready");
+    editorial.put("catalogVisibility", "private");
+    editorial.put("sourceType", "game_pack");
+    editorial.put("sourceKey", packId);
+    editorial.put("stationeryCategorySlug", "games");
+    editorial.put(
+      "variantBlueprints",
+      List.of(
+        Map.of(
+          "kind", "physical",
+          "variantKey", bookCode + ":physical",
+          "skuHint", bookCode + "-PRINT",
+          "requiresShipping", 1,
+          "isDigital", 0),
+        Map.of(
+          "kind", "pdf",
+          "variantKey", bookCode + ":pdf",
+          "skuHint", bookCode + "-PDF",
+          "requiresShipping", 0,
+          "isDigital", 1)));
+    packMeta.put("editorial", editorial);
 
     packMeta.put("translationsSingularOnly", PackMeaningMeta.defaultTranslationsSingularOnly());
     packMeta.put(
@@ -2924,6 +3364,60 @@ public final class BiweeklyPuzzleBatchTool {
 
   private static String stringMeta(Object value) {
     return value == null ? null : String.valueOf(value);
+  }
+
+  private static CombinationProfile metaToCombination(Map<String, Object> packMeta) {
+    String morphologyProfile = stringMeta(packMeta.get("morphologyProfile"));
+    String lexicalProfile = stringMeta(packMeta.get("lexicalProfile"));
+    String numberPolicy = stringMeta(packMeta.get("numberPolicy"));
+    Integer nominalClassId = packMeta.get("nominalClassId") instanceof Number
+        ? ((Number) packMeta.get("nominalClassId")).intValue()
+        : null;
+    List<Integer> nominalClassIds = new ArrayList<>();
+    Object nominalClassIdsValue = packMeta.get("nominalClassIds");
+    if (nominalClassIdsValue instanceof List<?>) {
+      for (Object value : (List<?>) nominalClassIdsValue) {
+        if (value instanceof Number) {
+          nominalClassIds.add(((Number) value).intValue());
+        }
+      }
+    }
+    if (nominalClassIds.isEmpty() && nominalClassId != null) {
+      nominalClassIds.add(nominalClassId);
+    }
+    String nominalClassName = stringMeta(packMeta.get("nominalClassName"));
+    String radical = stringMeta(packMeta.get("radical"));
+
+    MorphologyProfileMode morphology = MorphologyProfileMode.GENERAL;
+    if ("nominal-class".equalsIgnoreCase(morphologyProfile)) {
+      morphology = MorphologyProfileMode.NOMINAL_CLASS;
+    } else if ("radical-nouns".equalsIgnoreCase(morphologyProfile)) {
+      morphology = MorphologyProfileMode.RADICAL_NOUNS;
+    } else if ("radical-verbs".equalsIgnoreCase(morphologyProfile)) {
+      morphology = MorphologyProfileMode.RADICAL_VERBS;
+    }
+
+    NumberMode numberMode = NumberMode.SINGULAR_OR_PLURAL;
+    if ("plural-only".equalsIgnoreCase(numberPolicy)) {
+      numberMode = NumberMode.PLURAL_ONLY;
+    } else if ("singular-only".equalsIgnoreCase(numberPolicy)) {
+      numberMode = NumberMode.SINGULAR_ONLY;
+    }
+
+    boolean includeVerbs = "verbs".equalsIgnoreCase(lexicalProfile) || "mixed".equalsIgnoreCase(lexicalProfile);
+    boolean includeNouns = "nouns".equalsIgnoreCase(lexicalProfile) || "mixed".equalsIgnoreCase(lexicalProfile) || morphology == MorphologyProfileMode.NOMINAL_CLASS || morphology == MorphologyProfileMode.RADICAL_NOUNS;
+
+    return new CombinationProfile(
+        stringMeta(packMeta.get("profileId")),
+        includeNouns,
+        includeVerbs,
+        numberMode,
+        lexicalProfile,
+        morphology,
+        nominalClassId,
+          nominalClassIds,
+        nominalClassName,
+        radical);
   }
 
   private static int estimateBookPageCount(int puzzleCount) {
@@ -3053,6 +3547,9 @@ public final class BiweeklyPuzzleBatchTool {
 
   private static String dominoAnchorValue(CombinationProfile combination) {
     if (combination.morphologyProfile == MorphologyProfileMode.NOMINAL_CLASS) {
+      if (combination.nominalClassIds != null && combination.nominalClassIds.size() > 1) {
+        return joinClassIds(combination.nominalClassIds, "+");
+      }
       return String.valueOf(combination.nominalClassId);
     }
     return blankToNull(combination.radical) != null ? combination.radical : profileLabel(combination);
@@ -3067,6 +3564,9 @@ public final class BiweeklyPuzzleBatchTool {
 
   private static String dominoAnchorNormalized(CombinationProfile combination) {
     if (combination.morphologyProfile == MorphologyProfileMode.NOMINAL_CLASS) {
+      if (combination.nominalClassIds != null && combination.nominalClassIds.size() > 1) {
+        return "CLASS_" + joinClassIds(combination.nominalClassIds, "_");
+      }
       return "CLASS_" + combination.nominalClassId;
     }
     return "RADICAL_" + normalizeDominoValue(combination.radical);
@@ -3077,10 +3577,10 @@ public final class BiweeklyPuzzleBatchTool {
       case NOMINAL_CLASS:
         return "Classe nominale";
       case RADICAL_VERBS:
-        return "Radical verbal";
+        return "Lettres communes";
       case RADICAL_NOUNS:
       default:
-        return "Radical nominal";
+        return "Lettres communes";
     }
   }
 
@@ -3097,7 +3597,7 @@ public final class BiweeklyPuzzleBatchTool {
     }
     if (combination.morphologyProfile == MorphologyProfileMode.RADICAL_NOUNS
         || combination.morphologyProfile == MorphologyProfileMode.RADICAL_VERBS) {
-      return "radical-filtered-form-translation";
+      return "shared-letters-form-translation";
     }
     return "form-translation";
   }
@@ -3131,7 +3631,7 @@ public final class BiweeklyPuzzleBatchTool {
       return nominalClassLabel(combination);
     }
     if (blankToNull(combination.radical) != null) {
-      return displayRadical(combination.radical);
+      return sharedLettersBadge(combination);
     }
     return null;
   }
@@ -3142,7 +3642,7 @@ public final class BiweeklyPuzzleBatchTool {
     }
     if (combination.morphologyProfile == MorphologyProfileMode.RADICAL_NOUNS
         || combination.morphologyProfile == MorphologyProfileMode.RADICAL_VERBS) {
-      return "radical-family-word-build";
+      return "shared-letters-word-build";
     }
     return "word-build";
   }
@@ -3172,7 +3672,7 @@ public final class BiweeklyPuzzleBatchTool {
     }
     if (combination.morphologyProfile == MorphologyProfileMode.RADICAL_NOUNS
         || combination.morphologyProfile == MorphologyProfileMode.RADICAL_VERBS) {
-      return "radical-family-segment-anagram";
+      return "shared-letters-segment-anagram";
     }
     return "segment-anagram";
   }
@@ -3227,10 +3727,17 @@ public final class BiweeklyPuzzleBatchTool {
       return nominalClassLabel(combination) + " - " + numberPolicyLabel(combination.nounNumberMode);
     }
     if (combination.morphologyProfile == MorphologyProfileMode.RADICAL_NOUNS) {
-      return "Radical nominal " + displayRadical(combination.radical) + " - " + numberPolicyLabel(combination.nounNumberMode);
+      return capitalize(nounProfileLabel(combination.nounNumberMode))
+          + " partageant "
+          + sharedLettersDescriptor(combination)
+          + " avec "
+          + displayRadical(combination.radical);
     }
     if (combination.morphologyProfile == MorphologyProfileMode.RADICAL_VERBS) {
-      return "Radical verbal " + displayRadical(combination.radical);
+      return "Verbes partageant "
+          + sharedLettersDescriptor(combination)
+          + " avec "
+          + displayRadical(combination.radical);
     }
     if (combination.includeNouns && combination.includeVerbs) {
       return "Verbes + " + nounProfileLabel(combination.nounNumberMode);
@@ -3255,6 +3762,9 @@ public final class BiweeklyPuzzleBatchTool {
 
   private static String nominalClassLabel(CombinationProfile combination) {
     String label = blankToNull(combination.nominalClassName);
+    if (combination.nominalClassIds != null && combination.nominalClassIds.size() > 1) {
+      return label != null ? "Classes nominales " + label : "Classes nominales " + joinClassIds(combination.nominalClassIds, ", ");
+    }
     if (label == null) {
       return "Classe nominale " + combination.nominalClassId;
     }
@@ -3313,6 +3823,90 @@ public final class BiweeklyPuzzleBatchTool {
 
   private static String normalizeRadicalLabel(String radical) {
     return blankToNull(radical == null ? null : radical.trim());
+  }
+
+  private static String nounSharedLetterSource(LexWord word, String selectedForm) {
+    return firstNonBlank(word.getRoot(), selectedForm, word.getSingular(), word.getPlural());
+  }
+
+  private static boolean matchesSharedLetterProfile(String candidateValue, CombinationProfile combination) {
+    if (combination == null || blankToNull(combination.radical) == null) {
+      return true;
+    }
+    int required = sharedLetterTarget(combination);
+    if (required <= 0) {
+      return true;
+    }
+    return countSharedLetters(candidateValue, combination.radical) >= required;
+  }
+
+  private static int sharedLetterTarget(CombinationProfile combination) {
+    String radical = combination == null ? null : blankToNull(combination.radical);
+    if (radical == null) {
+      return 0;
+    }
+    int uniqueCount = normalizedLetterSet(radical).size();
+    if (uniqueCount <= 2) {
+      return uniqueCount;
+    }
+    List<Integer> options = new ArrayList<>();
+    options.add(2);
+    if (uniqueCount >= 3) {
+      options.add(3);
+    }
+    if (!options.contains(uniqueCount)) {
+      options.add(uniqueCount);
+    }
+    int index = Math.floorMod(radical.toUpperCase(Locale.ROOT).hashCode(), options.size());
+    return options.get(index);
+  }
+
+  private static String sharedLettersDescriptor(CombinationProfile combination) {
+    int required = sharedLetterTarget(combination);
+    int uniqueCount = normalizedLetterSet(combination == null ? null : combination.radical).size();
+    if (required <= 0) {
+      return "des lettres";
+    }
+    if (uniqueCount > 0 && required >= uniqueCount) {
+      return "toutes les lettres";
+    }
+    return required + (required > 1 ? " lettres" : " lettre");
+  }
+
+  private static String sharedLettersBadge(CombinationProfile combination) {
+    if (combination == null || blankToNull(combination.radical) == null) {
+      return null;
+    }
+    return sharedLettersDescriptor(combination) + " avec " + displayRadical(combination.radical);
+  }
+
+  private static int countSharedLetters(String left, String right) {
+    Set<Character> leftLetters = normalizedLetterSet(left);
+    Set<Character> rightLetters = normalizedLetterSet(right);
+    int shared = 0;
+    for (Character letter : leftLetters) {
+      if (rightLetters.contains(letter)) {
+        shared += 1;
+      }
+    }
+    return shared;
+  }
+
+  private static Set<Character> normalizedLetterSet(String value) {
+    Set<Character> letters = new LinkedHashSet<>();
+    String normalized = normalizeGridWord(value);
+    for (int i = 0; i < normalized.length(); i++) {
+      letters.add(normalized.charAt(i));
+    }
+    return letters;
+  }
+
+  private static String capitalize(String value) {
+    String raw = blankToNull(value);
+    if (raw == null) {
+      return "";
+    }
+    return raw.substring(0, 1).toUpperCase(Locale.ROOT) + raw.substring(1);
   }
 
   private static String slugToken(String value) {
@@ -3434,6 +4028,37 @@ public final class BiweeklyPuzzleBatchTool {
       }
     }
     return defaultValue;
+  }
+
+  private static Set<String> parseProfileIdsArg(String[] args, String key) {
+    String raw = parseStringArg(args, key, null);
+    if (raw == null || raw.isBlank()) {
+      return Set.of();
+    }
+    LinkedHashSet<String> profileIds = new LinkedHashSet<>();
+    String normalized = raw.replace(';', ',').replace('/', ',');
+    String[] tokens = normalized.split("[,\\s]+");
+    for (String token : tokens) {
+      String value = token == null ? "" : token.trim();
+      if (!value.isEmpty()) {
+        profileIds.add(value);
+      }
+    }
+    return profileIds;
+  }
+
+  private static String joinClassIds(List<Integer> classIds, String separator) {
+    if (classIds == null || classIds.isEmpty()) {
+      return "";
+    }
+    StringBuilder out = new StringBuilder();
+    for (int i = 0; i < classIds.size(); i++) {
+      if (i > 0) {
+        out.append(separator);
+      }
+      out.append(classIds.get(i));
+    }
+    return out.toString();
   }
 
   private static List<LanguageProfile> parseLanguageProfiles(String raw) {
