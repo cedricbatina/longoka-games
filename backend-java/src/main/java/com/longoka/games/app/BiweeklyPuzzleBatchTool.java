@@ -540,7 +540,14 @@ public final class BiweeklyPuzzleBatchTool {
     if (language == LanguageProfile.KG) {
       addSingleNominalClassProfiles(profiles, availabilityById.get(1), minCount);
       addSingleNominalClassProfiles(profiles, availabilityById.get(4), minCount);
-      addSingleNominalClassProfiles(profiles, availabilityById.get(5), minCount);
+      NominalClassAvailability kiBiAvailability = availabilityById.get(5);
+      NominalClassAvailability fiBiAvailability = availabilityById.get(14);
+      if (kiBiAvailability != null && fiBiAvailability != null) {
+        addGroupedNominalClassProfiles(profiles, availabilityById, "ki-fi-family", "ki-bi + fi-bi", List.of(5, 14), minCount);
+      } else {
+        addSingleNominalClassProfiles(profiles, kiBiAvailability, minCount);
+        addSingleNominalClassProfiles(profiles, fiBiAvailability, minCount);
+      }
       addGroupedNominalClassProfiles(profiles, availabilityById, "mu-family", "mu-ba + mu-mi", List.of(2, 3), minCount);
       addGroupedNominalClassProfiles(profiles, availabilityById, "bu-ku-family", "bu-ma + ku-ma", List.of(6, 10), minCount);
       addGroupedNominalClassProfiles(profiles, availabilityById, "lu-family", "lu-tu + lu-zi + lu-ma", List.of(7, 8, 9), minCount);

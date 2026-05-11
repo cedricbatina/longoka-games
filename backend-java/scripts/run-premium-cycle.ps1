@@ -44,7 +44,12 @@ function Assert-LanguageReleaseWindow {
     [string]$Value
   )
 
-  $normalized = [string]::IsNullOrWhiteSpace($Mode) ? "kg" : $Mode.Trim().ToLowerInvariant()
+  if ([string]::IsNullOrWhiteSpace($Mode)) {
+    $normalized = "kg"
+  }
+  else {
+    $normalized = $Mode.Trim().ToLowerInvariant()
+  }
   if ($normalized -ne "ln" -and $normalized -ne "lingala") {
     return
   }
@@ -103,6 +108,37 @@ $ProfileRotationSets = @{
   domino = @(
     @("class-1-singular", "class-lu-family-singular"),
     @("class-mu-family-singular", "class-bu-ku-family-singular"),
+    @("radical-sa-verbs", "class-1-singular")
+  )
+}
+
+$normalizedLanguages = @(
+  @($LanguageMode -split ',') | ForEach-Object { $_.Trim().ToLowerInvariant() } | Where-Object { $_ }
+)
+$isKikongoOnlyCycle = $normalizedLanguages.Count -eq 1 -and $normalizedLanguages[0] -eq "kg"
+
+if ($isKikongoOnlyCycle) {
+  $ProfileRotationSets.wordsearch = @(
+    @("class-1-singular", "mixed-verbs-nouns-singular"),
+    @("nouns-singular", "verbs-only"),
+    @("class-lu-family-singular", "class-mu-family-singular"),
+    @("class-bu-ku-family-singular", "class-ki-fi-family-singular")
+  )
+  $ProfileRotationSets.crossword = @(
+    @("nouns-singular", "verbs-only"),
+    @("mixed-verbs-nouns-singular", "nouns-singular"),
+    @("class-1-singular", "nouns-singular"),
+    @("class-lu-family-singular", "class-ki-fi-family-singular")
+  )
+  $ProfileRotationSets.memory = @(
+    @("class-lu-family-singular", "class-mu-family-singular"),
+    @("mixed-verbs-nouns-singular", "class-1-singular"),
+    @("verbs-only", "nouns-singular"),
+    @("class-bu-ku-family-singular", "class-ki-fi-family-singular")
+  )
+  $ProfileRotationSets.domino = @(
+    @("class-1-singular", "class-lu-family-singular"),
+    @("class-mu-family-singular", "class-ki-fi-family-singular"),
     @("radical-sa-verbs", "class-1-singular")
   )
 }
