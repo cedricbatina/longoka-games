@@ -8,6 +8,8 @@
 #   cd backend-java && bash scripts/run-export-all-premium.sh
 # Variables optionnelles:
 #   CYCLE_ID=20260406  MEANING_LANG=fr  COUNT=48
+# Pour FR+EN : deux passes (MEANING_LANG=fr puis en) → dossiers …-premium-fr et …-premium-en.
+# Sync Longoka : scripts/sync-games-packs.mjs (incrémental, ne supprime pas les anciens packs déjà commités).
 #   TYPES_PER_CYCLE=2  PROFILES_PER_TYPE=2
 #   TYPE_POOL="wordsearch crossword memory domino"  LANGUAGES=kg ou LANGUAGES="kg ln"
 #   ARROWWORD_PROFILE_SET=full|base  (defaut full — jeux de profils complets comme wordsearch ; base pour CI rapide)
@@ -36,8 +38,35 @@ MORPHO_ENTRIES="${MORPHO_ENTRIES:-12}"
 TYPES_PER_CYCLE="${TYPES_PER_CYCLE:-2}"
 PROFILES_PER_TYPE="${PROFILES_PER_TYPE:-2}"
 TYPE_POOL="${TYPE_POOL:-wordsearch crossword memory domino}"
-PREMIUM_LABEL="${PREMIUM_LABEL:-${CYCLE_ID}-semaine-premium}"
 ARROWWORD_PROFILE_SET="${ARROWWORD_PROFILE_SET:-full}"
+
+# Un dossier par cycle + langue de sens (FR/EN ne s'écrasent pas). Si le dossier existe déjà : -run2, -run3…
+# sauf LONGOKA_EXPORT_OVERWRITE=1 (ré-export volontaire dans le même dossier).
+_meaning_suffix="$(printf '%s' "$MEANING_LANG" | tr '[:upper:]' '[:lower:]')"
+case "$_meaning_suffix" in
+  en) ;;
+  fr) _meaning_suffix=fr ;;
+  *) _meaning_suffix=fr ;;
+esac
+# Toujours dériver le dossier de CYCLE_ID + langue de sens (sauf override LONGOKA_PREMIUM_LABEL).
+if [ -n "${LONGOKA_PREMIUM_LABEL:-}" ]; then
+  PREMIUM_LABEL="${LONGOKA_PREMIUM_LABEL}"
+else
+  PREMIUM_LABEL="${CYCLE_ID}-semaine-premium-${_meaning_suffix}"
+fi
+ensure_unique_premium_label() {
+  _base="$1"
+  _label="$_base"
+  _n=2
+  while [ -d "$BACKEND_ROOT/target/packs/$_label" ] && [ "${LONGOKA_EXPORT_OVERWRITE:-}" != "1" ]; do
+    _label="${_base}-run${_n}"
+    _n=$((_n + 1))
+  done
+  printf '%s' "$_label"
+}
+PREMIUM_LABEL="$(ensure_unique_premium_label "$PREMIUM_LABEL")"
+export PREMIUM_LABEL
+echo "PREMIUM_LABEL=$PREMIUM_LABEL (meaningLang=${MEANING_LANG}, overwrite=${LONGOKA_EXPORT_OVERWRITE:-0})"
 
 if ! printf '%s' "$TYPES_PER_CYCLE" | grep -Eq '^[0-9]+$'; then
   TYPES_PER_CYCLE=2
@@ -112,27 +141,27 @@ get_type_profile_sets() {
       printf '%s\n' \
         'class-1-singular mixed-verbs-nouns-singular' \
         'nouns-singular verbs-only' \
-        'class-lu-family-singular class-mu-family-singular' \
-        'class-bu-ku-family-singular mixed-verbs-nouns-singular'
+        'class-lu-tu-lu-zi-lu-ma-singular class-mu-ba-mu-mi-singular' \
+        'class-bu-ma-ku-ma-singular mixed-verbs-nouns-singular'
       ;;
     crossword)
       printf '%s\n' \
         'nouns-singular verbs-only' \
         'mixed-verbs-nouns-singular nouns-singular' \
         'class-1-singular nouns-singular' \
-        'class-lu-family-singular verbs-only'
+        'class-lu-tu-lu-zi-lu-ma-singular verbs-only'
       ;;
     memory)
       printf '%s\n' \
-        'class-lu-family-singular class-mu-family-singular' \
+        'class-lu-tu-lu-zi-lu-ma-singular class-mu-ba-mu-mi-singular' \
         'mixed-verbs-nouns-singular class-1-singular' \
         'verbs-only nouns-singular' \
-        'class-bu-ku-family-singular class-1-singular'
+        'class-bu-ma-ku-ma-singular class-1-singular'
       ;;
     domino)
       printf '%s\n' \
-        'class-1-singular class-lu-family-singular' \
-        'class-mu-family-singular class-bu-ku-family-singular' \
+        'class-1-singular class-lu-tu-lu-zi-lu-ma-singular' \
+        'class-mu-ba-mu-mi-singular class-bu-ma-ku-ma-singular' \
         'radical-sa-verbs class-1-singular'
       ;;
     *)

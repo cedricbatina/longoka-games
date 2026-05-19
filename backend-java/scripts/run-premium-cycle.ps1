@@ -84,30 +84,45 @@ if ($env:LONGOKA_CADENCE) {
 
 # Même logique que le standard hebdo : un libellé de semaine unique pour tout le lot.
 # Les anciens packs du même label sont conservés; le script n'efface rien.
-$PremiumLabel = "$CycleId-semaine-premium"
+$meaningSuffix = if ($MeaningLang.Trim().ToLowerInvariant().StartsWith('en')) { 'en' } else { 'fr' }
+# LONGOKA_PREMIUM_LABEL = override explicite ; ne pas réutiliser PREMIUM_LABEL d'un export FR précédent dans la même session PS.
+$PremiumLabelBase = if ($env:LONGOKA_PREMIUM_LABEL -and $env:LONGOKA_PREMIUM_LABEL.Trim()) {
+  $env:LONGOKA_PREMIUM_LABEL.Trim()
+} else {
+  "$CycleId-semaine-premium-$meaningSuffix"
+}
+$PremiumLabel = $PremiumLabelBase
+$packsRoot = Join-Path (Resolve-Path (Join-Path $PSScriptRoot "..")) "target\packs"
+$n = 2
+while ((Test-Path -LiteralPath (Join-Path $packsRoot $PremiumLabel)) -and $env:LONGOKA_EXPORT_OVERWRITE -ne '1') {
+  $PremiumLabel = "$PremiumLabelBase-run$n"
+  $n++
+}
+$env:PREMIUM_LABEL = $PremiumLabel
+Write-Host "PREMIUM_LABEL=$PremiumLabel (meaningLang=$MeaningLang overwrite=$($env:LONGOKA_EXPORT_OVERWRITE))"
 
 $ProfileRotationSets = @{
   wordsearch = @(
     @("class-1-singular", "mixed-verbs-nouns-singular"),
     @("nouns-singular", "verbs-only"),
-    @("class-lu-family-singular", "class-mu-family-singular"),
-    @("class-bu-ku-family-singular", "mixed-verbs-nouns-singular")
+    @("class-lu-tu-lu-zi-lu-ma-singular", "class-mu-ba-mu-mi-singular"),
+    @("class-bu-ma-ku-ma-singular", "mixed-verbs-nouns-singular")
   )
   crossword = @(
     @("nouns-singular", "verbs-only"),
     @("mixed-verbs-nouns-singular", "nouns-singular"),
     @("class-1-singular", "nouns-singular"),
-    @("class-lu-family-singular", "verbs-only")
+    @("class-lu-tu-lu-zi-lu-ma-singular", "verbs-only")
   )
   memory = @(
-    @("class-lu-family-singular", "class-mu-family-singular"),
+    @("class-lu-tu-lu-zi-lu-ma-singular", "class-mu-ba-mu-mi-singular"),
     @("mixed-verbs-nouns-singular", "class-1-singular"),
     @("verbs-only", "nouns-singular"),
-    @("class-bu-ku-family-singular", "class-1-singular")
+    @("class-bu-ma-ku-ma-singular", "class-1-singular")
   )
   domino = @(
-    @("class-1-singular", "class-lu-family-singular"),
-    @("class-mu-family-singular", "class-bu-ku-family-singular"),
+    @("class-1-singular", "class-lu-tu-lu-zi-lu-ma-singular"),
+    @("class-mu-ba-mu-mi-singular", "class-bu-ma-ku-ma-singular"),
     @("radical-sa-verbs", "class-1-singular")
   )
 }
@@ -121,24 +136,24 @@ if ($isKikongoOnlyCycle) {
   $ProfileRotationSets.wordsearch = @(
     @("class-1-singular", "mixed-verbs-nouns-singular"),
     @("nouns-singular", "verbs-only"),
-    @("class-lu-family-singular", "class-mu-family-singular"),
-    @("class-bu-ku-family-singular", "class-ki-fi-family-singular")
+    @("class-lu-tu-lu-zi-lu-ma-singular", "class-mu-ba-mu-mi-singular"),
+    @("class-bu-ma-ku-ma-singular", "class-ki-bi-fi-bi-singular")
   )
   $ProfileRotationSets.crossword = @(
     @("nouns-singular", "verbs-only"),
     @("mixed-verbs-nouns-singular", "nouns-singular"),
     @("class-1-singular", "nouns-singular"),
-    @("class-lu-family-singular", "class-ki-fi-family-singular")
+    @("class-lu-tu-lu-zi-lu-ma-singular", "class-ki-bi-fi-bi-singular")
   )
   $ProfileRotationSets.memory = @(
-    @("class-lu-family-singular", "class-mu-family-singular"),
+    @("class-lu-tu-lu-zi-lu-ma-singular", "class-mu-ba-mu-mi-singular"),
     @("mixed-verbs-nouns-singular", "class-1-singular"),
     @("verbs-only", "nouns-singular"),
-    @("class-bu-ku-family-singular", "class-ki-fi-family-singular")
+    @("class-bu-ma-ku-ma-singular", "class-ki-bi-fi-bi-singular")
   )
   $ProfileRotationSets.domino = @(
-    @("class-1-singular", "class-lu-family-singular"),
-    @("class-mu-family-singular", "class-ki-fi-family-singular"),
+    @("class-1-singular", "class-lu-tu-lu-zi-lu-ma-singular"),
+    @("class-mu-ba-mu-mi-singular", "class-ki-bi-fi-bi-singular"),
     @("radical-sa-verbs", "class-1-singular")
   )
 }
@@ -221,6 +236,23 @@ if ($ArrowwordProfileSet -eq "base") {
   $arrowwordExtra = "$arrowwordExtra --profileSet base"
 }
 
+function Format-ProfileLogLine {
+  param([string[]]$ProfileIds)
+
+  $labels = @{
+    'class-mu-ba-mu-mi-singular' = 'mu-ba + mu-mi (2 classes, sing.)'
+    'class-mu-ba-mu-mi-plural' = 'mu-ba + mu-mi (2 classes, plur.)'
+    'class-bu-ma-ku-ma-singular' = 'bu-ma + ku-ma (2 classes, sing.)'
+    'class-lu-tu-lu-zi-lu-ma-singular' = 'lu-tu + lu-zi + lu-ma (3 classes, sing.)'
+    'class-ki-bi-fi-bi-singular' = 'ki-bi + fi-bi (2 classes, sing.)'
+  }
+
+  ($ProfileIds | ForEach-Object {
+    $id = $_
+  if ($labels.ContainsKey($id)) { "$id → $($labels[$id])" } else { $id }
+  }) -join ', '
+}
+
 function Invoke-PremiumGen {
   param(
     [string]$Type,
@@ -238,7 +270,7 @@ function Invoke-PremiumGen {
 
   Write-Host "Running premium generation: cadence=$cadence type=$Type label=$Label languages=$LanguageMode"
   if ($Profiles -and $Profiles.Count -gt 0) {
-    Write-Host "  profiles=$($Profiles -join ', ')"
+    Write-Host "  profiles=$(Format-ProfileLogLine -ProfileIds $Profiles)"
   }
   & mvn -q -DskipTests compile exec:java "-Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool" "-Dexec.args=$execArgs"
 

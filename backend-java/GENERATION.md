@@ -1,34 +1,94 @@
 # Génération des packs (JSON)
 
+Dépôt **longoka-games** → sortie consommée par l’app **Longoka** (`D:\works\lectures\longoka`).
+
 ## Outil principal
 
-- Classe : `com.longoka.games.app.BiweeklyPuzzleBatchTool`
-- Sortie : sous **`target/packs/<label>/`** (un seul arbre ; plus de dossiers `weekly/` vs `biweekly/`).
-- `--cadence` : **`weekly`** (valeur par défaut). `biweekly` est accepté en alias et **normalisé vers `weekly`** (un seul `meta.exportCadence`). **`meta.scope`** est toujours `longoka-batch`. Les **`packId`** utilisent le segment `-batch-` + date.
-- Anciens dossiers **`target/weekly`** / **`target/biweekly`** encore présents sur le disque : **`scripts/merge-legacy-cadence-target-dirs.ps1`** les copie sous **`target/packs/`** (puis suppression manuelle des sources si OK).
+| Élément | Détail |
+|--------|--------|
+| Classe | `com.longoka.games.app.BiweeklyPuzzleBatchTool` |
+| Sortie | **`target/packs/<label>/`** (ex. `20260513-semaine-premium`) |
+| Cadence | `--cadence weekly` (défaut). `biweekly` → normalisé **`weekly`** dans `meta.exportCadence` |
+| Fichiers | `kg-…-wordsearch-pack.v1.json`, `ln-…`, etc. |
+| Sens (glosses) | `--meaningLang fr` ou `en` → champ `meaningLanguage` + `meta.book.meaningLanguage` |
 
-## Commande type (Maven)
+Anciens dossiers `target/weekly` / `target/biweekly` : fusionner avec **`scripts/merge-legacy-cadence-target-dirs.ps1`** si besoin.
+
+## Entrées rapides
+
+### Windows (PowerShell, sans Git Bash)
+
+```powershell
+cd D:\works\lectures\longoka-games\backend-java
+
+# Un cycle, une langue de sens
+.\scripts\run-premium-cycle.ps1 -MeaningLang fr -LanguageMode kg
+
+# FR + EN (recommandé avant sync Longoka)
+.\scripts\run-export-fr-en-premium.ps1 -LanguageMode kg
+
+# FR + EN + sync vers Longoka
+.\scripts\run-export-fr-en-premium.ps1 -SyncToLongoka
+```
+
+### Linux / macOS / GitHub Actions
 
 ```bash
 cd backend-java
-mvn -q -DskipTests compile exec:java ^
-  "-Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool" ^
-  "-Dexec.args=--cadence weekly --count 24 --rows 12 --cols 12 --maxEntries 10 --meaningLang fr --type wordsearch --label ma-vague"
+export LEX_KG_DB_HOST=… LEX_KG_DB_USER=… LEX_KG_DB_PASS=… LEX_KG_DB_NAME=…
+# optionnel Lingala : LEX_LN_DB_*
+
+bash scripts/run-export-all-pro.sh          # = run-export-all-premium.sh, MEANING_LANG=fr
+MEANING_LANG=en bash scripts/run-export-all-pro.sh
 ```
 
-Voir `scripts/run-bihebdo-cycle.ps1` (bihebdo : wordsearch + crossword, option `-IncludeMorphoPacks`) et les scripts `run-premium-cycle*.ps1` pour les gammes complètes.
+Variables utiles : `CYCLE_ID`, `MEANING_LANG`, `LANGUAGES=kg` ou `kg ln`, `COUNT=48`, `TYPE_POOL`, `LONGOKA_CADENCE=weekly`.
+
+### Lingala (production)
+
+Tant que `CYCLE_ID` (8 premiers chiffres `yyyyMMdd`) est **&lt; `LONGOKA_LINGALA_UNLOCK_DATE`** (défaut **`20260619`**), l’export **ln** est refusé par `run-export-all-premium.sh`.
+
+La **vitrine publique** Longoka applique en plus un retard (ex. 90 j) via `GAMES_PUBLIC_MIN_AGE_DAYS_LN` sur Vercel.
+
+## Dossiers d’export (ne pas écraser)
+
+| Règle | Détail |
+|--------|--------|
+| FR / EN | Dossiers séparés : `…-semaine-premium-fr` et `…-semaine-premium-en` |
+| Re-run même jour | Si le dossier existe : `…-run2`, `…-run3` (sauf `LONGOKA_EXPORT_OVERWRITE=1`) |
+| Historique | Les anciens dossiers sous `target/packs/` restent sur le disque |
+
+Au sync, Longoka ajoute **`-fr` / `-en`** sur le nom de fichier et, en cas de collision dans `server/data/games/`, **`--<nom-du-dossier-cycle>`**.
 
 ## Méta consommée par Longoka / InDesign
 
-- `finalizePackBookMeta` dans `BiweeklyPuzzleBatchTool` remplit `meta.book` (titre, ISBN, etc.).
-- `PackMeaningMeta` (package `com.longoka.games.meta`) pose :
-  - `meta.translationsSingularOnly` (défaut `true`)
-  - `meta.includesPluralGameForms` (inféré depuis profils / titres, aligné serveur Longoka)
+- `finalizePackBookMeta` : `meta.book` (titre, ISBN, dates publication, etc.)
+- `PackMeaningMeta` : `translationsSingularOnly`, `includesPluralGameForms`
+- Scripts **`../for Indesign/`** : couvertures, grilles, `LG.meaningLanguageFromPack(pack)`
 
-Les scripts InDesign sous `../for Indesign/` lisent ces champs pour le texte « Sens FR/EN » sur la page Mode d’emploi (`LG.lexiconPolicyTextFromPack`).
+Config DB : **`config/README.txt`**, surcharge CI via `LEX_KG_DB_*` / `LEX_LN_DB_*`.
 
-## Automatisation (CI + sync vers l’app)
+ISBN réel : `LONGOKA_BOOK_ISBN` ou `-Dlongoka.book.isbn=978…`
 
-Le dépôt **Longoka** (app / `longoka-premium`) peut exécuter **chaque semaine** l’export complet (`run-export-all-premium.sh`), copier les JSON dans `server/data/games` et pousser un commit. Configuration des secrets GitHub, variables et horaires : **`.github/GAMES_AUTOMATION.md`** dans ce dépôt Longoka (pas dans `longoka-games`).
+## Sync vers Longoka (local)
 
-En local sans CI : Planificateur de tâches Windows ou `cron`, en pointant sur les scripts de ce dossier `scripts/` (Maven + variables `LEX_*_DB_*`).
+```powershell
+cd D:\works\lectures\longoka
+$env:GAMES_PACKS_SOURCE = "D:\works\lectures\longoka-games\backend-java\target"
+node scripts/sync-games-packs.mjs --cadence=all
+node scripts/generate-games-bundle.mjs
+```
+
+## CI (automatique)
+
+Le workflow vit dans le dépôt **longoka** (pas ici) : clone `longoka-games`, `run-export-all-pro.sh` (FR + EN), sync, commit `server/data/games`.
+
+Voir **`../longoka/.github/GAMES_AUTOMATION.md`**.
+
+## Commande Maven manuelle
+
+```bash
+mvn -q -DskipTests compile exec:java \
+  -Dexec.mainClass=com.longoka.games.app.BiweeklyPuzzleBatchTool \
+  -Dexec.args="--cadence weekly --count 48 --meaningLang fr --language kg --type wordsearch --label 20260513-semaine-premium --tier premium"
+```

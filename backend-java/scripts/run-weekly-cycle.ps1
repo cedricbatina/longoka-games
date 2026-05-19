@@ -14,21 +14,21 @@ $ErrorActionPreference = "Stop"
 $ProfileRotationSets = @{
   wordsearch = @(
     "class-1-singular",
-    "class-lu-family-singular",
-    "class-mu-family-singular",
-    "class-bu-ku-family-singular",
+    "class-lu-tu-lu-zi-lu-ma-singular",
+    "class-mu-ba-mu-mi-singular",
+    "class-bu-ma-ku-ma-singular",
     "mixed-verbs-nouns-singular"
   )
   crossword = @(
     "class-1-singular",
-    "class-lu-family-singular",
-    "class-mu-family-singular",
-    "class-bu-ku-family-singular",
+    "class-lu-tu-lu-zi-lu-ma-singular",
+    "class-mu-ba-mu-mi-singular",
+    "class-bu-ma-ku-ma-singular",
     "mixed-verbs-nouns-singular"
   )
   anagram = @(
     "class-1-singular",
-    "class-lu-family-singular",
+    "class-lu-tu-lu-zi-lu-ma-singular",
     "radical-sa-verbs",
     "mixed-verbs-nouns-singular",
     "verbs-only"
