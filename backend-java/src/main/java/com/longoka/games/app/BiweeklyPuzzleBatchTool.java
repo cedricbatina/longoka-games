@@ -1245,7 +1245,7 @@ public final class BiweeklyPuzzleBatchTool {
     pack.meaningLanguage = meaningLang;
     pack.meta = buildPackMeta(language, combination, "domino", editionTier, packDifficulty, meaningLang, puzzles.size());
     pack.meta.put("relationType", dominoRelationType(combination));
-    pack.meta.put("layout", "chain");
+    pack.meta.put("layout", dominoLayout(combination));
     pack.meta.put("tileTarget", safeTileTarget);
     pack.meta.put("targetItems", safeTileTarget);
     finalizePackBookMeta(

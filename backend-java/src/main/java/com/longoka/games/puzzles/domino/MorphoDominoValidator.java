@@ -59,7 +59,9 @@ public final class MorphoDominoValidator {
       require(seenInSolution.add(tileId), "tile repetee dans solutionOrder: " + tileId);
     }
 
-    validateChain(puzzle.solutionOrder, tilesById);
+    if ("chain".equalsIgnoreCase(puzzle.layout)) {
+      validateChain(puzzle.solutionOrder, tilesById);
+    }
   }
 
   private static void validateTile(MorphoDominoJsonModels.TileV1 tile) {
