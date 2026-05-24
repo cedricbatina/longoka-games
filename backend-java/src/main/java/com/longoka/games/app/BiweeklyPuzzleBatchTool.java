@@ -592,13 +592,17 @@ public final class BiweeklyPuzzleBatchTool {
         if (!supportsMorphoDomino(combination)) {
           continue;
         }
-        MorphoDominoJsonModels.PackV1 pack = generateMorphoDominoPack(
-            conn, language, combination, puzzleCount, maxEntries, meaningLang, editionTier, requestedDifficulty, random);
-        if (pack != null && pack.puzzles != null && !pack.puzzles.isEmpty()) {
-          Path path = outDir.resolve(language.code + "-" + publicProfileToken(combination) + "-domino-pack.v1.json");
-          mapper.writeValue(path.toFile(), pack);
-          System.out.println("- weekly selected " + language.code + " / domino / " + combination.id);
-          break;
+        try {
+          MorphoDominoJsonModels.PackV1 pack = generateMorphoDominoPack(
+              conn, language, combination, puzzleCount, maxEntries, meaningLang, editionTier, requestedDifficulty, random);
+          if (pack != null && pack.puzzles != null && !pack.puzzles.isEmpty()) {
+            Path path = outDir.resolve(language.code + "-" + publicProfileToken(combination) + "-domino-pack.v1.json");
+            mapper.writeValue(path.toFile(), pack);
+            System.out.println("- weekly selected " + language.code + " / domino / " + combination.id);
+            break;
+          }
+        } catch (Exception ex) {
+          System.err.println("- weekly fallback " + language.code + " / domino failed " + combination.id + ": " + ex.getMessage());
         }
         System.out.println("- weekly fallback " + language.code + " / domino skipped " + combination.id);
       }
@@ -1218,18 +1222,22 @@ public final class BiweeklyPuzzleBatchTool {
     String packDifficulty = resolveDifficulty(requestedDifficulty, editionTier);
 
     for (int i = 1; i <= puzzleCount; i++) {
-      MorphoDominoJsonModels.PuzzleV1 puzzle = buildMorphoDominoPuzzle(
-          conn,
-          language,
-          combination,
-          safeTileTarget,
-          meaningLang,
-          editionTier,
-          packDifficulty,
-          random,
-          i);
-      if (puzzle != null) {
-        puzzles.add(puzzle);
+      try {
+        MorphoDominoJsonModels.PuzzleV1 puzzle = buildMorphoDominoPuzzle(
+            conn,
+            language,
+            combination,
+            safeTileTarget,
+            meaningLang,
+            editionTier,
+            packDifficulty,
+            random,
+            i);
+        if (puzzle != null) {
+          puzzles.add(puzzle);
+        }
+      } catch (RuntimeException ex) {
+        System.err.println("- domino puzzle " + i + " skipped: " + ex.getMessage());
       }
     }
 
@@ -1742,7 +1750,7 @@ public final class BiweeklyPuzzleBatchTool {
     puzzle.difficulty = difficulty;
     puzzle.title = titleFor(language, combination, "domino", editionTier, meaningLanguage);
     puzzle.theme = themeFor(combination, meaningLanguage);
-    String layout = combination.morphologyProfile == MorphologyProfileMode.GENERAL ? "pairs" : "chain";
+    String layout = dominoLayout(combination);
     puzzle.relationType = relationType;
     puzzle.layout = layout;
     puzzle.tiles = tiles;
@@ -4049,6 +4057,10 @@ public final class BiweeklyPuzzleBatchTool {
       return "form-translation";
     }
     return "radical-family";
+  }
+
+  private static String dominoLayout(CombinationProfile combination) {
+    return combination.morphologyProfile == MorphologyProfileMode.GENERAL ? "pairs" : "chain";
   }
 
   private static String dominoAnchorKind(CombinationProfile combination) {
