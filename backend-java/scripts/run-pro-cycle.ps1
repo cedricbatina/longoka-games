@@ -13,7 +13,7 @@ param(
   [int]$MorphoEntries = 12,
   [int]$TypesPerCycle = 2,
   [int]$ProfilesPerType = 2,
-  [string[]]$TypePool = @("wordsearch", "crossword", "memory", "domino"),
+  [string[]]$TypePool = @("wordsearch", "crossword", "arrowword", "memory", "domino"),
   [ValidateSet("full", "base")]
   [string]$ArrowwordProfileSet = "full"
 )

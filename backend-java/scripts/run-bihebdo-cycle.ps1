@@ -58,7 +58,7 @@ function Get-RotationIndex {
   if ($days -lt 0) {
     $days = 0
   }
-  return [int][math]::Floor($days / 7)
+  return [int][math]::Floor($days / 14)
 }
 
 function Get-ProfileForType {

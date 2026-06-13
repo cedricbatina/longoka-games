@@ -23,7 +23,7 @@ param(
   [int]$MorphoEntries = 12,
   [int]$TypesPerCycle = 2,
   [int]$ProfilesPerType = 2,
-  [string[]]$TypePool = @("wordsearch", "crossword", "memory", "domino"),
+  [string[]]$TypePool = @("wordsearch", "crossword", "arrowword", "memory", "domino"),
   [ValidateSet("full", "base")]
   [string]$ArrowwordProfileSet = "full"
 )
@@ -114,6 +114,12 @@ $ProfileRotationSets = @{
     @("class-1-singular", "nouns-singular"),
     @("class-lu-tu-lu-zi-lu-ma-singular", "verbs-only")
   )
+  arrowword = @(
+    @("nouns-singular", "verbs-only"),
+    @("mixed-verbs-nouns-singular", "nouns-singular"),
+    @("class-1-singular", "nouns-singular"),
+    @("class-lu-tu-lu-zi-lu-ma-singular", "verbs-only")
+  )
   memory = @(
     @("class-lu-tu-lu-zi-lu-ma-singular", "class-mu-ba-mu-mi-singular"),
     @("mixed-verbs-nouns-singular", "class-1-singular"),
@@ -140,6 +146,12 @@ if ($isKikongoOnlyCycle) {
     @("class-bu-ma-ku-ma-singular", "class-ki-bi-fi-bi-singular")
   )
   $ProfileRotationSets.crossword = @(
+    @("nouns-singular", "verbs-only"),
+    @("mixed-verbs-nouns-singular", "nouns-singular"),
+    @("class-1-singular", "nouns-singular"),
+    @("class-lu-tu-lu-zi-lu-ma-singular", "class-ki-bi-fi-bi-singular")
+  )
+  $ProfileRotationSets.arrowword = @(
     @("nouns-singular", "verbs-only"),
     @("mixed-verbs-nouns-singular", "nouns-singular"),
     @("class-1-singular", "nouns-singular"),
@@ -179,7 +191,7 @@ function Get-RotationIndex {
   if ($days -lt 0) {
     $days = 0
   }
-  return [int][math]::Floor($days / 7)
+  return [int][math]::Floor($days / 14)
 }
 
 function Get-RotationWindow {

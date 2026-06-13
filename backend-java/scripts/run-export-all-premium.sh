@@ -37,7 +37,7 @@ GRID_ENTRIES="${GRID_ENTRIES:-16}"
 MORPHO_ENTRIES="${MORPHO_ENTRIES:-12}"
 TYPES_PER_CYCLE="${TYPES_PER_CYCLE:-2}"
 PROFILES_PER_TYPE="${PROFILES_PER_TYPE:-2}"
-TYPE_POOL="${TYPE_POOL:-wordsearch crossword memory domino}"
+TYPE_POOL="${TYPE_POOL:-wordsearch arrowword memory domino scrabble anagram}"
 ARROWWORD_PROFILE_SET="${ARROWWORD_PROFILE_SET:-full}"
 
 # Un dossier par cycle + langue de sens (FR/EN ne s'écrasent pas). Si le dossier existe déjà : -run2, -run3…
@@ -132,7 +132,7 @@ get_rotation_index() {
   if [ "$diff_days" -lt 0 ]; then
     diff_days=0
   fi
-  echo $(( diff_days / 7 ))
+  echo $(( diff_days / 14 ))
 }
 
 get_type_profile_sets() {
@@ -145,6 +145,13 @@ get_type_profile_sets() {
         'class-bu-ma-ku-ma-singular mixed-verbs-nouns-singular'
       ;;
     crossword)
+      printf '%s\n' \
+        'nouns-singular verbs-only' \
+        'mixed-verbs-nouns-singular nouns-singular' \
+        'class-1-singular nouns-singular' \
+        'class-lu-tu-lu-zi-lu-ma-singular verbs-only'
+      ;;
+    arrowword)
       printf '%s\n' \
         'nouns-singular verbs-only' \
         'mixed-verbs-nouns-singular nouns-singular' \
