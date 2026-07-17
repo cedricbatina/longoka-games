@@ -2,6 +2,7 @@ package com.longoka.games.app;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.longoka.games.meta.PackFileNaming;
 import com.longoka.games.meta.PackMeaningMeta;
 import com.longoka.games.lexikongo.BantuSyllableSplitter;
 import com.longoka.games.lexikongo.LexMeaning;
@@ -407,7 +408,7 @@ public final class BiweeklyPuzzleBatchTool {
                 requestedDifficulty,
                 random);
             if (wordSearchPack != null && wordSearchPack.puzzles != null && !wordSearchPack.puzzles.isEmpty()) {
-              Path wsPath = outDir.resolve(language.code + "-" + exportProfileToken + "-wordsearch-pack.v1.json");
+              Path wsPath = outDir.resolve(PackFileNaming.packFilename(language.code, exportProfileToken, "wordsearch"));
               mapper.writeValue(wsPath.toFile(), wordSearchPack);
             }
           }
@@ -426,7 +427,7 @@ public final class BiweeklyPuzzleBatchTool {
                 requestedDifficulty,
                 random);
             if (crosswordPack != null && crosswordPack.puzzles != null && !crosswordPack.puzzles.isEmpty()) {
-              Path cwPath = outDir.resolve(language.code + "-" + exportProfileToken + "-crossword-pack.v1.json");
+              Path cwPath = outDir.resolve(PackFileNaming.packFilename(language.code, exportProfileToken, "crossword"));
               mapper.writeValue(cwPath.toFile(), crosswordPack);
             }
           }
@@ -445,7 +446,7 @@ public final class BiweeklyPuzzleBatchTool {
                 requestedDifficulty,
                 random);
             if (arrowwordPack != null && arrowwordPack.puzzles != null && !arrowwordPack.puzzles.isEmpty()) {
-              Path awPath = outDir.resolve(language.code + "-" + exportProfileToken + "-arrowword-pack.v1.json");
+              Path awPath = outDir.resolve(PackFileNaming.packFilename(language.code, exportProfileToken, "arrowword"));
               mapper.writeValue(awPath.toFile(), arrowwordPack);
             }
           }
@@ -463,7 +464,7 @@ public final class BiweeklyPuzzleBatchTool {
                 requestedDifficulty,
                 random);
             if (dominoPack != null && dominoPack.puzzles != null && !dominoPack.puzzles.isEmpty()) {
-              Path dmPath = outDir.resolve(language.code + "-" + exportProfileToken + "-domino-pack.v1.json");
+              Path dmPath = outDir.resolve(PackFileNaming.packFilename(language.code, exportProfileToken, "domino"));
               mapper.writeValue(dmPath.toFile(), dominoPack);
             }
           }
@@ -480,7 +481,7 @@ public final class BiweeklyPuzzleBatchTool {
                 requestedDifficulty,
                 random);
             if (memoryPack != null && memoryPack.puzzles != null && !memoryPack.puzzles.isEmpty()) {
-              Path mmPath = outDir.resolve(language.code + "-" + exportProfileToken + "-memory-pack.v1.json");
+              Path mmPath = outDir.resolve(PackFileNaming.packFilename(language.code, exportProfileToken, "memory"));
               mapper.writeValue(mmPath.toFile(), memoryPack);
             }
           }
@@ -497,7 +498,7 @@ public final class BiweeklyPuzzleBatchTool {
                 requestedDifficulty,
                 random);
             if (scrabblePack != null && scrabblePack.puzzles != null && !scrabblePack.puzzles.isEmpty()) {
-              Path slPath = outDir.resolve(language.code + "-" + exportProfileToken + "-scrabble-pack.v1.json");
+              Path slPath = outDir.resolve(PackFileNaming.packFilename(language.code, exportProfileToken, "scrabble"));
               mapper.writeValue(slPath.toFile(), scrabblePack);
             }
           }
@@ -514,7 +515,7 @@ public final class BiweeklyPuzzleBatchTool {
                 requestedDifficulty,
                 random);
             if (anagramPack != null && anagramPack.puzzles != null && !anagramPack.puzzles.isEmpty()) {
-              Path maPath = outDir.resolve(language.code + "-" + exportProfileToken + "-anagram-pack.v1.json");
+              Path maPath = outDir.resolve(PackFileNaming.packFilename(language.code, exportProfileToken, "anagram"));
               mapper.writeValue(maPath.toFile(), anagramPack);
             }
           }
@@ -547,7 +548,7 @@ public final class BiweeklyPuzzleBatchTool {
         WordSearchJsonModels.PackV1 pack = generateWordSearchPack(
             conn, language, combination, puzzleCount, rows, cols, maxEntries, meaningLang, editionTier, requestedDifficulty, random);
         if (pack != null && pack.puzzles != null && !pack.puzzles.isEmpty()) {
-          Path path = outDir.resolve(language.code + "-" + publicProfileToken(combination) + "-wordsearch-pack.v1.json");
+          Path path = outDir.resolve(PackFileNaming.packFilename(language.code, publicProfileToken(combination), "wordsearch"));
           mapper.writeValue(path.toFile(), pack);
           System.out.println("- weekly selected " + language.code + " / wordsearch / " + combination.id);
           break;
@@ -562,7 +563,7 @@ public final class BiweeklyPuzzleBatchTool {
         CrosswordJsonModels.PackV1 pack = generateCrosswordPack(
             conn, language, combination, puzzleCount, rows, cols, maxEntries, meaningLang, editionTier, requestedDifficulty, random);
         if (pack != null && pack.puzzles != null && !pack.puzzles.isEmpty()) {
-          Path path = outDir.resolve(language.code + "-" + publicProfileToken(combination) + "-crossword-pack.v1.json");
+          Path path = outDir.resolve(PackFileNaming.packFilename(language.code, publicProfileToken(combination), "crossword"));
           mapper.writeValue(path.toFile(), pack);
           System.out.println("- weekly selected " + language.code + " / crossword / " + combination.id);
           break;
@@ -577,7 +578,7 @@ public final class BiweeklyPuzzleBatchTool {
         ArrowwordJsonModels.PackV1 pack = generateArrowwordPack(
             conn, language, combination, puzzleCount, rows, cols, maxEntries, meaningLang, editionTier, requestedDifficulty, random);
         if (pack != null && pack.puzzles != null && !pack.puzzles.isEmpty()) {
-          Path path = outDir.resolve(language.code + "-" + publicProfileToken(combination) + "-arrowword-pack.v1.json");
+          Path path = outDir.resolve(PackFileNaming.packFilename(language.code, publicProfileToken(combination), "arrowword"));
           mapper.writeValue(path.toFile(), pack);
           System.out.println("- weekly selected " + language.code + " / arrowword / " + combination.id);
           break;
@@ -596,7 +597,7 @@ public final class BiweeklyPuzzleBatchTool {
           MorphoDominoJsonModels.PackV1 pack = generateMorphoDominoPack(
               conn, language, combination, puzzleCount, maxEntries, meaningLang, editionTier, requestedDifficulty, random);
           if (pack != null && pack.puzzles != null && !pack.puzzles.isEmpty()) {
-            Path path = outDir.resolve(language.code + "-" + publicProfileToken(combination) + "-domino-pack.v1.json");
+            Path path = outDir.resolve(PackFileNaming.packFilename(language.code, publicProfileToken(combination), "domino"));
             mapper.writeValue(path.toFile(), pack);
             System.out.println("- weekly selected " + language.code + " / domino / " + combination.id);
             break;
@@ -614,7 +615,7 @@ public final class BiweeklyPuzzleBatchTool {
         MemoryMatchJsonModels.PackV1 pack = generateMemoryMatchPack(
             conn, language, combination, puzzleCount, maxEntries, meaningLang, editionTier, requestedDifficulty, random);
         if (pack != null && pack.puzzles != null && !pack.puzzles.isEmpty()) {
-          Path path = outDir.resolve(language.code + "-" + publicProfileToken(combination) + "-memory-pack.v1.json");
+          Path path = outDir.resolve(PackFileNaming.packFilename(language.code, publicProfileToken(combination), "memory"));
           mapper.writeValue(path.toFile(), pack);
           System.out.println("- weekly selected " + language.code + " / memory / " + combination.id);
           break;
@@ -629,7 +630,7 @@ public final class BiweeklyPuzzleBatchTool {
         ScrabbleLikeJsonModels.PackV1 pack = generateScrabbleLikePack(
             conn, language, combination, puzzleCount, maxEntries, meaningLang, editionTier, requestedDifficulty, random);
         if (pack != null && pack.puzzles != null && !pack.puzzles.isEmpty()) {
-          Path path = outDir.resolve(language.code + "-" + publicProfileToken(combination) + "-scrabble-pack.v1.json");
+          Path path = outDir.resolve(PackFileNaming.packFilename(language.code, publicProfileToken(combination), "scrabble"));
           mapper.writeValue(path.toFile(), pack);
           System.out.println("- weekly selected " + language.code + " / scrabble / " + combination.id);
           break;
@@ -644,7 +645,7 @@ public final class BiweeklyPuzzleBatchTool {
         MorphoAnagramJsonModels.PackV1 pack = generateMorphoAnagramPack(
             conn, language, combination, puzzleCount, maxEntries, meaningLang, editionTier, requestedDifficulty, random);
         if (pack != null && pack.puzzles != null && !pack.puzzles.isEmpty()) {
-          Path path = outDir.resolve(language.code + "-" + publicProfileToken(combination) + "-anagram-pack.v1.json");
+          Path path = outDir.resolve(PackFileNaming.packFilename(language.code, publicProfileToken(combination), "anagram"));
           mapper.writeValue(path.toFile(), pack);
           System.out.println("- weekly selected " + language.code + " / anagram / " + combination.id);
           break;

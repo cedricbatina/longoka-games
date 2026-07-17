@@ -9,7 +9,7 @@ Dépôt **longoka-games** → sortie consommée par l’app **Longoka** (`D:\wor
 | Classe | `com.longoka.games.app.BiweeklyPuzzleBatchTool` |
 | Sortie | **`target/packs/<label>/`** (ex. `20260513-semaine-premium`) |
 | Cadence | `--cadence weekly` (défaut). `biweekly` → normalisé **`weekly`** dans `meta.exportCadence` |
-| Fichiers | `kg-…-wordsearch-pack.v1.json`, `ln-…`, etc. |
+| Fichiers | `kg-…-wordsearch-pack-1.0.0.json`, `ln-…` (semver fichier · SSOT `PackFileNaming.FILE_VERSION`) |
 | Sens (glosses) | `--meaningLang fr` ou `en` → champ `meaningLanguage` + `meta.book.meaningLanguage` |
 
 Anciens dossiers `target/weekly` / `target/biweekly` : fusionner avec **`scripts/merge-legacy-cadence-target-dirs.ps1`** si besoin.
