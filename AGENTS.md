@@ -1,10 +1,12 @@
 # AGENTS.md — longoka-games
 
+> **Alerte P1b** : si un lot touche *Fondements du kikongo classique* (course_id 3), appliquer la gate stricte avant toute integration ou synchro. Voir `D:\works\lectures\.cursor\rules\p1b-kikongo-mode-strict.mdc`.
+>
 Génération de packs jeux (Java) pour Longoka : mots mêlés, anagrammes, dominos, etc.  
 Sorties consommées par `longoka` via sync stationery / games.
 
 > Équipe Codex : `D:\works\lectures\docs\team\CODEX-START.md` · `~/.codex/AGENTS.md`  
-> App Nuxt : voir `D:\works\lectures\longoka\AGENTS.md`
+> App Nuxt : voir `D:\works\lectures\longoka\AGENTS.md` · canon produit : `D:\works\lectures\batina-os\ecosystem\products\longoka.md`
 
 ## Structure
 

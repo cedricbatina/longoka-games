@@ -22,3 +22,8 @@ Documentation détaillée : **`backend-java/GENERATION.md`**.
 1. Export ici → `backend-java/target/packs/…`
 2. Sync → `longoka/scripts/sync-games-packs.mjs` (suffixe `-fr.json` / `-en.json`, enrichissement `meta.book`)
 3. CI GitHub sur **longoka-premium** (secrets `LEX_KG_*`, `LEX_LN_*`) — voir `../longoka/.github/GAMES_AUTOMATION.md`
+
+## 2026-08-04 — Nuit autonomie docs
+
+- Rappel `AGENTS.md` : banniere P1b ajoutee pour eviter tout apply/sync impropre sur les lots lies a *Fondements du kikongo classique*.
+- `data/README.md` cree comme stub documentaire : dossier utile, mais **hors pipeline auto** tant qu'aucun besoin explicite n'est cadre.

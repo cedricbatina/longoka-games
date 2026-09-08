@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "updated": "2026-07-30T17:58:00+02:00",
+    "games_engine": "longoka-games",
+    "not_factory": true,
+    "pilot_lessons": [14, 15, 345, 20, 344],
+    "curation": "manual Cursor — glosses phrasales / noms propres exclus",
+    "next_step": "Adaptateur WordToFind (Java ou JSON intermédiaire) → 1 pack Mufimbi → GAMES_PACKS_SOURCE + pnpm games:sync:dry-run"
+  },
+  "approved": [
+    { "lesson_id": 15, "display": "baena", "grid": "baena", "gloss_fr": "cousins", "status": "approved" },
+    { "lesson_id": 15, "display": "bamama", "grid": "bamama", "gloss_fr": "mamans", "status": "approved" },
+    { "lesson_id": 20, "display": "bunga", "grid": "bunga", "gloss_fr": "gaspiller", "status": "approved" },
+    { "lesson_id": 14, "display": "diambu", "grid": "diambu", "gloss_fr": "affaire / chose", "status": "approved" },
+    { "lesson_id": 14, "display": "kituka", "grid": "kituka", "gloss_fr": "être transformé en", "status": "approved" },
+    { "lesson_id": 20, "display": "mbongo", "grid": "mbongo", "gloss_fr": "argent", "status": "approved" },
+    { "lesson_id": 344, "display": "yiaku", "grid": "yiaku", "gloss_fr": "ton / ta", "status": "approved" },
+    { "lesson_id": 344, "display": "yiame", "grid": "yiame", "gloss_fr": "mon / ma", "status": "approved" },
+    { "lesson_id": 344, "display": "yiandi", "grid": "yiandi", "gloss_fr": "son / sa", "status": "approved" },
+    { "lesson_id": 344, "display": "yiawu", "grid": "yiawu", "gloss_fr": "leur", "status": "approved" }
+  ],
+  "excluded_from_seed": [
+    { "display": "babele", "motif": "glose phrasale contaminée" },
+    { "display": "bakento", "motif": "glose phrasale contaminée" },
+    { "display": "balula", "motif": "glose phrasale / pas un lexème isolé fiable" },
+    { "display": "biti", "motif": "glose phrasale" },
+    { "display": "kintaala", "motif": "glose phrasale" },
+    { "display": "Kongo", "motif": "nom propre + glose phrase" },
+    { "display": "nsombe", "motif": "retiré — glose non vérifiée dans cette passe" },
+    { "display": "nsabi", "motif": "retiré — glose non vérifiée dans cette passe" }
+  ]
+}

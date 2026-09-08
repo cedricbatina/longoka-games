@@ -1,0 +1,756 @@
+{
+  "meta": {
+    "created": "2026-07-30T15:20:39.065Z",
+    "games_engine": "longoka-games",
+    "not_factory": true,
+    "pilot_lessons": [
+      14,
+      15,
+      345,
+      20,
+      344
+    ],
+    "next_step": "Revue Founder des approved → GO adaptateur WordToFind → 1 pack Mufimbi → pnpm games:sync:dry-run"
+  },
+  "stats": {
+    "raw": 667,
+    "unique": 303,
+    "candidates": 244,
+    "approved_seed": 16
+  },
+  "approved": [
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/04-Les états d'être avec les préfixes de la classe nominale mu-ba.html",
+      "display": "babele",
+      "grid": "babele",
+      "gloss_fr": "les femmes sont dehors",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "baena",
+      "grid": "baena",
+      "gloss_fr": "cousins",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/04-Les états d'être avec les préfixes de la classe nominale mu-ba.html",
+      "display": "bakento",
+      "grid": "bakento",
+      "gloss_fr": "les femmes sont dehors",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 14,
+      "source_file": "La conjugaison/lesson-7-le-verbe-etre-dans-tous-ses-etats/chapters/06-L'expression -Être déjà en train de-.html",
+      "display": "balula",
+      "grid": "balula",
+      "gloss_fr": "je suis déjà en train de tourner",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "bamama",
+      "grid": "bamama",
+      "gloss_fr": "maman - s",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 20,
+      "source_file": "Les affixes/lesson-18-les-prefixes-demonstratifs-de-la-classe-n-zi/chapters/03-Les démonstratifs désignant des entités proches du locuteur.html",
+      "display": "biti",
+      "grid": "biti",
+      "gloss_fr": "ces parents qui sont assis sur des chaises",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 20,
+      "source_file": "Les affixes/lesson-18-les-prefixes-demonstratifs-de-la-classe-n-zi/chapters/01-Lexique.html",
+      "display": "bunga",
+      "grid": "bunga",
+      "gloss_fr": "gaspiller",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 14,
+      "source_file": "La conjugaison/lesson-7-le-verbe-etre-dans-tous-ses-etats/chapters/04-L'expression -Être de nouveau-.html",
+      "display": "diambu",
+      "grid": "diambu",
+      "gloss_fr": "une chose abstraite",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 20,
+      "source_file": "Les affixes/lesson-18-les-prefixes-demonstratifs-de-la-classe-n-zi/chapters/04-Les démonstratifs désignant les entités éloignées du locuteur.html",
+      "display": "kintaala",
+      "grid": "kintaala",
+      "gloss_fr": "ce petit oiseau-là précisément sur la branche",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 14,
+      "source_file": "La conjugaison/lesson-7-le-verbe-etre-dans-tous-ses-etats/chapters/05-L'expression -Être devenu-.html",
+      "display": "kituka",
+      "grid": "kituka",
+      "gloss_fr": "être transformé en",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 14,
+      "source_file": "La conjugaison/lesson-7-le-verbe-etre-dans-tous-ses-etats/chapters/05-L'expression -Être devenu-.html",
+      "display": "Kongo",
+      "grid": "kongo",
+      "gloss_fr": "tu es devenu magistrat au Kongo",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 20,
+      "source_file": "Les affixes/lesson-18-les-prefixes-demonstratifs-de-la-classe-n-zi/chapters/03-Les démonstratifs désignant des entités proches du locuteur.html",
+      "display": "mbongo",
+      "grid": "mbongo",
+      "gloss_fr": "argent",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 344,
+      "source_file": "Les affixes/lesson-257-recapitulatif-des-prefixes-de-la-classe-nominale-n-zi/chapters/12-Préfixes possessifs.html",
+      "display": "yiaku",
+      "grid": "yiaku",
+      "gloss_fr": "ton / ta",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 344,
+      "source_file": "Les affixes/lesson-257-recapitulatif-des-prefixes-de-la-classe-nominale-n-zi/chapters/12-Préfixes possessifs.html",
+      "display": "yiame",
+      "grid": "yiame",
+      "gloss_fr": "mon / ma",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 344,
+      "source_file": "Les affixes/lesson-257-recapitulatif-des-prefixes-de-la-classe-nominale-n-zi/chapters/12-Préfixes possessifs.html",
+      "display": "yiandi",
+      "grid": "yiandi",
+      "gloss_fr": "son / sa",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    },
+    {
+      "lesson_id": 344,
+      "source_file": "Les affixes/lesson-257-recapitulatif-des-prefixes-de-la-classe-nominale-n-zi/chapters/12-Préfixes possessifs.html",
+      "display": "yiawu",
+      "grid": "yiawu",
+      "gloss_fr": "leur",
+      "status": "approved",
+      "motif": "seed auto glossé · revue Founder OK"
+    }
+  ],
+  "candidates_remaining": [
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "batata",
+      "grid": "batata",
+      "gloss_fr": "père - s",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "bayaya",
+      "grid": "bayaya",
+      "gloss_fr": "aîné - s",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "bibusi",
+      "grid": "bibusi",
+      "gloss_fr": "sœur - s",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/07-Les états d'être avec les préfixes de la classe nominale ki-bi.html",
+      "display": "biena",
+      "grid": "biena",
+      "gloss_fr": "les chaises sont dans la maison",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/11-Les états d'être avec les préfixes de la classe nominale fi-bi.html",
+      "display": "bimbala-mbala",
+      "grid": "bimbalambala",
+      "gloss_fr": "les bambins sont dehors",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/07-Les états d'être avec les préfixes de la classe nominale ki-bi.html",
+      "display": "biti",
+      "grid": "biti",
+      "gloss_fr": "les chaises sont dans la maison",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/08-Les états d'être avec les préfixes de la classe nominale bu-ma.html",
+      "display": "buena",
+      "grid": "buena",
+      "gloss_fr": "la pirogue qui est au bord du fleuve",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/08-Les états d'être avec les préfixes de la classe nominale bu-ma.html",
+      "display": "buwaayi",
+      "grid": "buwaayi",
+      "gloss_fr": "le chagrin",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/03-Les états d'être avec les préfixes de la classe nominale n-zi.html",
+      "display": "dia",
+      "grid": "dia",
+      "gloss_fr": "le poulet est déjà en train de manger",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/06-Les états d'être avec les préfixes de la classe nominale di-ma.html",
+      "display": "diena",
+      "grid": "diena",
+      "gloss_fr": "l’œuf est dans l’assiette",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "ekambo",
+      "grid": "ekambo",
+      "gloss_fr": "soit-disant",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/10-Les états d'être avec les préfixes de la classe nominale ku-ma.html",
+      "display": "enda",
+      "grid": "enda",
+      "gloss_fr": "les pieds sont déjà en train de marcher",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/11-Les états d'être avec les préfixes de la classe nominale fi-bi.html",
+      "display": "fiena",
+      "grid": "fiena",
+      "gloss_fr": "le chiot qui est dans la maison",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/04-Les états d'être avec les préfixes de la classe nominale mu-ba.html",
+      "display": "kabele",
+      "grid": "kabele",
+      "gloss_fr": "il est",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/04-Les états d'être avec les préfixes de la classe nominale mu-ba.html",
+      "display": "kaeka",
+      "grid": "kaeka",
+      "gloss_fr": "Monsieur Mandangi est déjà en joie",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "kambo",
+      "grid": "kambo",
+      "gloss_fr": "soit-disant",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/05-Les états d'être avec les préfixes de la classe nominale mu-mi.html",
+      "display": "kati",
+      "grid": "kati",
+      "gloss_fr": "la dame est à l’intérieur",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "kibusi",
+      "grid": "kibusi",
+      "gloss_fr": "sœur - s",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/04-Les états d'être avec les préfixes de la classe nominale mu-ba.html",
+      "display": "kiese",
+      "grid": "kiese",
+      "gloss_fr": "l’enfant est déjà en joie",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/07-Les états d'être avec les préfixes de la classe nominale ki-bi.html",
+      "display": "kina",
+      "grid": "kina",
+      "gloss_fr": "la chaise est dans la maison",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "Kongo",
+      "grid": "kongo",
+      "gloss_fr": "cousins",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/09-Les états d'être avec les préfixes de la classe nominale lu-tu.html",
+      "display": "kuaku",
+      "grid": "kuaku",
+      "gloss_fr": "le fouet qui est dans ta main",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/10-Les états d'être avec les préfixes de la classe nominale ku-ma.html",
+      "display": "kukele",
+      "grid": "kukele",
+      "gloss_fr": "la main qui est sur la table",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/06-Les états d'être avec les préfixes de la classe nominale di-ma.html",
+      "display": "kula",
+      "grid": "kula",
+      "gloss_fr": "l’œuf est déjà en train de se développer",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/09-Les états d'être avec les préfixes de la classe nominale lu-tu.html",
+      "display": "kuoko",
+      "grid": "kuoko",
+      "gloss_fr": "le fouet qui est dans ta main",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/05-Les états d'être avec les préfixes de la classe nominale mu-mi.html",
+      "display": "longa",
+      "grid": "longa",
+      "gloss_fr": "le professeur est déjà en train d’enseigner le kikongo",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/09-Les états d'être avec les préfixes de la classe nominale lu-tu.html",
+      "display": "luena",
+      "grid": "luena",
+      "gloss_fr": "la haie qui est au bord du chemin",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/09-Les états d'être avec les préfixes de la classe nominale lu-tu.html",
+      "display": "luna",
+      "grid": "luna",
+      "gloss_fr": "c’est un ongle",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/09-Les états d'être avec les préfixes de la classe nominale lu-tu.html",
+      "display": "luzala",
+      "grid": "luzala",
+      "gloss_fr": "c’est un ongle",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/10-Les états d'être avec les préfixes de la classe nominale ku-ma.html",
+      "display": "maaku",
+      "grid": "maaku",
+      "gloss_fr": "tes pieds sont sur la table",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/08-Les états d'être avec les préfixes de la classe nominale bu-ma.html",
+      "display": "maatu",
+      "grid": "maatu",
+      "gloss_fr": "les pirogues sont au bord du fleuve",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/06-Les états d'être avec les préfixes de la classe nominale di-ma.html",
+      "display": "mabele",
+      "grid": "mabele",
+      "gloss_fr": "les haricots sont dans l’assiette",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/08-Les états d'être avec les préfixes de la classe nominale bu-ma.html",
+      "display": "maena",
+      "grid": "maena",
+      "gloss_fr": "les pirogues sont au bord du fleuve",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/09-Les états d'être avec les préfixes de la classe nominale lu-tu.html",
+      "display": "makaya",
+      "grid": "makaya",
+      "gloss_fr": "les feuilles sont par terre",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "mama",
+      "grid": "mama",
+      "gloss_fr": "maman - s",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 14,
+      "source_file": "La conjugaison/lesson-7-le-verbe-etre-dans-tous-ses-etats/chapters/05-L'expression -Être devenu-.html",
+      "display": "mamba",
+      "grid": "mamba",
+      "gloss_fr": "ils ou elles sont maintenant dans l’eau",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "mase",
+      "grid": "mase",
+      "gloss_fr": "pères",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/04-Les états d'être avec les préfixes de la classe nominale mu-ba.html",
+      "display": "mayangi",
+      "grid": "mayangi",
+      "gloss_fr": "les enfants sont déjà dans la joie",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 14,
+      "source_file": "La conjugaison/lesson-7-le-verbe-etre-dans-tous-ses-etats/chapters/05-L'expression -Être devenu-.html",
+      "display": "Mbanza-Kongo",
+      "grid": "mbanzakongo",
+      "gloss_fr": "il ou elle est devenu habitant de Mbanza-Kongo",
+      "status": "candidate",
+      "motif": ""
+    },
+    {
+      "lesson_id": 14,
+      "source_file": "La conjugaison/lesson-7-le-verbe-etre-dans-tous-ses-etats/chapters/02-L'expression -Être déjà-.html",
+      "display": "mbazi",
+      "grid": "mbazi",
+      "gloss_fr": "il ou elle est déjà dehors",
+      "status": "candidate",
+      "motif": ""
+    }
+  ],
+  "excluded_sample": [
+    {
+      "lesson_id": 14,
+      "source_file": "La conjugaison/lesson-7-le-verbe-etre-dans-tous-ses-etats/chapters/02-L'expression -Être déjà-.html",
+      "display": "ka",
+      "grid": "ka",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "trop court"
+    },
+    {
+      "lesson_id": 14,
+      "source_file": "La conjugaison/lesson-7-le-verbe-etre-dans-tous-ses-etats/chapters/02-L'expression -Être déjà-.html",
+      "display": "ngonda nkukula",
+      "grid": "ngondankukula",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 14,
+      "source_file": "La conjugaison/lesson-7-le-verbe-etre-dans-tous-ses-etats/chapters/03-L'expression -Être encore-.html",
+      "display": "ngonda vutuala",
+      "grid": "ngondavutuala",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 14,
+      "source_file": "La conjugaison/lesson-7-le-verbe-etre-dans-tous-ses-etats/chapters/05-L'expression -Être devenu-.html",
+      "display": "Mbanza-Kinshasa",
+      "grid": "mbanzakinshasa",
+      "gloss_fr": "vous êtes désormais à Kinshasa",
+      "status": "excluded",
+      "motif": "trop long grille"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "ma",
+      "grid": "ma",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "trop court"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "ta",
+      "grid": "ta",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "trop court"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "se",
+      "grid": "se",
+      "gloss_fr": "pères",
+      "status": "excluded",
+      "motif": "trop court"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "ya",
+      "grid": "ya",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "trop court"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "eka kambo",
+      "grid": "ekakambo",
+      "gloss_fr": "soit-disant",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/04-Les états d'être avec les préfixes de la classe nominale mu-ba.html",
+      "display": "Ne Kimbangu",
+      "grid": "nekimbangu",
+      "gloss_fr": "c’est Kimbangu le respectable",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/04-Les états d'être avec les préfixes de la classe nominale mu-ba.html",
+      "display": "Taata Mandangi",
+      "grid": "taatamandangi",
+      "gloss_fr": "Monsieur Mandangi est déjà en joie",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/07-Les états d'être avec les préfixes de la classe nominale ki-bi.html",
+      "display": "muana mbua",
+      "grid": "muanambua",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/07-Les états d'être avec les préfixes de la classe nominale ki-bi.html",
+      "display": "mua mbua",
+      "grid": "muambua",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/08-Les états d'être avec les préfixes de la classe nominale bu-ma.html",
+      "display": "ndeko nzadi",
+      "grid": "ndekonzadi",
+      "gloss_fr": "la pirogue qui est au bord du fleuve",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/09-Les états d'être avec les préfixes de la classe nominale lu-tu.html",
+      "display": "ndeko nzila",
+      "grid": "ndekonzila",
+      "gloss_fr": "la haie qui est au bord du chemin",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/10-Les états d'être avec les préfixes de la classe nominale ku-ma.html",
+      "display": "ntandu mesa",
+      "grid": "ntandumesa",
+      "gloss_fr": "la main qui est sur la table",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/10-Les états d'être avec les préfixes de la classe nominale ku-ma.html",
+      "display": "ntandu meza",
+      "grid": "ntandumeza",
+      "gloss_fr": "la main est déjà sur la table",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 15,
+      "source_file": "La conjugaison/lesson-8-etre-et-etre-deja-avec-les-prefixes-nominaux-relatifs/chapters/12-Fiche mémo technique.html",
+      "display": "na",
+      "grid": "na",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "trop court"
+    },
+    {
+      "lesson_id": 345,
+      "source_file": "La conjugaison/lesson-256-etre-de-nouveau-etre-devenu-et-etre-encore-en-train-de-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "préfixe nominal relatif",
+      "grid": "prefixenominalrelatif",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 345,
+      "source_file": "La conjugaison/lesson-256-etre-de-nouveau-etre-devenu-et-etre-encore-en-train-de-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "être de nouveau",
+      "grid": "etredenouveau",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 345,
+      "source_file": "La conjugaison/lesson-256-etre-de-nouveau-etre-devenu-et-etre-encore-en-train-de-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "être devenu",
+      "grid": "etredevenu",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 345,
+      "source_file": "La conjugaison/lesson-256-etre-de-nouveau-etre-devenu-et-etre-encore-en-train-de-avec-les-prefixes-nominaux-relatifs/chapters/01-Lexique.html",
+      "display": "être encore en train de",
+      "grid": "etreencoreentrainde",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 345,
+      "source_file": "La conjugaison/lesson-256-etre-de-nouveau-etre-devenu-et-etre-encore-en-train-de-avec-les-prefixes-nominaux-relatifs/chapters/03-Exemples par classe nominale.html",
+      "display": "k",
+      "grid": "k",
+      "gloss_fr": "les enfants sont encore en train de danser",
+      "status": "excluded",
+      "motif": "trop court"
+    },
+    {
+      "lesson_id": 345,
+      "source_file": "La conjugaison/lesson-256-etre-de-nouveau-etre-devenu-et-etre-encore-en-train-de-avec-les-prefixes-nominaux-relatifs/chapters/05-Fiche mémo technique.html",
+      "display": "de nouveau",
+      "grid": "denouveau",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "multi-mots"
+    },
+    {
+      "lesson_id": 344,
+      "source_file": "Les affixes/lesson-257-recapitulatif-des-prefixes-de-la-classe-nominale-n-zi/chapters/01-Lexique.html",
+      "display": "classe nominale",
+      "grid": "classenominale",
+      "gloss_fr": "",
+      "status": "excluded",
+      "motif": "multi-mots"
+    }
+  ]
+}
