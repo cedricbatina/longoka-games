@@ -4,3 +4,4 @@ backend-java/config/db-prod.properties
 
 backend-java/target/
 *.class
+.cursor/
